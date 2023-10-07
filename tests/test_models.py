@@ -48,7 +48,7 @@ class TestWishlist(unittest.TestCase):
     ######################################################################
 
     def test_create_a_wishlist(self):
-        """It should Create an Wishlist and assert that it exists"""
+        """It should Create a Wishlist and assert that it exists"""
         fake_wishlist = WishlistFactory()
         # pylint: disable=unexpected-keyword-arg
         wishlist = Wishlist(
@@ -59,3 +59,14 @@ class TestWishlist(unittest.TestCase):
         self.assertEqual(wishlist.wishlist_id, None)
         self.assertEqual(wishlist.customer_id, fake_wishlist.customer_id)
         self.assertEqual(wishlist.created_date, fake_wishlist.created_date)
+
+    def test_add_a_wishlist(self):
+        """It should Create a Wishlist and add it to the database"""
+        wishlists = Wishlist.all()
+        self.assertEqual(wishlists, [])
+        wishlist = WishlistFactory()
+        wishlist.create()
+        # Assert that it was assigned an id and shows up in the database
+        self.assertIsNotNone(wishlist.wishlist_id)
+        wishlists = Wishlist.all()
+        self.assertEqual(len(wishlists), 1)

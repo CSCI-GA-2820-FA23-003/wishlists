@@ -47,7 +47,7 @@ class PersistentBase:
         """
         Creates a Wishlist to the database
         """
-        logger.info("Creating %s", self.name)
+        logger.info("Creating %s", self.wishlist_id)
         self.id = None  # pylint: disable=invalid-name
         # id must be none to generate next primary key
         db.session.add(self)
@@ -57,12 +57,12 @@ class PersistentBase:
         """
         Updates a Wishlist to the database
         """
-        logger.info("Saving %s", self.name)
+        logger.info("Saving %s", self.wishlist_id)
         db.session.commit()
 
     def delete(self):
         """ Removes a Wishlist from the data store """
-        logger.info("Deleting %s", self.name)
+        logger.info("Deleting %s", self.wishlist_id)
         db.session.delete(self)
         db.session.commit()
 
@@ -105,7 +105,7 @@ class Wishlist(db.Model, PersistentBase):
     created_date = db.Column(db.Date(), nullable=False, default=date.today())
 
     def __repr__(self):
-        return f"<Wishlist {self.name} id=[{self.id}]>"
+        return f"<Wishlist id=[{self.id}]>"
     
     def serialize(self):
         """Converts an Wishlist into a dictionary"""
