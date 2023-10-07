@@ -102,6 +102,7 @@ class Wishlist(db.Model, PersistentBase):
     # Table Schema
     wishlist_id = db.Column(db.Integer, primary_key=True)
     customer_id = db.Column(db.Integer)
+    wishlist_name = db.Column(db.String(64))  # e.g., work, home, vacation, etc.
     created_date = db.Column(db.Date(), nullable=False, default=date.today())
 
     def __repr__(self):
@@ -112,6 +113,7 @@ class Wishlist(db.Model, PersistentBase):
         wishlist = {
             "wishlist_id": self.wishlist_id,
             "customer_id": self.customer_id,
+            "wishlist_name": self.wishlist_name,
             "created_date": self.created_date.isoformat(),
         }
         return wishlist
@@ -125,6 +127,7 @@ class Wishlist(db.Model, PersistentBase):
             """
             try:
                 self.customer_id = data["customer_id"]
+                self.wishlist_name = data["wishlist_name"]
                 self.created_date = date.fromisoformat(data["created_date"])
             except KeyError as error:
                 raise DataValidationError("Invalid Wishlist: missing " + error.args[0]) from error

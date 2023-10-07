@@ -53,11 +53,13 @@ class TestWishlist(unittest.TestCase):
         # pylint: disable=unexpected-keyword-arg
         wishlist = Wishlist(
             customer_id=fake_wishlist.customer_id,
+            wishlist_name=fake_wishlist.wishlist_name,
             created_date=fake_wishlist.created_date,
         )
         self.assertIsNotNone(wishlist)
         self.assertEqual(wishlist.wishlist_id, None)
         self.assertEqual(wishlist.customer_id, fake_wishlist.customer_id)
+        self.assertEqual(wishlist.wishlist_name, fake_wishlist.wishlist_name)
         self.assertEqual(wishlist.created_date, fake_wishlist.created_date)
 
     def test_add_a_wishlist(self):
@@ -80,6 +82,7 @@ class TestWishlist(unittest.TestCase):
         found_wishlist = Wishlist.find(wishlist.wishlist_id)
         self.assertEqual(found_wishlist.wishlist_id, wishlist.wishlist_id)
         self.assertEqual(found_wishlist.customer_id, wishlist.customer_id)
+        self.assertEqual(found_wishlist.wishlist_name, wishlist.wishlist_name)
         self.assertEqual(found_wishlist.created_date, wishlist.created_date)
 
     
