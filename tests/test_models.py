@@ -35,6 +35,7 @@ class TestWishlist(unittest.TestCase):
         """ This runs once after the entire test suite """
         db.session.query(Wishlist).delete()  # clean up the last tests
         db.session.commit()
+        #db.drop_all() #Drops all tables if needed for updating schema
 
     def setUp(self):
         """ This runs before each test """
@@ -74,7 +75,7 @@ class TestWishlist(unittest.TestCase):
         self.assertEqual(len(wishlists), 1)
 
     def test_read_wishlist(self):
-        """It should Read an wishlist"""
+        """It should Read a wishlist"""
         wishlist = WishlistFactory()
         wishlist.create()
 
@@ -85,4 +86,19 @@ class TestWishlist(unittest.TestCase):
         self.assertEqual(found_wishlist.wishlist_name, wishlist.wishlist_name)
         self.assertEqual(found_wishlist.created_date, wishlist.created_date)
 
-    
+    def test_update_wishlist(self):
+        """It should Update a wishlist"""
+        wishlist = WishlistFactory(wishlist_name="change name")
+        wishlist.create()
+        # Assert that it was assigned an id and shows up in the database
+        self.assertIsNotNone(wishlist.wishlist_id)
+        self.assertEqual(wishlist.wishlist_name, "change name")
+
+        # Fetch it back
+        wishlist = Wishlist.find(wishlist.wishlist_id)
+        wishlist.wishlist_name = "name is changed"
+        wishlist.update()
+
+        # Fetch it back again
+        wishlist = Wishlist.find(wishlist.wishlist_id)
+        self.assertEqual(wishlist.wishlist_name, "name is changed")
