@@ -39,6 +39,8 @@ class TestWishlist(unittest.TestCase):
 
     def setUp(self):
         """ This runs before each test """
+        db.session.query(Wishlist).delete()  # clean up the last tests
+        db.session.commit()
 
     def tearDown(self):
         """ This runs after each test """
@@ -102,3 +104,20 @@ class TestWishlist(unittest.TestCase):
         # Fetch it back again
         wishlist = Wishlist.find(wishlist.wishlist_id)
         self.assertEqual(wishlist.wishlist_name, "name is changed")
+
+    def test_delete_an_wishlist(self):
+        """It should Delete a wishlist from the database"""
+        wishlists = Wishlist.all()
+        self.assertEqual(wishlists, [])
+        wishlist = WishlistFactory()
+        wishlist.create()
+        # Assert that it was assigned an id and shows up in the database
+        self.assertIsNotNone(wishlist.wishlist_id)
+        last_id = wishlist.wishlist_id
+        wishlists = Wishlist.all()
+        self.assertEqual(len(wishlists), 1)
+        wishlist = wishlists[0]
+        self.assertEqual(wishlist.wishlist_id, last_id)
+        wishlist.delete()
+        wishlists = Wishlist.all()
+        self.assertEqual(len(wishlists), 0)

@@ -106,8 +106,8 @@ class Wishlist(db.Model, PersistentBase):
     created_date = db.Column(db.Date(), nullable=False, default=date.today())
 
     def __repr__(self):
-        return f"<Wishlist id=[{self.id}]>"
-    
+        return f"<wishlist_id=[{self.wishlist_id}]>"
+
     def serialize(self):
         """Converts an Wishlist into a dictionary"""
         wishlist = {
@@ -119,21 +119,21 @@ class Wishlist(db.Model, PersistentBase):
         return wishlist
 
     def deserialize(self, data):
-            """
-            Populates an Wishlist from a dictionary
+        """
+        Populates an Wishlist from a dictionary
 
-            Args:
-                data (dict): A dictionary containing the resource data
-            """
-            try:
-                self.customer_id = data["customer_id"]
-                self.wishlist_name = data["wishlist_name"]
-                self.created_date = date.fromisoformat(data["created_date"])
-            except KeyError as error:
-                raise DataValidationError("Invalid Wishlist: missing " + error.args[0]) from error
-            except TypeError as error:
-                raise DataValidationError(
-                    "Invalid Wishlist: body of request contained "
-                    "bad or no data - " + error.args[0]
-                ) from error
-            return self
+        Args:
+            data (dict): A dictionary containing the resource data
+        """
+        try:
+            self.customer_id = data["customer_id"]
+            self.wishlist_name = data["wishlist_name"]
+            self.created_date = date.fromisoformat(data["created_date"])
+        except KeyError as error:
+            raise DataValidationError("Invalid Wishlist: missing " + error.args[0]) from error
+        except TypeError as error:
+            raise DataValidationError(
+                "Invalid Wishlist: body of request contained "
+                "bad or no data - " + error.args[0]
+            ) from error
+        return self
