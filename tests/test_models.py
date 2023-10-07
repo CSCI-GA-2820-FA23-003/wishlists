@@ -70,3 +70,16 @@ class TestWishlist(unittest.TestCase):
         self.assertIsNotNone(wishlist.wishlist_id)
         wishlists = Wishlist.all()
         self.assertEqual(len(wishlists), 1)
+
+    def test_read_wishlist(self):
+        """It should Read an wishlist"""
+        wishlist = WishlistFactory()
+        wishlist.create()
+
+        # Read it back
+        found_wishlist = Wishlist.find(wishlist.wishlist_id)
+        self.assertEqual(found_wishlist.wishlist_id, wishlist.wishlist_id)
+        self.assertEqual(found_wishlist.customer_id, wishlist.customer_id)
+        self.assertEqual(found_wishlist.created_date, wishlist.created_date)
+
+    
