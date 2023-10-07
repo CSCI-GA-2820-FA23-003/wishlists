@@ -108,6 +108,16 @@ class Wishlist(db.Model, PersistentBase):
     def __repr__(self):
         return f"<wishlist_id=[{self.wishlist_id}]>"
 
+    def create(self):
+        """
+        Creates a Wishlist to the database
+        """
+        logger.info("Creating %s", self.wishlist_id)
+        self.wishlist_id = None  # pylint: disable=invalid-name
+        # id must be none to generate next primary key
+        db.session.add(self)
+        db.session.commit()
+
     def serialize(self):
         """Converts an Wishlist into a dictionary"""
         wishlist = {

@@ -170,9 +170,17 @@ class TestWishlist(unittest.TestCase):
         repr_string=repr(wishlist)
         expected_repr = f"<wishlist_id=[{given_id}]>"
         self.assertEqual(repr_string, expected_repr)
-    
-    def test_id_is_none_wishlist(self):
-        """It should represent id as a none because we use wishlist_id"""
+
+    def test_wishlist_id_is_increment(self):
+        """It should represent wishlist_id as incrementing"""
+        wishlists = Wishlist.all()
+        self.assertEqual(wishlists, [])
+
         wishlist = WishlistFactory()
         wishlist.create()
-        self.assertIsNone(wishlist.id)
+        expected = wishlist.wishlist_id + 1
+
+        for wishlist in WishlistFactory.create_batch(5):
+            wishlist.create()
+            self.assertEqual(wishlist.wishlist_id, expected)
+            expected +=1
