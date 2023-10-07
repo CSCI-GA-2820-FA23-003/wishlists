@@ -17,4 +17,4 @@ class WishlistFactory(factory.Factory):
 
     wishlist_id = factory.Sequence(lambda n: n)
     customer_id = FuzzyInteger(0, 255) # random customer id
-    date_joined = FuzzyDate(date(2008, 1, 1)) # random date from _ to today
+    created_date = FuzzyDate(date(2008, 1, 1)) # random date from _ to today

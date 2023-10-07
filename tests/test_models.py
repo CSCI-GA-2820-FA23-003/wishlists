@@ -7,6 +7,8 @@ import logging
 import unittest
 from service import app
 from service.models import Wishlist, DataValidationError, db
+from tests.factories import WishlistFactory
+
 
 DATABASE_URI = os.getenv(
     "DATABASE_URI", "postgresql://postgres:postgres@localhost:5432/postgres"
@@ -45,6 +47,15 @@ class TestWishlist(unittest.TestCase):
     #  T E S T   C A S E S
     ######################################################################
 
-    def test_example_replace_this(self):
-        """ It should always be true """
-        self.assertTrue(True)
+    def test_create_a_wishlist(self):
+        """It should Create an Wishlist and assert that it exists"""
+        fake_wishlist = WishlistFactory()
+        # pylint: disable=unexpected-keyword-arg
+        wishlist = Wishlist(
+            customer_id=fake_wishlist.customer_id,
+            created_date=fake_wishlist.created_date,
+        )
+        self.assertIsNotNone(wishlist)
+        self.assertEqual(wishlist.wishlist_id, None)
+        self.assertEqual(wishlist.customer_id, fake_wishlist.customer_id)
+        self.assertEqual(wishlist.created_date, fake_wishlist.created_date)
