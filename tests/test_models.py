@@ -77,7 +77,7 @@ class TestWishlist(unittest.TestCase):
         self.assertEqual(len(wishlists), 1)
 
     def test_read_wishlist(self):
-        """It should Read a wishlist"""
+        """It should Read a Wishlist"""
         wishlist = WishlistFactory()
         wishlist.create()
 
@@ -89,7 +89,7 @@ class TestWishlist(unittest.TestCase):
         self.assertEqual(found_wishlist.created_date, wishlist.created_date)
 
     def test_update_wishlist(self):
-        """It should Update a wishlist"""
+        """It should Update a Wishlist"""
         wishlist = WishlistFactory(wishlist_name="change name")
         wishlist.create()
         # Assert that it was assigned an id and shows up in the database
@@ -106,7 +106,7 @@ class TestWishlist(unittest.TestCase):
         self.assertEqual(wishlist.wishlist_name, "name is changed")
 
     def test_delete_an_wishlist(self):
-        """It should Delete a wishlist from the database"""
+        """It should Delete a Wishlist from the database"""
         wishlists = Wishlist.all()
         self.assertEqual(wishlists, [])
         wishlist = WishlistFactory()
@@ -123,11 +123,20 @@ class TestWishlist(unittest.TestCase):
         self.assertEqual(len(wishlists), 0)
 
     def test_list_all_wishlists(self):
-        """It should List all wishlists in the database"""
+        """It should List all Wishlists in the database"""
         wishlists = Wishlist.all()
         self.assertEqual(wishlists, [])
-        for account in WishlistFactory.create_batch(5):
-            account.create()
+        for wishlist in WishlistFactory.create_batch(5):
+            wishlist.create()
         # Assert that there are not 5 wishlists in the database
         wishlists = Wishlist.all()
         self.assertEqual(len(wishlists), 5)
+
+    def test_serialize_an_wishlist(self):
+        """It should Serialize an wishlist"""
+        wishlist = WishlistFactory()
+        serial_wishlist = wishlist.serialize()
+        self.assertEqual(serial_wishlist["wishlist_id"], wishlist.wishlist_id)
+        self.assertEqual(serial_wishlist["customer_id"], wishlist.customer_id)
+        self.assertEqual(serial_wishlist["wishlist_name"], wishlist.wishlist_name)
+        self.assertEqual(serial_wishlist["created_date"], str(wishlist.created_date))
