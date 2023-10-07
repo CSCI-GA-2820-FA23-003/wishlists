@@ -140,3 +140,14 @@ class TestWishlist(unittest.TestCase):
         self.assertEqual(serial_wishlist["customer_id"], wishlist.customer_id)
         self.assertEqual(serial_wishlist["wishlist_name"], wishlist.wishlist_name)
         self.assertEqual(serial_wishlist["created_date"], str(wishlist.created_date))
+
+    def test_deserialize_an_wishlist(self):
+        """It should Deserialize an wishlist"""
+        wishlist = WishlistFactory()
+        wishlist.create()
+        serial_wishlist = wishlist.serialize()
+        new_wishlist = Wishlist()
+        new_wishlist.deserialize(serial_wishlist)
+        self.assertEqual(new_wishlist.customer_id, wishlist.customer_id)
+        self.assertEqual(new_wishlist.wishlist_name, wishlist.wishlist_name)
+        self.assertEqual(new_wishlist.created_date, wishlist.created_date)
