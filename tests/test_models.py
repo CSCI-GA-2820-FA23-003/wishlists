@@ -161,3 +161,18 @@ class TestWishlist(unittest.TestCase):
         """It should not Deserialize an wishlist with a TypeError"""
         wishlist = Wishlist()
         self.assertRaises(DataValidationError, wishlist.deserialize, [])
+
+    def test_repr_wishlist(self):
+        """It should represent wishlist as a string"""
+        wishlist = WishlistFactory()
+        wishlist.create()
+        given_id = wishlist.wishlist_id
+        repr_string=repr(wishlist)
+        expected_repr = f"<wishlist_id=[{given_id}]>"
+        self.assertEqual(repr_string, expected_repr)
+    
+    def test_id_is_none_wishlist(self):
+        """It should represent id as a none because we use wishlist_id"""
+        wishlist = WishlistFactory()
+        wishlist.create()
+        self.assertIsNone(wishlist.id)
