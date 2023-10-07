@@ -151,3 +151,13 @@ class TestWishlist(unittest.TestCase):
         self.assertEqual(new_wishlist.customer_id, wishlist.customer_id)
         self.assertEqual(new_wishlist.wishlist_name, wishlist.wishlist_name)
         self.assertEqual(new_wishlist.created_date, wishlist.created_date)
+
+    def test_deserialize_with_key_error(self):
+        """It should not Deserialize an wishlist with a KeyError"""
+        wishlist = Wishlist()
+        self.assertRaises(DataValidationError, wishlist.deserialize, {})
+
+    def test_deserialize_with_type_error(self):
+        """It should not Deserialize an wishlist with a TypeError"""
+        wishlist = Wishlist()
+        self.assertRaises(DataValidationError, wishlist.deserialize, [])
