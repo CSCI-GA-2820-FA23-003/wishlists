@@ -127,7 +127,7 @@ class Wishlist(db.Model, PersistentBase):
                 self.customer_id = data["customer_id"]
                 self.created_date = date.fromisoformat(data["created_date"])
             except KeyError as error:
-                raise DataValidationError("Invalid Account: missing " + error.args[0]) from error
+                raise DataValidationError("Invalid Wishlist: missing " + error.args[0]) from error
             except TypeError as error:
                 raise DataValidationError(
                     "Invalid Wishlist: body of request contained "
