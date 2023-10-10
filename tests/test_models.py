@@ -91,20 +91,26 @@ class TestWishlist(unittest.TestCase):
 
     def test_update_wishlist(self):
         """It should Update a Wishlist"""
-        wishlist = WishlistFactory(wishlist_name="change name")
+
+        # Define names
+        old_name = "change name"
+        new_name = "different name"
+        self.assertNotEqual(old_name, new_name)
+
+        wishlist = WishlistFactory(wishlist_name=old_name)
         wishlist.create()
         # Assert that it was assigned an id and shows up in the database
         self.assertIsNotNone(wishlist.wishlist_id)
-        self.assertEqual(wishlist.wishlist_name, "change name")
+        self.assertEqual(wishlist.wishlist_name, old_name)
 
         # Fetch it back
         wishlist = Wishlist.find(wishlist.wishlist_id)
-        wishlist.wishlist_name = "name is changed"
+        wishlist.wishlist_name = new_name
         wishlist.update()
 
         # Fetch it back again
         wishlist = Wishlist.find(wishlist.wishlist_id)
-        self.assertEqual(wishlist.wishlist_name, "name is changed")
+        self.assertEqual(wishlist.wishlist_name, new_name)
 
     def test_delete_an_wishlist(self):
         """It should Delete a Wishlist from the database"""
