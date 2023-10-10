@@ -77,6 +77,13 @@ class TestWishlist(unittest.TestCase):
         wishlists = Wishlist.all()
         self.assertEqual(len(wishlists), 1)
 
+        # Second addition
+        wishlist = WishlistFactory()
+        wishlist.create()
+        self.assertIsNotNone(wishlist.wishlist_id)
+        wishlists = Wishlist.all()
+        self.assertEqual(len(wishlists), 2)
+
     def test_read_wishlist(self):
         """It should Read a Wishlist"""
         wishlist = WishlistFactory()
