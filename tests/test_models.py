@@ -14,16 +14,17 @@ DATABASE_URI = os.getenv(
     "DATABASE_URI", "postgresql://postgres:postgres@localhost:5432/postgres"
 )
 
+
 ######################################################################
 #  Wishlist   M O D E L   T E S T   C A S E S
 ######################################################################
 # pylint: disable=too-many-public-methods
 class TestWishlist(unittest.TestCase):
-    """ Test Cases for Wishlist Model """
+    """Test Cases for Wishlist Model"""
 
     @classmethod
     def setUpClass(cls):
-        """ This runs once before the entire test suite """
+        """This runs once before the entire test suite"""
         app.config["TESTING"] = True
         app.config["DEBUG"] = False
         app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URI
@@ -32,26 +33,26 @@ class TestWishlist(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        """ This runs once after the entire test suite """
+        """This runs once after the entire test suite"""
         db.session.query(Wishlist).delete()  # clean up the last tests
         db.session.commit()
-        #db.drop_all() #Drops all tables if needed for updating schema
+        # db.drop_all() #Drops all tables if needed for updating schema
 
     def setUp(self):
-        """ This runs before each test """
+        """This runs before each test"""
         db.session.query(Wishlist).delete()  # clean up the last tests
         db.session.commit()
 
     def tearDown(self):
-        """ This runs after each test """
+        """This runs after each test"""
         db.session.remove()
 
     ######################################################################
     #  T E S T   C A S E S
     ######################################################################
 
-    def test_create_a_wishlist(self):
-        """It should Create a Wishlist and assert that it exists"""
+    def test_define_a_wishlist(self):
+        """It should Define a Wishlist and assert that it is correct"""
         fake_wishlist = WishlistFactory()
         # pylint: disable=unexpected-keyword-arg
         wishlist = Wishlist(
@@ -65,7 +66,7 @@ class TestWishlist(unittest.TestCase):
         self.assertEqual(wishlist.wishlist_name, fake_wishlist.wishlist_name)
         self.assertEqual(wishlist.created_date, fake_wishlist.created_date)
 
-    def test_add_a_wishlist(self):
+    def test_create_a_wishlist(self):
         """It should Create a Wishlist and add it to the database"""
         wishlists = Wishlist.all()
         self.assertEqual(wishlists, [])
@@ -167,7 +168,7 @@ class TestWishlist(unittest.TestCase):
         wishlist = WishlistFactory()
         wishlist.create()
         given_id = wishlist.wishlist_id
-        repr_string=repr(wishlist)
+        repr_string = repr(wishlist)
         expected_repr = f"<wishlist_id=[{given_id}]>"
         self.assertEqual(repr_string, expected_repr)
 
@@ -183,4 +184,4 @@ class TestWishlist(unittest.TestCase):
         for wishlist in WishlistFactory.create_batch(5):
             wishlist.create()
             self.assertEqual(wishlist.wishlist_id, expected)
-            expected +=1
+            expected += 1
