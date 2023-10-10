@@ -132,9 +132,30 @@ class TestWishlist(unittest.TestCase):
         self.assertEqual(len(wishlists), 1)
         wishlist = wishlists[0]
         self.assertEqual(wishlist.wishlist_id, last_id)
+        # Second Wishlist
+        wishlist_2 = WishlistFactory()
+        wishlist_2.create()
+        # Assert that it was assigned an id and shows up in the database
+        self.assertIsNotNone(wishlist_2.wishlist_id)
+        self.assertNotEqual(wishlist_2.wishlist_id, last_id)
+        last_id_2 = wishlist_2.wishlist_id
+        wishlists = Wishlist.all()
+        self.assertEqual(len(wishlists), 2)
+        # Delete first wishlist
         wishlist.delete()
         wishlists = Wishlist.all()
+        self.assertEqual(len(wishlists), 1)
+        wishlists_found = Wishlist.find(last_id)
+        self.assertIsNone(wishlists_found)
+        # Verify second wishlist exists
+        wishlists_found = Wishlist.find(last_id_2)
+        self.assertIsNotNone(wishlists_found)
+        # Delete second wishlist
+        wishlist_2.delete()
+        wishlists = Wishlist.all()
         self.assertEqual(len(wishlists), 0)
+        wishlists_found = Wishlist.find(last_id_2)
+        self.assertIsNone(wishlists_found)
 
     def test_list_all_wishlists(self):
         """It should List all Wishlists in the database"""
@@ -142,7 +163,7 @@ class TestWishlist(unittest.TestCase):
         self.assertEqual(wishlists, [])
         for wishlist in WishlistFactory.create_batch(5):
             wishlist.create()
-        # Assert that there are not 5 wishlists in the database
+        # Assert that there are now 5 wishlists in the database
         wishlists = Wishlist.all()
         self.assertEqual(len(wishlists), 5)
 
