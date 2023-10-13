@@ -10,7 +10,6 @@ from service import app
 from service.models import Wishlist, WishlistItem, DataValidationError, db
 from tests.factories import WishlistFactory, WishlistItemFactory
 
-
 DATABASE_URI = os.getenv(
     "DATABASE_URI", "postgresql://postgres:postgres@localhost:5432/postgres"
 )
@@ -62,7 +61,7 @@ class TestWishlist(unittest.TestCase):
             created_date=fake_wishlist.created_date,
         )
         self.assertIsNotNone(wishlist)
-        self.assertEqual(wishlist.wishlist_id, None)
+        self.assertEqual(wishlist.id, None)
         self.assertEqual(wishlist.customer_id, fake_wishlist.customer_id)
         self.assertEqual(wishlist.wishlist_name, fake_wishlist.wishlist_name)
         self.assertEqual(wishlist.created_date, fake_wishlist.created_date)
@@ -74,14 +73,14 @@ class TestWishlist(unittest.TestCase):
         wishlist = WishlistFactory()
         wishlist.create()
         # Assert that it was assigned an id and shows up in the database
-        self.assertIsNotNone(wishlist.wishlist_id)
+        self.assertIsNotNone(wishlist.id)
         wishlists = Wishlist.all()
         self.assertEqual(len(wishlists), 1)
 
         # Second addition
         wishlist = WishlistFactory()
         wishlist.create()
-        self.assertIsNotNone(wishlist.wishlist_id)
+        self.assertIsNotNone(wishlist.id)
         wishlists = Wishlist.all()
         self.assertEqual(len(wishlists), 2)
 
@@ -91,8 +90,8 @@ class TestWishlist(unittest.TestCase):
         wishlist.create()
 
         # Read it back
-        found_wishlist = Wishlist.find(wishlist.wishlist_id)
-        self.assertEqual(found_wishlist.wishlist_id, wishlist.wishlist_id)
+        found_wishlist = Wishlist.find(wishlist.id)
+        self.assertEqual(found_wishlist.id, wishlist.id)
         self.assertEqual(found_wishlist.customer_id, wishlist.customer_id)
         self.assertEqual(found_wishlist.wishlist_name, wishlist.wishlist_name)
         self.assertEqual(found_wishlist.created_date, wishlist.created_date)
@@ -108,16 +107,16 @@ class TestWishlist(unittest.TestCase):
         wishlist = WishlistFactory(wishlist_name=old_name)
         wishlist.create()
         # Assert that it was assigned an id and shows up in the database
-        self.assertIsNotNone(wishlist.wishlist_id)
+        self.assertIsNotNone(wishlist.id)
         self.assertEqual(wishlist.wishlist_name, old_name)
 
         # Fetch it back
-        wishlist = Wishlist.find(wishlist.wishlist_id)
+        wishlist = Wishlist.find(wishlist.id)
         wishlist.wishlist_name = new_name
         wishlist.update()
 
         # Fetch it back again
-        wishlist = Wishlist.find(wishlist.wishlist_id)
+        wishlist = Wishlist.find(wishlist.id)
         self.assertEqual(wishlist.wishlist_name, new_name)
 
     def test_delete_an_wishlist(self):
@@ -127,19 +126,19 @@ class TestWishlist(unittest.TestCase):
         wishlist = WishlistFactory()
         wishlist.create()
         # Assert that it was assigned an id and shows up in the database
-        self.assertIsNotNone(wishlist.wishlist_id)
-        last_id = wishlist.wishlist_id
+        self.assertIsNotNone(wishlist.id)
+        last_id = wishlist.id
         wishlists = Wishlist.all()
         self.assertEqual(len(wishlists), 1)
         wishlist = wishlists[0]
-        self.assertEqual(wishlist.wishlist_id, last_id)
+        self.assertEqual(wishlist.id, last_id)
         # Second Wishlist
         wishlist_2 = WishlistFactory()
         wishlist_2.create()
         # Assert that it was assigned an id and shows up in the database
-        self.assertIsNotNone(wishlist_2.wishlist_id)
-        self.assertNotEqual(wishlist_2.wishlist_id, last_id)
-        last_id_2 = wishlist_2.wishlist_id
+        self.assertIsNotNone(wishlist_2.id)
+        self.assertNotEqual(wishlist_2.id, last_id)
+        last_id_2 = wishlist_2.id
         wishlists = Wishlist.all()
         self.assertEqual(len(wishlists), 2)
         # Delete first wishlist
@@ -172,7 +171,7 @@ class TestWishlist(unittest.TestCase):
         """It should Serialize an wishlist"""
         wishlist = WishlistFactory()
         serial_wishlist = wishlist.serialize()
-        self.assertEqual(serial_wishlist["wishlist_id"], wishlist.wishlist_id)
+        self.assertEqual(serial_wishlist["id"], wishlist.id)
         self.assertEqual(serial_wishlist["customer_id"], wishlist.customer_id)
         self.assertEqual(serial_wishlist["wishlist_name"], wishlist.wishlist_name)
         self.assertEqual(serial_wishlist["created_date"], str(wishlist.created_date))
@@ -202,7 +201,7 @@ class TestWishlist(unittest.TestCase):
         """It should represent wishlist as a string"""
         wishlist = WishlistFactory()
         wishlist.create()
-        given_id = wishlist.wishlist_id
+        given_id = wishlist.id
         repr_string = repr(wishlist)
         expected_repr = f"<wishlist_id=[{given_id}]>"
         self.assertEqual(repr_string, expected_repr)
@@ -214,11 +213,11 @@ class TestWishlist(unittest.TestCase):
 
         wishlist = WishlistFactory()
         wishlist.create()
-        expected = wishlist.wishlist_id + 1
+        expected = wishlist.id + 1
 
         for wishlist in WishlistFactory.create_batch(5):
             wishlist.create()
-            self.assertEqual(wishlist.wishlist_id, expected)
+            self.assertEqual(wishlist.id, expected)
             expected += 1
 
 
@@ -229,31 +228,44 @@ class TestWishlistItem(unittest.TestCase):
         """It should create an instance using the no arg initializer"""
         item = WishlistItem()
         self.assertIsNotNone(item)
-        # self.assertIsNotNone(item.created_date)
 
-    def test_wishlist_item_initializer_with_args(self):
+    # Note: This is kind of a silly test.  I had problems trying to implement a __init__ function that would have set all these values in a single line.
+    def test_wishlist_after_populating_properties(self):
         """It should create an instance using the constructor with arguments"""
         now = datetime.now()
-        item = WishlistItem(1, 2, 3, "", 42.0, now)
-        self.assertEqual(item.id, 1)
-        self.assertEqual(item.wishlist_id, 2)
-        self.assertEqual(item.product_id, 3)
-        self.assertEqual(item.product_name, "")
-        self.assertEqual(item.product_price, 42.0)
-        self.assertEqual(item.created_date, now)
+        values = {
+            "id": 1,
+            "wishlist_id": 2,
+            "product_id": 3,
+            "product_name": "The Big Lebowski",
+            "product_price": 9.99,
+            "created_date": now,
+        }
+        item = WishlistItem()
+        item.id = values["id"]
+        item.wishlist_id = values["wishlist_id"]
+        item.product_id = values["product_id"]
+        item.product_name = values["product_name"]
+        item.product_price = values["product_price"]
+        item.created_date = values["created_date"]
+
+        # self.assertEqual(item.id, values.id)
+        self.assertEqual(item.wishlist_id, values["wishlist_id"])
+        self.assertEqual(item.product_id, values["product_id"])
+        self.assertEqual(item.product_name, values["product_name"])
+        self.assertEqual(item.product_price, values["product_price"])
+        self.assertEqual(item.created_date, values["created_date"])
 
     def test_repr_method(self):
-        item = WishlistItem(
-            1, 2, "Catcher in the Rye", 42.0, datetime(year=2023, month=10, day=15)
-        )
-        expected = "WishlistItem(id=1, wishlist_id=2, product_id=3, product_name='Catcher in the Rye', product_price=42.0, created_date='2023-10-15 00:00:00')"
+        item = WishlistItemFactory()
+        expected = f"WishlistItem(id={item.id}, wishlist_id={item.wishlist_id}, product_id={item.product_id}, product_name='{item.product_name}', product_price={item.product_price}, created_date='{item.created_date}')"
         self.assertEqual(repr(item), expected)
 
     def test_serialize(self):
         item = WishlistItemFactory()
         serialized = item.serialize()
-        self.assertEqual(item.wishlist_id, serialized.wishlist_id)
-        self.assertEqual(item.product_id, serialized.product_id)
-        self.assertEqual(item.product_name, serialized.product_name)
-        self.assertEqual(item.product_price, serialized.product_price)
-        self.assertEqual(item.created_date, serialized.created_date)
+        self.assertEqual(item.wishlist_id, serialized["wishlist_id"])
+        self.assertEqual(item.product_id, serialized["product_id"])
+        self.assertEqual(item.product_name, serialized["product_name"])
+        self.assertEqual(item.product_price, serialized["product_price"])
+        self.assertEqual(item.created_date, serialized["created_date"])

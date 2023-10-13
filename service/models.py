@@ -33,7 +33,7 @@ class PersistentBase:
     """
 
     def __init__(self):
-        self.wishlist_id = None  # pylint: disable=invalid-name
+        self.id = None  # pylint: disable=invalid-name
 
     @abstractmethod
     def serialize(self) -> dict:
@@ -47,8 +47,8 @@ class PersistentBase:
         """
         Creates a Wishlist to the database
         """
-        logger.info("Creating %s", self.wishlist_id)
-        self.wishlist_id = None  # pylint: disable=invalid-name
+        logger.info("Creating %s", self.id)
+        self.id = None  # pylint: disable=invalid-name
         # id must be none to generate next primary key
         db.session.add(self)
         db.session.commit()
@@ -57,12 +57,12 @@ class PersistentBase:
         """
         Updates a Wishlist to the database
         """
-        logger.info("Saving %s", self.wishlist_id)
+        logger.info("Saving %s", self.id)
         db.session.commit()
 
     def delete(self):
         """Removes a Wishlist from the data store"""
-        logger.info("Deleting %s", self.wishlist_id)
+        logger.info("Deleting %s", self.id)
         db.session.delete(self)
         db.session.commit()
 
@@ -100,18 +100,18 @@ class Wishlist(db.Model, PersistentBase):
     app = None
 
     # Table Schema
-    wishlist_id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     customer_id = db.Column(db.Integer)
     wishlist_name = db.Column(db.String(64))  # e.g., work, home, vacation, etc.
     created_date = db.Column(db.Date(), nullable=False, default=date.today())
 
     def __repr__(self):
-        return f"<wishlist_id=[{self.wishlist_id}]>"
+        return f"<wishlist_id=[{self.id}]>"
 
     def serialize(self):
         """Converts an Wishlist into a dictionary"""
         wishlist = {
-            "wishlist_id": self.wishlist_id,
+            "id": self.id,
             "customer_id": self.customer_id,
             "wishlist_name": self.wishlist_name,
             "created_date": self.created_date.isoformat(),
@@ -150,10 +150,10 @@ class WishlistItem(db.Model, PersistentBase):
     __tablename__ = "wishlist_items"
 
     # Table Schema
-    wishlist_item_id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     wishlist_id = db.Column(
         db.Integer,
-        db.ForeignKey("wishlist.wishlist_id", ondelete="CASCADE"),
+        db.ForeignKey("wishlist.id", ondelete="CASCADE"),
         nullable=False,
     )
     product_id = db.Column(db.Integer)
@@ -162,23 +162,6 @@ class WishlistItem(db.Model, PersistentBase):
     created_date = db.Column(
         db.Date(), nullable=False, server_default=db.func.current_date()
     )
-
-    def __init__(
-        self,
-        id=None,
-        wishlist_id=None,
-        product_id=None,
-        product_name=None,
-        product_price=None,
-        created_date=None,
-    ):
-        super().__init__()
-        self.id = (id,)
-        self.wishlist_id = wishlist_id
-        self.product_id = product_id
-        self.product_name = product_name
-        self.product_price = product_price
-        self.created_date = created_date if created_date is not None else datetime.now()
 
     def __repr__(self):
         return f"WishlistItem(id={self.id}, wishlist_id={self.wishlist_id}, product_id={self.product_id}, product_name='{self.product_name}', product_price={self.product_price}, created_date='{self.created_date}')"
@@ -192,3 +175,6 @@ class WishlistItem(db.Model, PersistentBase):
             "product_price": self.product_price,
             "created_date": self.created_date,
         }
+
+    def deserialize(self, data):
+        pass
