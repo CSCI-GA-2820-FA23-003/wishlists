@@ -13,9 +13,10 @@ class WishlistFactory(factory.Factory):
     # pylint: disable=too-few-public-methods
     class Meta:
         """Persistent class"""
+
         model = Wishlist
 
     wishlist_id = factory.Sequence(lambda n: n)
-    customer_id = FuzzyInteger(0, 255) # random customer id
-    wishlist_name = factory.Faker("name") #random wishlist name
-    created_date = FuzzyDate(date(2008, 1, 1)) # random date from _ to today
+    customer_id = FuzzyInteger(0, 255)  # random customer id
+    wishlist_name = factory.Faker("name")  # random wishlist name
+    created_date = FuzzyDate(date(2008, 1, 1))  # random date from _ to today
