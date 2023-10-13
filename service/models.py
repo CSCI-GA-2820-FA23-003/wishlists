@@ -4,7 +4,7 @@ Models for Wishlist
 All of the models are stored in this module
 """
 import logging
-from datetime import date
+from datetime import date, datetime
 from abc import abstractmethod
 from flask_sqlalchemy import SQLAlchemy
 
@@ -16,12 +16,12 @@ db = SQLAlchemy()
 
 # Function to initialize the database
 def init_db(app):
-    """ Initializes the SQLAlchemy app """
+    """Initializes the SQLAlchemy app"""
     Wishlist.init_db(app)
 
 
 class DataValidationError(Exception):
-    """ Used for an data validation errors when deserializing """
+    """Used for an data validation errors when deserializing"""
 
 
 ######################################################################
@@ -61,14 +61,14 @@ class PersistentBase:
         db.session.commit()
 
     def delete(self):
-        """ Removes a Wishlist from the data store """
+        """Removes a Wishlist from the data store"""
         logger.info("Deleting %s", self.wishlist_id)
         db.session.delete(self)
         db.session.commit()
 
     @classmethod
     def init_db(cls, app):
-        """ Initializes the database session """
+        """Initializes the database session"""
         logger.info("Initializing database")
         cls.app = app
         # This is where we initialize SQLAlchemy from the Flask app
@@ -78,13 +78,13 @@ class PersistentBase:
 
     @classmethod
     def all(cls):
-        """ Returns all of the Wishlists in the database """
+        """Returns all of the Wishlists in the database"""
         logger.info("Processing all Wishlists")
         return cls.query.all()
 
     @classmethod
     def find(cls, by_id):
-        """ Finds a Wishlist by it's ID """
+        """Finds a Wishlist by it's ID"""
         logger.info("Processing lookup for id %s ...", by_id)
         return cls.query.get(by_id)
 
@@ -130,10 +130,65 @@ class Wishlist(db.Model, PersistentBase):
             self.wishlist_name = data["wishlist_name"]
             self.created_date = date.fromisoformat(data["created_date"])
         except KeyError as error:
-            raise DataValidationError("Invalid Wishlist: missing " + error.args[0]) from error
+            raise DataValidationError(
+                "Invalid Wishlist: missing " + error.args[0]
+            ) from error
         except TypeError as error:
             raise DataValidationError(
                 "Invalid Wishlist: body of request contained "
                 "bad or no data - " + error.args[0]
             ) from error
         return self
+
+
+######################################################################
+# WISHLIST ITEM MODEL
+######################################################################
+class WishlistItem(db.Model, PersistentBase):
+    """Models an item within a Wishlist"""
+
+    __tablename__ = "wishlist_items"
+
+    # Table Schema
+    wishlist_item_id = db.Column(db.Integer, primary_key=True)
+    wishlist_id = db.Column(
+        db.Integer,
+        db.ForeignKey("wishlist.wishlist_id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    product_id = db.Column(db.Integer)
+    product_name = db.Column(db.String(255))
+    product_price = db.Column(db.Numeric)
+    created_date = db.Column(
+        db.Date(), nullable=False, server_default=db.func.current_date()
+    )
+
+    def __init__(
+        self,
+        id=None,
+        wishlist_id=None,
+        product_id=None,
+        product_name=None,
+        product_price=None,
+        created_date=None,
+    ):
+        super().__init__()
+        self.id = (id,)
+        self.wishlist_id = wishlist_id
+        self.product_id = product_id
+        self.product_name = product_name
+        self.product_price = product_price
+        self.created_date = created_date if created_date is not None else datetime.now()
+
+    def __repr__(self):
+        return f"WishlistItem(id={self.id}, wishlist_id={self.wishlist_id}, product_id={self.product_id}, product_name='{self.product_name}', product_price={self.product_price}, created_date='{self.created_date}')"
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "wishlist_id": self.wishlist_id,
+            "product_id": self.product_id,
+            "product_name": self.product_name,
+            "product_price": self.product_price,
+            "created_date": self.created_date,
+        }

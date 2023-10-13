@@ -5,9 +5,10 @@ Test cases for Wishlist Model
 import os
 import logging
 import unittest
+from datetime import datetime
 from service import app
-from service.models import Wishlist, DataValidationError, db
-from tests.factories import WishlistFactory
+from service.models import Wishlist, WishlistItem, DataValidationError, db
+from tests.factories import WishlistFactory, WishlistItemFactory
 
 
 DATABASE_URI = os.getenv(
@@ -219,3 +220,40 @@ class TestWishlist(unittest.TestCase):
             wishlist.create()
             self.assertEqual(wishlist.wishlist_id, expected)
             expected += 1
+
+
+class TestWishlistItem(unittest.TestCase):
+    """Test cases for WishlistItem Model"""
+
+    def test_wishlist_item_no_arg_initializer(self):
+        """It should create an instance using the no arg initializer"""
+        item = WishlistItem()
+        self.assertIsNotNone(item)
+        # self.assertIsNotNone(item.created_date)
+
+    def test_wishlist_item_initializer_with_args(self):
+        """It should create an instance using the constructor with arguments"""
+        now = datetime.now()
+        item = WishlistItem(1, 2, 3, "", 42.0, now)
+        self.assertEqual(item.id, 1)
+        self.assertEqual(item.wishlist_id, 2)
+        self.assertEqual(item.product_id, 3)
+        self.assertEqual(item.product_name, "")
+        self.assertEqual(item.product_price, 42.0)
+        self.assertEqual(item.created_date, now)
+
+    def test_repr_method(self):
+        item = WishlistItem(
+            1, 2, "Catcher in the Rye", 42.0, datetime(year=2023, month=10, day=15)
+        )
+        expected = "WishlistItem(id=1, wishlist_id=2, product_id=3, product_name='Catcher in the Rye', product_price=42.0, created_date='2023-10-15 00:00:00')"
+        self.assertEqual(repr(item), expected)
+
+    def test_serialize(self):
+        item = WishlistItemFactory()
+        serialized = item.serialize()
+        self.assertEqual(item.wishlist_id, serialized.wishlist_id)
+        self.assertEqual(item.product_id, serialized.product_id)
+        self.assertEqual(item.product_name, serialized.product_name)
+        self.assertEqual(item.product_price, serialized.product_price)
+        self.assertEqual(item.created_date, serialized.created_date)
