@@ -4,7 +4,7 @@ Wishlist
 Describe what your service does here
 """
 
-from flask import jsonify, request, url_for, abort
+from flask import jsonify, request, url_for, abort, make_response
 from service.common import status  # HTTP Status Codes
 from service.models import Wishlist
 
@@ -17,7 +17,7 @@ from . import app
 ######################################################################
 @app.route("/")
 def index():
-    """ Root URL response """
+    """Root URL response"""
     return (
         "Reminder: return some useful information in json format about the service here",
         status.HTTP_200_OK,
@@ -29,3 +29,29 @@ def index():
 ######################################################################
 
 # Place your REST API code here ...
+
+
+######################################################################
+# CREATE A NEW WISHLIST
+######################################################################
+@app.route("/wishlist", methods=["POST"])
+def create_wishlists():
+    """
+    Creates an Wishlist
+    This endpoint will create an Wishlist based the data in the body that is posted
+    """
+    app.logger.info("Request to create an Wishlist")
+
+    # Create the wishlist
+    wishlist = Wishlist()
+    wishlist.deserialize(request.get_json())
+    wishlist.create()
+
+    # Create a message to return
+    message = wishlist.serialize()  # match test case
+
+    return make_response(
+        jsonify(message),
+        status.HTTP_201_CREATED,
+        {"Location": f"/wishlist/{wishlist.wishlist_id}"},
+    )
