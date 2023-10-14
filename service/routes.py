@@ -53,5 +53,5 @@ def create_wishlists():
     return make_response(
         jsonify(message),
         status.HTTP_201_CREATED,
-        {"Location": f"/wishlist/{wishlist.wishlist_id}"},
+        {"Location": f"/wishlist/{wishlist.id}"},
     )
