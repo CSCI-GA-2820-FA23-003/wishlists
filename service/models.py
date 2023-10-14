@@ -4,7 +4,7 @@ Models for Wishlist
 All of the models are stored in this module
 """
 import logging
-from datetime import date, datetime
+from datetime import date
 from abc import abstractmethod
 from flask_sqlalchemy import SQLAlchemy
 
@@ -165,7 +165,17 @@ class WishlistItem(db.Model, PersistentBase):
     )
 
     def __repr__(self):
-        return f"WishlistItem(id={self.id}, wishlist_id={self.wishlist_id}, product_id={self.product_id}, product_name='{self.product_name}', product_price={self.product_price}, quantity={self.quantity}, created_date='{self.created_date}')"
+        return (
+            f"WishlistItem("
+            f"id={self.id}, "
+            f"wishlist_id={self.wishlist_id}, "
+            f"product_id={self.product_id}, "
+            f"product_name='{self.product_name}', "
+            f"product_price={self.product_price}, "
+            f"quantity={self.quantity}, "
+            f"created_date='{self.created_date}'"
+            f")"
+        )
 
     def serialize(self):
         return {

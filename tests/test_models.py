@@ -258,7 +258,7 @@ class TestWishlistItem(unittest.TestCase):
     def test_wishlist_item_init_clears_id(self):
         """It should ensure id is set to None upon initialization"""
         item = WishlistItem()
-        item.__init__()
+        # item.__init__() # Pylint identified as not needed
         self.assertIsNone(item.id)
 
     def test_wishlist_item_no_arg_initializer(self):
@@ -266,7 +266,9 @@ class TestWishlistItem(unittest.TestCase):
         item = WishlistItem()
         self.assertIsNotNone(item)
 
-    # Note: This is kind of a silly test.  I had problems trying to implement a __init__ function that would have set all these values in a single line.
+    # Note: This is kind of a silly test.
+    # I had problems trying to implement a __init__ function
+    # that would have set all these values in a single line.
     def test_wishlist_after_populating_properties(self):
         """It should create an instance using the constructor with arguments"""
         now = datetime.now()
@@ -296,7 +298,15 @@ class TestWishlistItem(unittest.TestCase):
     def test_wishlist_item_repr_method(self):
         """It should give a correct response when calling __repr__"""
         item = WishlistItemFactory()
-        expected = f"WishlistItem(id={item.id}, wishlist_id={item.wishlist_id}, product_id={item.product_id}, product_name='{item.product_name}', product_price={item.product_price}, quantity={item.quantity}, created_date='{item.created_date}')"
+        expected = (
+            f"WishlistItem(id={item.id}, "
+            f"wishlist_id={item.wishlist_id}, "
+            f"product_id={item.product_id}, "
+            f"product_name='{item.product_name}', "
+            f"product_price={item.product_price}, "
+            f"quantity={item.quantity}, "
+            f"created_date='{item.created_date}')"
+        )
         self.assertEqual(repr(item), expected)
 
     def test_wishlist_item_serialize(self):
