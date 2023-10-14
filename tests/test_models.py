@@ -36,7 +36,6 @@ class TestWishlist(unittest.TestCase):
         """This runs once after the entire test suite"""
         db.session.query(Wishlist).delete()  # clean up the last tests
         db.session.commit()
-        # db.drop_all() #Drops all tables if needed for updating schema
 
     def setUp(self):
         """This runs before each test"""
@@ -221,8 +220,46 @@ class TestWishlist(unittest.TestCase):
             expected += 1
 
 
+#####################
+# WishistItem Tests
+#####################
 class TestWishlistItem(unittest.TestCase):
     """Test cases for WishlistItem Model"""
+
+    serialized = {}
+
+    @classmethod
+    def tearDownClass(cls):
+        """This runs once after the entire test suite"""
+        db.session.query(WishlistItem).delete()
+        db.session.commit()
+
+    def setUp(self):
+        """This runs before each test"""
+        db.session.query(WishlistItem).delete()
+        db.session.commit()
+
+        self.serialized = {
+            "id": 1,
+            "wishlist_id": 2,
+            "product_id": 3,
+            "product_name": "DevOps for Dummies",
+            "product_price": 29.99,
+            "quantity": 2,
+            "created_date": datetime.strptime(
+                "2023-10-12 00:00:00", "%Y-%m-%d %H:%M:%S"
+            ),
+        }
+
+    def tearDown(self):
+        """This runs after each test"""
+        db.session.remove()
+
+    def test_wishlist_item_init_clears_id(self):
+        """It should ensure id is set to None upon initialization"""
+        item = WishlistItem()
+        item.__init__()
+        self.assertIsNone(item.id)
 
     def test_wishlist_item_no_arg_initializer(self):
         """It should create an instance using the no arg initializer"""
@@ -256,12 +293,14 @@ class TestWishlistItem(unittest.TestCase):
         self.assertEqual(item.product_price, values["product_price"])
         self.assertEqual(item.created_date, values["created_date"])
 
-    def test_repr_method(self):
+    def test_wishlist_item_repr_method(self):
+        """It should give a correct response when calling __repr__"""
         item = WishlistItemFactory()
-        expected = f"WishlistItem(id={item.id}, wishlist_id={item.wishlist_id}, product_id={item.product_id}, product_name='{item.product_name}', product_price={item.product_price}, created_date='{item.created_date}')"
+        expected = f"WishlistItem(id={item.id}, wishlist_id={item.wishlist_id}, product_id={item.product_id}, product_name='{item.product_name}', product_price={item.product_price}, quantity={item.quantity}, created_date='{item.created_date}')"
         self.assertEqual(repr(item), expected)
 
-    def test_serialize(self):
+    def test_wishlist_item_serialize(self):
+        """It should serialize a wishlist item"""
         item = WishlistItemFactory()
         serialized = item.serialize()
         self.assertEqual(item.wishlist_id, serialized["wishlist_id"])
@@ -269,3 +308,120 @@ class TestWishlistItem(unittest.TestCase):
         self.assertEqual(item.product_name, serialized["product_name"])
         self.assertEqual(item.product_price, serialized["product_price"])
         self.assertEqual(item.created_date, serialized["created_date"])
+
+    def test_wishlist_item_deserialize(self):
+        """It should deserialize a wishlist"""
+
+        item = WishlistItem()
+        item.deserialize(self.serialized)
+        self.assertEqual(item.id, self.serialized["id"])
+        self.assertEqual(item.wishlist_id, self.serialized["wishlist_id"])
+        self.assertEqual(item.product_id, self.serialized["product_id"])
+        self.assertEqual(item.product_name, self.serialized["product_name"])
+        self.assertEqual(item.product_price, self.serialized["product_price"])
+        self.assertEqual(item.quantity, self.serialized["quantity"])
+        self.assertEqual(item.created_date, self.serialized["created_date"])
+
+    def test_wishlist_item_deserialize_with_invalid_data_type(self):
+        """It should raise a DataValidationError when serializing from incorrect type"""
+
+        item = WishlistItem()
+        self.assertRaises(
+            DataValidationError,
+            item.deserialize,
+            "You can't deserialize me. I'm a mighty STRING!!!",
+        )
+
+    def test_wishlist_item_deserialize_with_invalid_input(self):
+        """It should throw a DataValidationError when a serialized object is missing a key"""
+
+        del self.serialized["product_name"]
+        item = WishlistItem()
+        self.assertRaises(DataValidationError, item.deserialize, self.serialized)
+
+    # don't love this approach.  This is why it feels slightly wrong to me to unit test with DB
+    # I have to rely on the wishlist Model functioning for this test to pass otherwise the Foreign Key
+    # constraint will fail when trying to save an arbitrary wishlist_id
+    def test_wishlist_item_create(self):
+        """It creates (inserts) a WishListItem"""
+        wishlist = WishlistFactory()
+        wishlist.create()
+        item = WishlistItemFactory()
+        item.wishlist_id = wishlist.id
+        # ensure id is None before saving (which will auto increment/assign the id)
+        item.id = None
+        item.create()
+        self.assertIsNotNone(item.id)
+
+    def test_wishlist_item_find(self):
+        """It reads (finds) a WishListItem"""
+        wishlist = WishlistFactory()
+        wishlist.create()
+        item = WishlistItemFactory()
+        item.wishlist_id = wishlist.id
+        item.create()
+        item_id = item.id
+
+        print(f"Item: {item.__repr__}")
+
+        found_item = WishlistItem.find(item_id)
+
+        self.assertIsNotNone(found_item)
+
+        print(f"Found Item: {found_item.__repr__}")
+
+        self.assertEqual(item, found_item)
+
+    def test_wishlist_item_update(self):
+        """It should update a previously saved Wishlist_Item"""
+
+        wishlist = WishlistFactory()
+        wishlist.create()
+        item = WishlistItemFactory()
+        # set foreign key to some pre-existing wishlist_id
+        item.wishlist_id = wishlist.id
+        item.id = None
+        item.create()
+
+        self.assertIsNotNone(item.id)
+
+        # now update (quantity is really the only thing which makes sense to update)
+        incremented_quantity = item.quantity + 1
+        item.quantity = incremented_quantity
+        item.update()
+
+        found_item = WishlistItem.find(item.id)
+        self.assertEqual(incremented_quantity, found_item.quantity)
+
+    def test_wishlist_delete(self):
+        "It should successfully delete a WishlistItem"
+
+        wishlist = WishlistFactory()
+        wishlist.create()
+        item = WishlistItemFactory()
+        # set foreign key to some pre-existing wishlist_id
+        item.wishlist_id = wishlist.id
+        item.create()
+
+        found_item = WishlistItem.find(item.id)
+        found_item_id = found_item.id
+        self.assertIsNotNone(found_item_id)
+
+        WishlistItem.delete(found_item)
+
+        ghost_item = WishlistItem.find(found_item_id)
+
+        self.assertIsNone(ghost_item)
+
+    def test_list_all_accounts(self):
+        """It should list all wishlist_items in the database"""
+        items = WishlistItem.all()
+        self.assertEqual(items, [])
+        wishlist = WishlistFactory()
+        wishlist.create()
+        for item in WishlistItemFactory.create_batch(5):
+            item.wishlist_id = wishlist.id
+            item.create()
+        # Assert that there are now 5 wishlist_items in the database
+        accounts = WishlistItem.all()
+        self.assertEqual(len(accounts), 5)
