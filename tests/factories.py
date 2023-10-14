@@ -38,4 +38,5 @@ class WishlistItemFactory(factory.Factory):
     product_price = factory.Faker(
         "pyfloat", left_digits=2, right_digits=2, positive=True
     )
+    quantity = FuzzyInteger(0, 99)
     created_date = FuzzyDate(date(2008, 1, 1))
