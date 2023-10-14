@@ -37,8 +37,8 @@ def index():
 @app.route("/wishlists", methods=["POST"])
 def create_wishlists():
     """
-    Creates an Wishlist
-    This endpoint will create an Wishlist based the data in the body that is posted
+    Creates a Wishlist
+    This endpoint will create an Wishlist based on the data in the body that is posted
     """
     app.logger.info("Request to create an Wishlist")
 

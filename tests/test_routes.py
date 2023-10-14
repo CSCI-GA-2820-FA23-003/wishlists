@@ -39,6 +39,7 @@ class TestWishlistServer(TestCase):
     @classmethod
     def tearDownClass(cls):
         """This runs once after the entire test suite"""
+        db.session.query(Wishlist).delete()
 
     def setUp(self):
         """This runs before each test"""
