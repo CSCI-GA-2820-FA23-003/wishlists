@@ -34,7 +34,7 @@ def index():
 ######################################################################
 # CREATE A NEW WISHLIST
 ######################################################################
-@app.route("/wishlist", methods=["POST"])
+@app.route("/wishlists", methods=["POST"])
 def create_wishlists():
     """
     Creates an Wishlist
@@ -53,5 +53,5 @@ def create_wishlists():
     return make_response(
         jsonify(message),
         status.HTTP_201_CREATED,
-        {"Location": f"/wishlist/{wishlist.id}"},
+        {"Location": f"/wishlists/{wishlist.id}"},
     )
