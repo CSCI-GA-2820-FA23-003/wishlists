@@ -68,7 +68,11 @@ class TestWishlistServer(TestCase):
         )
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
 
-        # Check the data is correct
+        # Make sure location header is set (part of RESTful api definition)
+        location = resp.headers.get("Location", None)
+        self.assertIsNotNone(location)
+
+        # Check the data is correct (response from db)
         new_wishlist = resp.get_json()
         self.assertEqual(
             new_wishlist["wishlist_name"],
@@ -80,3 +84,12 @@ class TestWishlistServer(TestCase):
             str(wishlist.created_date),
             "Created Date does not match",
         )
+
+    def test_unsupported_media_type(self):
+        """It should not Create when sending wrong media type"""
+        wishlist = WishlistFactory()
+        resp = self.client.post(
+            BASE_URL, json=wishlist.serialize(), content_type="test/html"
+        )
+        self.assertEqual(resp.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
+        self.assertIsNotNone(resp.get_json())

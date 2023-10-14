@@ -42,6 +42,9 @@ def create_wishlists():
     """
     app.logger.info("Request to create an Wishlist")
 
+    # Validate content is json
+    check_content_type("application/json")
+
     # Create the wishlist
     wishlist = Wishlist()
     wishlist.deserialize(request.get_json())
@@ -54,4 +57,21 @@ def create_wishlists():
         jsonify(message),
         status.HTTP_201_CREATED,
         {"Location": f"/wishlists/{wishlist.id}"},
+    )
+
+
+######################################################################
+#  U T I L I T Y   F U N C T I O N S
+######################################################################
+
+
+def check_content_type(media_type):
+    """Checks that the media type is correct"""
+    content_type = request.headers.get("Content-Type")
+    if content_type and content_type == media_type:
+        return
+    app.logger.error("Invalid Content-Type: %s", content_type)
+    abort(
+        status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
+        f"Content-Type must be {media_type}",
     )
