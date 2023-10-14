@@ -54,6 +54,17 @@ tests/              - test cases package
 ├── test_models.py  - test suite for business models
 └── test_routes.py  - test suite for service routes
 ```
+## Running the App
+
+After opening vscode in our running container.  Execute the following command in the terminal.
+
+```flask run```
+
+## Running tests
+
+To run all tests in the project, use the following at the command line.
+
+```green```
 
 ## License
 
