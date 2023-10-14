@@ -159,12 +159,13 @@ class WishlistItem(db.Model, PersistentBase):
     product_id = db.Column(db.Integer)
     product_name = db.Column(db.String(255))
     product_price = db.Column(db.Numeric)
+    quantity = db.Column(db.Integer)
     created_date = db.Column(
         db.Date(), nullable=False, server_default=db.func.current_date()
     )
 
     def __repr__(self):
-        return f"WishlistItem(id={self.id}, wishlist_id={self.wishlist_id}, product_id={self.product_id}, product_name='{self.product_name}', product_price={self.product_price}, created_date='{self.created_date}')"
+        return f"WishlistItem(id={self.id}, wishlist_id={self.wishlist_id}, product_id={self.product_id}, product_name='{self.product_name}', product_price={self.product_price}, quantity={self.quantity}, created_date='{self.created_date}')"
 
     def serialize(self):
         return {
@@ -173,8 +174,26 @@ class WishlistItem(db.Model, PersistentBase):
             "product_id": self.product_id,
             "product_name": self.product_name,
             "product_price": self.product_price,
+            "quantity": self.quantity,
             "created_date": self.created_date,
         }
 
-    def deserialize(self, data):
-        pass
+    def deserialize(self, data: dict):
+        try:
+            self.id = data["id"]
+            self.wishlist_id = data["wishlist_id"]
+            self.product_id = data["product_id"]
+            self.product_name = data["product_name"]
+            self.product_price = data["product_price"]
+            self.quantity = data["quantity"]
+            self.created_date = data["created_date"]
+        except KeyError as error:
+            raise DataValidationError(
+                "Invalid Wishlist Item: missing " + error.args[0]
+            ) from error
+        except TypeError as error:
+            raise DataValidationError(
+                "Invalid Wishlist Item: body of request contained "
+                "bad or no data - " + error.args[0]
+            ) from error
+        return self
