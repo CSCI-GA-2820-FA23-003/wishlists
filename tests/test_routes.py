@@ -57,7 +57,7 @@ class TestWishlistServer(TestCase):
     #  H E L P E R   M E T H O D S
     ######################################################################
 
-    def _create_accounts(self, count):
+    def _create_wishlists(self, count):
         """Wishlist method to create wishlists in bulk"""
         wishlists = []
         for _ in range(count):
@@ -115,7 +115,7 @@ class TestWishlistServer(TestCase):
 
     def test_get_wishlist(self):
         """It checks if the GET Method to read a wishlist works"""
-        wishlist = self._create_accounts(1)[0]
+        wishlist = self._create_wishlists(1)[0]
         id = wishlist.id
         customer_id = wishlist.customer_id
         wishlist_name = wishlist.wishlist_name
