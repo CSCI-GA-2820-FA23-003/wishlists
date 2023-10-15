@@ -68,6 +68,9 @@ class TestWishlistServer(TestCase):
             )
             new_account = resp.get_json()
             wishlist.id = new_account["id"]
+            wishlist.customer_id = new_account["customer_id"]
+            wishlist.wishlist_name = new_account["wishlist_name"]
+            wishlist.created_date = new_account["created_date"]
             wishlists.append(wishlist)
         return wishlists
 
@@ -148,3 +151,29 @@ class TestWishlistServer(TestCase):
         """It should not allow an illegal method call"""
         resp = self.client.put(BASE_URL, json={"not": "today"})
         self.assertEqual(resp.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_get_wishlist_list(self):
+        """It should Get a list of Wishlists"""
+        wishlist = self._create_wishlists(5)
+        wishlist_array = []
+        for itr in wishlist:
+            wishlist_id = itr.id
+            customer_id = itr.customer_id
+            wishlist_name = itr.wishlist_name
+            created_date = itr.created_date
+            wishlist_array.append(
+                {
+                    "id": wishlist_id,
+                    "customer_id": customer_id,
+                    "wishlist_name": wishlist_name,
+                    "created_date": created_date
+                }
+            )
+        resp = self.client.get(
+            BASE_URL,
+            content_type="application/json"
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.get_json()
+        self.assertEqual(len(data), 5)
+        self.assertEqual(data, wishlist_array)
