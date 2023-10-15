@@ -52,11 +52,9 @@ class TestWishlistServer(TestCase):
         """This runs after each test"""
         db.session.remove()
 
-    
     ######################################################################
     #  H E L P E R   M E T H O D S
     ######################################################################
-
     def _create_wishlists(self, count):
         """Wishlist method to create wishlists in bulk"""
         wishlists = []
@@ -73,11 +71,9 @@ class TestWishlistServer(TestCase):
             wishlists.append(wishlist)
         return wishlists
 
-
     ######################################################################
     #  W I S H L I S T   T E S T   C A S E S   H E R E
     ######################################################################
-
     def test_index(self):
         """It should call the home page"""
         resp = self.client.get("/")
@@ -107,7 +103,7 @@ class TestWishlistServer(TestCase):
             str(wishlist.created_date),
             "Created Date does not match",
         )
-    
+
     def test_bad_request(self):
         """It should not Create when sending the wrong data"""
         resp = self.client.post(BASE_URL, json={"wishlist_name": "my wishlist"})
@@ -116,17 +112,17 @@ class TestWishlistServer(TestCase):
     def test_get_wishlist(self):
         """It checks if the GET Method to read a wishlist works"""
         wishlist = self._create_wishlists(1)[0]
-        id = wishlist.id
+        wishlist_id = wishlist.id
         customer_id = wishlist.customer_id
         wishlist_name = wishlist.wishlist_name
-        created_date = str(wishlist.created_date) # convert datetime object to string since resp will be in json
+        created_date = str(wishlist.created_date)  # convert datetime object to string since resp will be in json
         resp = self.client.get(
-            f'{BASE_URL}/{id}',
+            f'{BASE_URL}/{wishlist_id}',
             content_type="application/json"
         )
         data = resp.get_json()
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        self.assertEqual(data['id'], id)
+        self.assertEqual(data['id'], wishlist_id)
         self.assertEqual(data['customer_id'], customer_id)
         self.assertEqual(data['wishlist_name'], wishlist_name)
         self.assertEqual(data['created_date'], str(created_date))
