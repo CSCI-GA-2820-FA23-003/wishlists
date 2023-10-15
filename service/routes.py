@@ -60,6 +60,26 @@ def create_wishlists():
     )
 
 
+@app.route("/wishlists/<int:wishlist_id>", methods=["GET"])
+def read_wishlists(wishlist_id):
+    """
+    Reads an Existing Wishlist
+    This endpoint will read a Wishlist based on the given id
+    """
+    app.logger.info("Request to read Wishlist: %d", wishlist_id)
+
+    # Validate content is json
+    check_content_type("application/json")
+
+    # Check if wishlist exists
+    wishlist = Wishlist.find(wishlist_id)
+    if not wishlist:
+        abort(
+            status.HTTP_404_NOT_FOUND,
+            f"Wishlist with id '{wishlist_id}' could not be found."
+        )
+    return make_response(jsonify(wishlist.serialize()), status.HTTP_200_OK)
+
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S
 ######################################################################
