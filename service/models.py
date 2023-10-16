@@ -55,9 +55,11 @@ class PersistentBase:
 
     def update(self):
         """
-        Updates a Wishlist to the database
+        Updates a Product-Wishlist mapping to the database
         """
-        logger.info("Saving %s", self.id)
+        logger.info(
+            "Saving product %s in wishlist %d", self.product_name, self.wishlist_id
+        )
         db.session.commit()
 
     def delete(self):
@@ -107,6 +109,13 @@ class Wishlist(db.Model, PersistentBase):
 
     def __repr__(self):
         return f"<wishlist_id=[{self.id}]>"
+
+    def update(self):
+        """
+        Updates a Wishlist in the database
+        """
+        logger.info("Saving wishlist %s", self.wishlist_name)
+        db.session.commit()
 
     def serialize(self):
         """Converts an Wishlist into a dictionary"""
