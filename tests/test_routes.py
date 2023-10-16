@@ -118,24 +118,22 @@ class TestWishlistServer(TestCase):
         wishlist_id = wishlist.id
         customer_id = wishlist.customer_id
         wishlist_name = wishlist.wishlist_name
-        created_date = str(wishlist.created_date)  # convert datetime object to string since resp will be in json
+        created_date = str(
+            wishlist.created_date
+        )  # convert datetime object to string since resp will be in json
         resp = self.client.get(
-            f'{BASE_URL}/{wishlist_id}',
-            content_type="application/json"
+            f"{BASE_URL}/{wishlist_id}", content_type="application/json"
         )
         data = resp.get_json()
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        self.assertEqual(data['id'], wishlist_id)
-        self.assertEqual(data['customer_id'], customer_id)
-        self.assertEqual(data['wishlist_name'], wishlist_name)
-        self.assertEqual(data['created_date'], str(created_date))
+        self.assertEqual(data["id"], wishlist_id)
+        self.assertEqual(data["customer_id"], customer_id)
+        self.assertEqual(data["wishlist_name"], wishlist_name)
+        self.assertEqual(data["created_date"], str(created_date))
 
     def test_get_wishlist_not_found(self):
         """It should not Read an Wishlist that is not found"""
-        resp = self.client.get(
-            f"{BASE_URL}/0",
-            content_type="application/json"
-        )
+        resp = self.client.get(f"{BASE_URL}/0", content_type="application/json")
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_unsupported_media_type(self):
@@ -166,14 +164,81 @@ class TestWishlistServer(TestCase):
                     "id": wishlist_id,
                     "customer_id": customer_id,
                     "wishlist_name": wishlist_name,
-                    "created_date": created_date
+                    "created_date": created_date,
                 }
             )
-        resp = self.client.get(
-            BASE_URL,
-            content_type="application/json"
-        )
+        resp = self.client.get(BASE_URL, content_type="application/json")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = resp.get_json()
         self.assertEqual(len(data), 5)
         self.assertEqual(data, wishlist_array)
+
+    def test_update_a_wishlist(self):
+        """It should update a Wishlist"""
+        wishlist1 = WishlistFactory()
+        wishlist2 = WishlistFactory()
+        res = self.client.post(
+            BASE_URL, json=wishlist1.serialize(), content_type="application/json"
+        )
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        data1 = res.get_json()
+        res = self.client.post(
+            BASE_URL, json=wishlist2.serialize(), content_type="application/json"
+        )
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        data2 = res.get_json()
+        # Attempt to rename both to the same name
+        wishlist1.wishlist_name = "new_Name"
+        wishlist2.wishlist_name = "new_Name"
+        res1 = self.client.put(
+            f"{BASE_URL}/{data1['id']}",
+            json=wishlist1.serialize(),
+            content_type="application/json",
+        )
+        self.assertEqual(
+            res1.status_code, status.HTTP_200_OK, "Could not rename Wishlist1"
+        )
+        res2 = self.client.put(
+            f"{BASE_URL}/{data2['id']}",
+            json=wishlist2.serialize(),
+            content_type="application/json",
+        )
+        self.assertEqual(
+            res2.status_code, status.HTTP_409_CONFLICT, "Incorrectly renamed Wishlist2"
+        )
+        # Verify the updated data
+        wl1 = Wishlist.find(data1["id"]).wishlist_name
+        wl2 = Wishlist.find(data2["id"]).wishlist_name
+        self.assertEqual(wl1, "new_Name")
+        self.assertNotEqual(wl2, "new_Name")
+
+    def test_cannot_update_a_wishlist(self):
+        """It should fail to update a Wishlist when it doesn't exist or the desired name already exists"""
+        created_wishlists = self._create_wishlists(2)
+        created_wishlist_ids = [wishlist.id for wishlist in created_wishlists]
+        # Picking a non-existent wishlist id
+        non_existent_wishlist_id = created_wishlist_ids[0]
+        while non_existent_wishlist_id in created_wishlist_ids:
+            non_existent_wishlist_id += 1
+        # Attempting to update a non-existent wishlist
+        wishlist = WishlistFactory()
+        resp = self.client.put(
+            f"{BASE_URL}/{non_existent_wishlist_id}",
+            json=wishlist.serialize(),
+            content_type="application/json",
+        )
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+        # Attempting to rename a wishlist with an already-consumed name
+        wishlist.wishlist_name = created_wishlists[0].wishlist_name
+        resp = self.client.put(
+            f"{BASE_URL}/{created_wishlist_ids[1]}",
+            json=wishlist.serialize(),
+            content_type="application/json",
+        )
+        self.assertEqual(resp.status_code, status.HTTP_409_CONFLICT)
+
+    def test_delete_wishlist(self):
+        """It should Delete a Wishlist"""
+        wishlist = self._create_wishlists(1)[0]
+        resp = self.client.delete(f"{BASE_URL}/{wishlist.id}")
+        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)

@@ -76,7 +76,7 @@ def read_wishlists(wishlist_id):
     if not wishlist:
         abort(
             status.HTTP_404_NOT_FOUND,
-            f"Wishlist with id '{wishlist_id}' could not be found."
+            f"Wishlist with id '{wishlist_id}' could not be found.",
         )
     return make_response(jsonify(wishlist.serialize()), status.HTTP_200_OK)
 
@@ -90,6 +90,7 @@ def list_wishlists():
     results = [wishlist.serialize() for wishlist in wishlists]
 
     return make_response(jsonify(results), status.HTTP_200_OK)
+
 
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S
