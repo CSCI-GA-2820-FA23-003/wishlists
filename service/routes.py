@@ -5,8 +5,9 @@ Describe what your service does here
 """
 
 from flask import jsonify, request, abort, make_response
+from sqlalchemy.exc import SQLAlchemyError
 from service.common import status  # HTTP Status Codes
-from service.models import Wishlist
+from service.models import Wishlist, WishlistItem
 
 # Import Flask application
 from . import app
@@ -59,6 +60,40 @@ def create_wishlists():
         {"Location": f"/wishlists/{wishlist.id}"},
     )
 
+######################################################################
+# CREATE A NEW WISHLIST ITEM
+######################################################################
+@app.route("/wishlists/<int:wishlist_id>/items", methods=["POST"])
+def create_wishlist_item(wishlist_id):
+    """
+    Creates a Wishlist Item and associates it with a specific Wishlist
+    This endpoint will create a Wishlist Item based on the data in the request body
+    and associate it with the specified Wishlist.
+    """
+    app.logger.info("Request to create a Wishlist Item")
+
+    # Validate content is JSON
+    check_content_type("application/json")
+
+    # Find the specified Wishlist
+    wishlist = find_wishlist_by_id(wishlist_id)
+    if not wishlist:
+        abort(status.HTTP_404_NOT_FOUND, f"Wishlist with ID {wishlist_id} not found")
+
+    # Create the Wishlist Item
+    wishlist_item = WishlistItem()
+    wishlist_item.deserialize(request.get_json())
+    wishlist_item.wishlist_id = wishlist.id  # Associate the item with the specified wishlist
+    wishlist_item.create()
+
+    # Create a message to return
+    message = wishlist_item.serialize()
+
+    return make_response(
+        jsonify(message),
+        status.HTTP_201_CREATED,
+        {"Location": f"/wishlists/{wishlist.id}/items/{wishlist_item.id}"},
+    )
 
 @app.route("/wishlists/<int:wishlist_id>", methods=["GET"])
 def read_wishlists(wishlist_id):
@@ -94,8 +129,6 @@ def list_wishlists():
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S
 ######################################################################
-
-
 def check_content_type(media_type):
     """Checks that the media type is correct"""
     content_type = request.headers.get("Content-Type")
@@ -106,3 +139,13 @@ def check_content_type(media_type):
         status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
         f"Content-Type must be {media_type}",
     )
+
+def find_wishlist_by_id(wishlist_id):
+    """Finds wishlist by its ID"""
+    try:
+        wishlist = Wishlist.query.filter_by(id=wishlist_id).first()
+        return wishlist
+    except SQLAlchemyError as e:
+        app.logger.error("Error while retrieving Wishlist by ID: %s", e)
+        return None  # Return None to indicate an error or not found
+    
