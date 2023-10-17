@@ -130,6 +130,13 @@ class TestWishlistServer(TestCase):
         self.assertEqual(data['wishlist_name'], wishlist_name)
         self.assertEqual(data['created_date'], str(created_date))
 
+    def test_delete_wishlist(self):
+        """It should Delete a Wishlist"""
+        # get the id of a wishlist
+        wishlist = self._create_wishlists(1)[0]
+        resp = self.client.delete(f"{BASE_URL}/{wishlist.id}")
+        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
+
     def test_get_wishlist_not_found(self):
         """It should not Read an Wishlist that is not found"""
         resp = self.client.get(
