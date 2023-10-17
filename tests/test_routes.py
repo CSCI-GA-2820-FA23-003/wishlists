@@ -137,6 +137,13 @@ class TestWishlistServer(TestCase):
         resp = self.client.delete(f"{BASE_URL}/{wishlist.id}")
         self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
 
+    def test_delete_sad_path_wishlist(self):
+        """It should throw an error code"""
+        # get the id of a wishlist
+        wishlist = self._create_wishlists(1)[0]
+        resp = self.client.delete(f"{BASE_URL}/{wishlist.id+100}")
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
     def test_get_wishlist_not_found(self):
         """It should not Read an Wishlist that is not found"""
         resp = self.client.get(
