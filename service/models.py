@@ -53,23 +53,6 @@ class PersistentBase:
         db.session.add(self)
         db.session.commit()
 
-    def update(self):
-        """
-        Updates a Product-Wishlist mapping to the database
-        """
-        logger.info(
-            "Saving product %s in wishlist %d", self.product_name, self.wishlist_id
-        )
-        db.session.commit()
-
-    def delete(self):
-        """Removes a Product-Wishlist mapping from the database"""
-        logger.info(
-            "Deleting product %s from wishlist %d", self.product_name, self.wishlist_id
-        )
-        db.session.delete(self)
-        db.session.commit()
-
     @classmethod
     def init_db(cls, app):
         """Initializes the database session"""
@@ -117,12 +100,6 @@ class Wishlist(db.Model, PersistentBase):
         Updates a Wishlist in the database
         """
         logger.info("Saving wishlist %s", self.wishlist_name)
-        db.session.commit()
-
-    def delete(self):
-        """Removes a Wishlist from the data store"""
-        logger.info("Deleting wishlist %s", self.wishlist_name)
-        db.session.delete(self)
         db.session.commit()
 
     def serialize(self):
@@ -224,3 +201,12 @@ class WishlistItem(db.Model, PersistentBase):
                 "bad or no data - " + error.args[0]
             ) from error
         return self
+
+    def update(self):
+        """
+        Updates a Product-Wishlist mapping to the database
+        """
+        logger.info(
+            "Saving product %s in wishlist %d", self.product_name, self.wishlist_id
+        )
+        db.session.commit()
