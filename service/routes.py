@@ -92,7 +92,7 @@ def list_wishlists():
     return make_response(jsonify(results), status.HTTP_200_OK)
 
 
-@app.route("/wishlist/<int:wishlist_id>", methods=["DELETE"])
+@app.route("/wishlists/<int:wishlist_id>", methods=["DELETE"])
 def delete_wishlists(wishlist_id):
     """
     Delete a Wishlist
