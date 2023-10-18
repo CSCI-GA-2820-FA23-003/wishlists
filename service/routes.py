@@ -28,9 +28,6 @@ def index():
 #  R E S T   A P I   E N D P O I N T S
 ######################################################################
 
-# Place your REST API code here ...
-
-
 ######################################################################
 # CREATE A NEW WISHLIST
 ######################################################################
@@ -60,6 +57,9 @@ def create_wishlists():
     )
 
 
+######################################################################
+# READ A WISHLIST
+######################################################################
 @app.route("/wishlists/<int:wishlist_id>", methods=["GET"])
 def read_wishlists(wishlist_id):
     """
@@ -81,6 +81,9 @@ def read_wishlists(wishlist_id):
     return make_response(jsonify(wishlist.serialize()), status.HTTP_200_OK)
 
 
+######################################################################
+# LIST ALL WISHLISTs
+######################################################################
 @app.route("/wishlists", methods=["GET"])
 def list_wishlists():
     """Returns all of the Wishlists"""
@@ -92,6 +95,9 @@ def list_wishlists():
     return make_response(jsonify(results), status.HTTP_200_OK)
 
 
+######################################################################
+# DELETE A NEW WISHLIST
+######################################################################
 @app.route("/wishlists/<int:wishlist_id>", methods=["DELETE"])
 def delete_wishlists(wishlist_id):
     """
@@ -179,6 +185,31 @@ def list_wishlist_items(wishlist_id):
     results = [item.serialize() for item in wishlist.items]
 
     return make_response(jsonify(results), status.HTTP_200_OK)
+
+
+######################################################################
+# DELETE ITEMS
+######################################################################
+@app.route("/wishlists/<int:wishlist_id>/items/<int:item_id>", methods=["DELETE"])
+def delete_addresses(wishlist_id, item_id):
+    """
+    Delete an Item
+
+    This endpoint will delete an Item based the id specified in the path
+    """
+
+    app.logger.info(
+        "Request to delete Item %s for Wishlist id: %s", item_id, wishlist_id
+    )
+
+    # See if the address exists and delete it if it does
+    wishlist = Wishlist.find(wishlist_id)
+    if wishlist:
+        wishlist.delete()
+    else:
+        return make_response("", status.HTTP_404_NOT_FOUND)
+
+    return make_response("", status.HTTP_204_NO_CONTENT)
 
 
 ######################################################################

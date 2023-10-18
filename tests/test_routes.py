@@ -311,3 +311,82 @@ class TestWishlistServer(TestCase):
 
         data = resp.get_json()
         self.assertEqual(len(data), 2)
+
+    def test_sad_path_get_wishlist_item_list(self):
+        """It should not return a list of items"""
+        # add two items to wishlist
+        wishlist = WishlistFactory()
+        items = WishlistItemFactory.create_batch(2)
+
+        wishlist.items.extend(items)
+
+        wishlist.create()
+
+        self.assertIsNotNone(wishlist.id)
+
+        # get the list back and make sure there are 2
+        resp = self.client.get(f"{BASE_URL}/{wishlist.id + 1}/items")
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_delete_wishlist_item(self):
+        """It should Delete a Wishlist Item"""
+        # add two items to wishlist
+        wishlist = self._create_wishlists(1)[0]
+        self.assertIsNotNone(wishlist.id)
+        wishlist_item = WishlistItemFactory()
+
+        # get the list back and make sure there are 2
+        resp = self.client.post(
+            f"{BASE_URL}/{wishlist.id}/items",
+            json=wishlist_item.serialize(),
+            content_type="application/json",
+        )
+
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        data = resp.get_json()
+        logging.debug(data)
+
+        item_id = data["id"]
+
+        # send delete request
+        resp = self.client.delete(
+            f"{BASE_URL}/{wishlist.id}/items/{item_id}",
+            content_type="application/json",
+        )
+
+        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
+
+        # retrieve it back and make sure wishlist item is not there
+        resp = self.client.get(
+            f"{BASE_URL}/{wishlist.id}/addresses/{item_id}",
+            content_type="application/json",
+        )
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_sad_path_delete_wishlist_item(self):
+        """It should Delete a Wishlist Item"""
+        # add two items to wishlist
+        wishlist = self._create_wishlists(1)[0]
+        self.assertIsNotNone(wishlist.id)
+        wishlist_item = WishlistItemFactory()
+
+        # get the list back and make sure there are 2
+        resp = self.client.post(
+            f"{BASE_URL}/{wishlist.id}/items",
+            json=wishlist_item.serialize(),
+            content_type="application/json",
+        )
+
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        data = resp.get_json()
+        logging.debug(data)
+
+        item_id = data["id"]
+
+        # send delete request
+        resp = self.client.delete(
+            f"{BASE_URL}/{wishlist.id + 1}/items/{item_id}",
+            content_type="application/json",
+        )
+
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
