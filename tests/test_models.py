@@ -279,9 +279,7 @@ class TestWishlistItem(unittest.TestCase):
             "product_name": "DevOps for Dummies",
             "product_price": 29.99,
             "quantity": 2,
-            "created_date": datetime.strptime(
-                "2023-10-12 00:00:00", "%Y-%m-%d %H:%M:%S"
-            ),
+            "created_date": "2016-09-12",
         }
 
     def tearDown(self):
@@ -311,7 +309,7 @@ class TestWishlistItem(unittest.TestCase):
             "product_id": 3,
             "product_name": "The Big Lebowski",
             "product_price": 9.99,
-            "created_date": now,
+            "created_date": "2016-09-12",
         }
         item = WishlistItem()
         item.id = values["id"]
@@ -350,10 +348,10 @@ class TestWishlistItem(unittest.TestCase):
         self.assertEqual(item.product_id, serialized["product_id"])
         self.assertEqual(item.product_name, serialized["product_name"])
         self.assertEqual(item.product_price, serialized["product_price"])
-        self.assertEqual(item.created_date, serialized["created_date"])
+        self.assertEqual(str(item.created_date), serialized["created_date"])
 
     def test_wishlist_item_deserialize(self):
-        """It should deserialize a wishlist"""
+        """It should deserialize a wishlist item"""
 
         item = WishlistItem()
         item.deserialize(self.serialized)
@@ -363,7 +361,7 @@ class TestWishlistItem(unittest.TestCase):
         self.assertEqual(item.product_name, self.serialized["product_name"])
         self.assertEqual(item.product_price, self.serialized["product_price"])
         self.assertEqual(item.quantity, self.serialized["quantity"])
-        self.assertEqual(item.created_date, self.serialized["created_date"])
+        self.assertEqual(str(item.created_date), self.serialized["created_date"])
 
     def test_wishlist_item_deserialize_with_invalid_data_type(self):
         """It should raise a DataValidationError when serializing from incorrect type"""
