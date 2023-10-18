@@ -156,6 +156,39 @@ class TestWishlist(unittest.TestCase):
         wishlists_found = Wishlist.find(last_id_2)
         self.assertIsNone(wishlists_found)
 
+    def test_delete_wishlist_cascade_delete_items(self):
+        """It should remove the associated items upon delete"""
+
+        wishlist = WishlistFactory()
+        wishlist.create()
+
+        item1 = WishlistItemFactory()
+        item2 = WishlistItemFactory()
+
+        self.assertIsNotNone(wishlist.id)
+
+        item1.wishlist_id = wishlist.id
+        item2.wishlist_id = wishlist.id
+
+        item1.create()
+        item2.create()
+
+        # wishlist.items.append(item1)
+        # wishlist.items.append(item2)
+
+        self.assertIsNotNone(item1.id)
+        self.assertIsNotNone(item2.id)
+
+        item1_id = item1.id
+
+        Wishlist.delete(wishlist)
+
+        self.assertIsNotNone(wishlist.id)
+
+        item1_lookup = WishlistItem.find(item1_id)
+
+        self.assertIsNone(item1_lookup)
+
     def test_list_all_wishlists(self):
         """It should List all Wishlists in the database"""
         wishlists = Wishlist.all()
@@ -231,12 +264,12 @@ class TestWishlistItem(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         """This runs once after the entire test suite"""
-        db.session.query(WishlistItem).delete()
+        db.session.query(Wishlist).delete()
         db.session.commit()
 
     def setUp(self):
         """This runs before each test"""
-        db.session.query(WishlistItem).delete()
+        db.session.query(Wishlist).delete()
         db.session.commit()
 
         self.serialized = {
@@ -349,81 +382,82 @@ class TestWishlistItem(unittest.TestCase):
         item = WishlistItem()
         self.assertRaises(DataValidationError, item.deserialize, self.serialized)
 
-    # don't love this approach.  This is why it feels slightly wrong to me to unit test with DB
-    # I have to rely on the wishlist Model functioning for this test to pass otherwise the Foreign Key
-    # constraint will fail when trying to save an arbitrary wishlist_id
-    def test_wishlist_item_create(self):
-        """It creates (inserts) a WishListItem"""
+    def test_add_wishlist_item(self):
+        """It should Create a wishlist with an item and add it to the database"""
+        wishlists = Wishlist.all()
+        self.assertEqual(wishlists, [])
         wishlist = WishlistFactory()
+        item = WishlistItemFactory(wishlist=wishlist)
+        wishlist.items.append(item)
         wishlist.create()
-        item = WishlistItemFactory()
-        item.wishlist_id = wishlist.id
-        # ensure id is None before saving (which will auto increment/assign the id)
-        item.id = None
-        item.create()
-        self.assertIsNotNone(item.id)
+        # Assert that it was assigned an id and shows up in the database
+        self.assertIsNotNone(wishlist.id)
+        wishlists = Wishlist.all()
+        self.assertEqual(len(wishlists), 1)
 
-    def test_wishlist_item_find(self):
-        """It reads (finds) a WishListItem"""
-        wishlist = WishlistFactory()
-        wishlist.create()
-        item = WishlistItemFactory()
-        item.wishlist_id = wishlist.id
-        item.create()
-        item_id = item.id
+        new_wishlist = Wishlist.find(wishlist.id)
+        self.assertEqual(new_wishlist.items[0].id, item.id)
 
-        print(f"Item: {item.__repr__}")
+        item2 = WishlistItemFactory(wishlist=wishlist)
+        wishlist.items.append(item2)
+        wishlist.update()
 
-        found_item = WishlistItem.find(item_id)
+        new_wishlist = Wishlist.find(wishlist.id)
+        self.assertEqual(len(new_wishlist.items), 2)
+        self.assertEqual(new_wishlist.items[1].id, item2.id)
 
-        self.assertIsNotNone(found_item)
-
-        print(f"Found Item: {found_item.__repr__}")
-
-        self.assertEqual(item, found_item)
-
-    def test_wishlist_item_update(self):
-        """It should update a previously saved Wishlist_Item"""
+    def test_update_wishlist_item(self):
+        """It should Update a wishlist's item"""
+        wishlists = Wishlist.all()
+        self.assertEqual(wishlists, [])
 
         wishlist = WishlistFactory()
+        item = WishlistItemFactory(wishlist=wishlist)
         wishlist.create()
-        item = WishlistItemFactory()
-        # set foreign key to some pre-existing wishlist_id
-        item.wishlist_id = wishlist.id
-        item.id = None
-        item.create()
+        # Assert that it was assigned an id and shows up in the database
+        self.assertIsNotNone(wishlist.id)
+        wishlists = Wishlist.all()
+        self.assertEqual(len(wishlists), 1)
 
-        self.assertIsNotNone(item.id)
+        # Fetch it back
+        wishlist = Wishlist.find(wishlist.id)
+        old_item = wishlist.items[0]
+        print("%r", old_item)
+        self.assertEqual(old_item.quantity, item.quantity)
+        # Change the qty
+        new_qty = old_item.quantity + 1
+        old_item.quantity = new_qty
+        wishlist.update()
 
-        # now update (quantity is really the only thing which makes sense to update)
-        incremented_quantity = item.quantity + 1
-        item.quantity = incremented_quantity
-        item.update()
+        # Fetch it back again
+        wishlist = Wishlist.find(wishlist.id)
+        item = wishlist.items[0]
+        self.assertEqual(item.quantity, new_qty)
 
-        found_item = WishlistItem.find(item.id)
-        self.assertEqual(incremented_quantity, found_item.quantity)
-
-    def test_wishlist_delete(self):
-        "It should successfully delete a WishlistItem"
+    def test_delete_wishlist_item(self):
+        """It should Delete a wishlists item"""
+        wishlists = Wishlist.all()
+        self.assertEqual(wishlists, [])
 
         wishlist = WishlistFactory()
+        item = WishlistItemFactory(wishlist=wishlist)
         wishlist.create()
-        item = WishlistItemFactory()
-        # set foreign key to some pre-existing wishlist_id
-        item.wishlist_id = wishlist.id
-        item.create()
+        # Assert that it was assigned an id and shows up in the database
+        self.assertIsNotNone(wishlist.id)
+        wishlists = Wishlist.all()
+        self.assertEqual(len(wishlists), 1)
 
-        found_item = WishlistItem.find(item.id)
-        found_item_id = found_item.id
-        self.assertIsNotNone(found_item_id)
+        # Fetch it back
+        wishlist = Wishlist.find(wishlist.id)
+        item = wishlist.items[0]
+        item.delete()
+        wishlist.update()
 
-        WishlistItem.delete(found_item)
+        # Fetch it back again
+        wishlist = Wishlist.find(wishlist.id)
+        self.assertEqual(len(wishlist.items), 0)
 
-        ghost_item = WishlistItem.find(found_item_id)
-
-        self.assertIsNone(ghost_item)
-
-    def test_list_all_accounts(self):
+    def test_list_all_wishlist_items(self):
         """It should list all wishlist_items in the database"""
         items = WishlistItem.all()
         self.assertEqual(items, [])
@@ -433,5 +467,5 @@ class TestWishlistItem(unittest.TestCase):
             item.wishlist_id = wishlist.id
             item.create()
         # Assert that there are now 5 wishlist_items in the database
-        accounts = WishlistItem.all()
-        self.assertEqual(len(accounts), 5)
+        wishlists = WishlistItem.all()
+        self.assertEqual(len(wishlists), 5)
