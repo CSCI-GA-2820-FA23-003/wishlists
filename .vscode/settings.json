@@ -9,7 +9,7 @@
         "-s",
         "./tests",
         "-p",
-        "test_*.py"
+        "*test.py"
     ],
     "cucumberautocomplete.steps": ["features/steps/*.py"],
     "cucumberautocomplete.syncfeatures": "features/*.feature",

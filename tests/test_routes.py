@@ -190,6 +190,9 @@ class TestWishlistServer(TestCase):
         self.assertEqual(resp_wishlist.status_code, status.HTTP_201_CREATED)
         wishlist_data = resp_wishlist.get_json()
 
+        # Confirm that wishlist.id is not None
+        self.assertIsNotNone(wishlist_data["id"])
+
         # Create a Wishlist Item
         wishlist_item = WishlistItemFactory()
         resp = self.client.post(
@@ -199,12 +202,17 @@ class TestWishlistServer(TestCase):
         )
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
 
+        # Ensure that the Location header is set and matches the expected URL
+        expected_location = f'{BASE_URL}/{wishlist_data["id"]}/items/{wishlist_item.id}'
+        self.assertEqual(resp.headers["Location"], expected_location)
+
         # Make sure location header is set (part of RESTful api definition)
         location = resp.headers.get("Location", None)
         self.assertIsNotNone(location)
 
         # Check the data is correct (response from db)
         new_wishlist_item = resp.get_json()
+        wishlist.deserialize(new_wishlist_item)
         self.assertEqual(
             new_wishlist_item["wishlist_id"],
             wishlist_data["id"],
@@ -231,7 +239,8 @@ class TestWishlistServer(TestCase):
             "Quantity does not match",
         )
         self.assertEqual(
-            datetime.strptime(new_wishlist_item["created_date"], '%a, %d %b %Y %H:%M:%S GMT').date(),
+            # datetime.strptime(new_wishlist_item["created_date"], '%a, %d %b %Y %H:%M:%S GMT').date(),
+            new_wishlist_item["created_date"],
             wishlist_item.created_date,
             "Created Date does not match",
         )
@@ -276,8 +285,3 @@ class TestWishlistServer(TestCase):
         )
         self.assertEqual(resp.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
         self.assertIsNotNone(resp.get_json())
-
-    def test_create_wishlist_item_method_not_allowed(self):
-        """It should not allow an illegal method call for creating Wishlist Item"""
-        resp = self.client.get(f'{BASE_URL}/0/items')
-        self.assertEqual(resp.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)

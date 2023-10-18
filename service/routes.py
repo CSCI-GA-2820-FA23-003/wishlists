@@ -76,7 +76,7 @@ def create_wishlist_item(wishlist_id):
     check_content_type("application/json")
 
     # Find the specified Wishlist
-    wishlist = find_wishlist_by_id(wishlist_id)
+    wishlist = Wishlist.find(wishlist_id)
     if not wishlist:
         abort(status.HTTP_404_NOT_FOUND, f"Wishlist with ID {wishlist_id} not found")
 
@@ -140,12 +140,4 @@ def check_content_type(media_type):
         f"Content-Type must be {media_type}",
     )
 
-def find_wishlist_by_id(wishlist_id):
-    """Finds wishlist by its ID"""
-    try:
-        wishlist = Wishlist.query.filter_by(id=wishlist_id).first()
-        return wishlist
-    except SQLAlchemyError as e:
-        app.logger.error("Error while retrieving Wishlist by ID: %s", e)
-        return None  # Return None to indicate an error or not found
     
