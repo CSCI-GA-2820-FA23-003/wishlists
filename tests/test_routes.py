@@ -197,25 +197,22 @@ class TestWishlistServer(TestCase):
     def test_create_wishlist_item(self):
         """It should create a new Wishlist Item and associate it with a specific Wishlist"""
         # Create a Wishlist to associate the item with
-        wishlist = WishlistFactory()
-        resp_wishlist = self.client.post(BASE_URL, json=wishlist.serialize())
-        self.assertEqual(resp_wishlist.status_code, status.HTTP_201_CREATED)
-        wishlist_data = resp_wishlist.get_json()
+        wishlist = self._create_wishlists(1)[0]
 
         # Confirm that wishlist.id is not None
-        self.assertIsNotNone(wishlist_data["id"])
+        self.assertIsNotNone(wishlist.id)
 
         # Create a Wishlist Item
         wishlist_item = WishlistItemFactory()
         resp = self.client.post(
-            f'{BASE_URL}/{wishlist_data["id"]}/items',
+            f"{BASE_URL}/{wishlist.id}/items",
             json=wishlist_item.serialize(),
             content_type="application/json",
         )
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
 
         # Ensure that the Location header is set and matches the expected URL
-        expected_location = f'{BASE_URL}/{wishlist_data["id"]}/items/{wishlist_item.id}'
+        expected_location = f"{BASE_URL}/{wishlist.id}/items/{wishlist_item.id}"
         self.assertEqual(resp.headers["Location"], expected_location)
 
         # Make sure location header is set (part of RESTful api definition)
@@ -223,37 +220,37 @@ class TestWishlistServer(TestCase):
         self.assertIsNotNone(location)
 
         # Check the data is correct (response from db)
-        new_wishlist_item = resp.get_json()
-        wishlist.deserialize(new_wishlist_item)
+        data = resp.get_json()
+
         self.assertEqual(
-            new_wishlist_item["wishlist_id"],
-            wishlist_data["id"],
+            data["wishlist_id"],
+            wishlist.id,
             "Wishlist Item is not associated with the correct Wishlist",
         )
         self.assertEqual(
-            new_wishlist_item["product_id"],
+            data["product_id"],
             wishlist_item.product_id,
             "Product Id does not match",
         )
         self.assertEqual(
-            new_wishlist_item["product_name"],
+            data["product_name"],
             wishlist_item.product_name,
             "Product Name does not match",
         )
         self.assertEqual(
-            new_wishlist_item["product_price"],
+            data["product_price"],
             str(wishlist_item.product_price),
             "Product Price does not match",
         )
         self.assertEqual(
-            new_wishlist_item["quantity"],
+            data["quantity"],
             wishlist_item.quantity,
             "Quantity does not match",
         )
         self.assertEqual(
             # datetime.strptime(new_wishlist_item["created_date"], '%a, %d %b %Y %H:%M:%S GMT').date(),
-            new_wishlist_item["created_date"],
-            wishlist_item.created_date,
+            data["created_date"],
+            str(wishlist_item.created_date),
             "Created Date does not match",
         )
 

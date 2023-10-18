@@ -143,7 +143,10 @@ def create_wishlist_item(wishlist_id):
     wishlist_item.wishlist_id = (
         wishlist.id
     )  # Associate the item with the specified wishlist
-    wishlist_item.create()
+
+    # Append items to the wishlist
+    wishlist.items.append(wishlist_item)
+    wishlist.update()
 
     # Create a message to return
     message = wishlist_item.serialize()
