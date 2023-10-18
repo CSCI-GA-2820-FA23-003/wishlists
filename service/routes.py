@@ -111,7 +111,7 @@ def read_wishlists(wishlist_id):
     if not wishlist:
         abort(
             status.HTTP_404_NOT_FOUND,
-            f"Wishlist with id '{wishlist_id}' could not be found."
+            f"Wishlist with id '{wishlist_id}' could not be found.",
         )
     return make_response(jsonify(wishlist.serialize()), status.HTTP_200_OK)
 
@@ -144,6 +144,36 @@ def delete_wishlists(wishlist_id):
         return make_response("", status.HTTP_404_NOT_FOUND)
 
     return make_response("", status.HTTP_204_NO_CONTENT)
+
+
+# ---------------------------------------------------------------------
+#                W I S H L I S T   I T E M   M E T H O D S
+# ---------------------------------------------------------------------
+
+
+######################################################################
+# LIST ITEMS
+######################################################################
+@app.route("/wishlists/<int:wishlist_id>/items", methods=["GET"])
+def list_wishlist_items(wishlist_id):
+    """Returns all of the Items for a Wishlist"""
+    app.logger.info(
+        "Request for all WishlistItems for Wishlist with id: %s", wishlist_id
+    )
+
+    # See if the account exists and abort if it doesn't
+    wishlist = Wishlist.find(wishlist_id)
+    if not wishlist:
+        abort(
+            status.HTTP_404_NOT_FOUND,
+            f"Wishlist with id '{wishlist_id}' could not be found.",
+        )
+
+    # Get the items for the wishlist
+    results = [item.serialize() for item in wishlist.items]
+
+    return make_response(jsonify(results), status.HTTP_200_OK)
+
 
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S

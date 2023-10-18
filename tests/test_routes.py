@@ -119,17 +119,18 @@ class TestWishlistServer(TestCase):
         wishlist_id = wishlist.id
         customer_id = wishlist.customer_id
         wishlist_name = wishlist.wishlist_name
-        created_date = str(wishlist.created_date)  # convert datetime object to string since resp will be in json
+        created_date = str(
+            wishlist.created_date
+        )  # convert datetime object to string since resp will be in json
         resp = self.client.get(
-            f'{BASE_URL}/{wishlist_id}',
-            content_type="application/json"
+            f"{BASE_URL}/{wishlist_id}", content_type="application/json"
         )
         data = resp.get_json()
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        self.assertEqual(data['id'], wishlist_id)
-        self.assertEqual(data['customer_id'], customer_id)
-        self.assertEqual(data['wishlist_name'], wishlist_name)
-        self.assertEqual(data['created_date'], str(created_date))
+        self.assertEqual(data["id"], wishlist_id)
+        self.assertEqual(data["customer_id"], customer_id)
+        self.assertEqual(data["wishlist_name"], wishlist_name)
+        self.assertEqual(data["created_date"], str(created_date))
 
     def test_delete_wishlist(self):
         """It should Delete a Wishlist"""
@@ -150,10 +151,7 @@ class TestWishlistServer(TestCase):
 
     def test_get_wishlist_not_found(self):
         """It should not Read an Wishlist that is not found"""
-        resp = self.client.get(
-            f"{BASE_URL}/0",
-            content_type="application/json"
-        )
+        resp = self.client.get(f"{BASE_URL}/0", content_type="application/json")
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_unsupported_media_type(self):
@@ -184,13 +182,10 @@ class TestWishlistServer(TestCase):
                     "id": wishlist_id,
                     "customer_id": customer_id,
                     "wishlist_name": wishlist_name,
-                    "created_date": created_date
+                    "created_date": created_date,
                 }
             )
-        resp = self.client.get(
-            BASE_URL,
-            content_type="application/json"
-        )
+        resp = self.client.get(BASE_URL, content_type="application/json")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = resp.get_json()
         self.assertEqual(len(data), 5)
@@ -215,7 +210,7 @@ class TestWishlistServer(TestCase):
         resp = self.client.post(
             f'{BASE_URL}/{wishlist_data["id"]}/items',
             json=wishlist_item.serialize(),
-            content_type="application/json"
+            content_type="application/json",
         )
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
 
@@ -261,7 +256,6 @@ class TestWishlistServer(TestCase):
             wishlist_item.created_date,
             "Created Date does not match",
         )
-        
 
     def test_create_wishlist_item_bad_request(self):
         """It should not create a Wishlist Item when sending the wrong data"""
@@ -274,7 +268,7 @@ class TestWishlistServer(TestCase):
         resp = self.client.post(
             f'{BASE_URL}/{wishlist_data["id"]}/items',
             json={"item_property": "Example Property"},  # Incomplete data
-            content_type="application/json"
+            content_type="application/json",
         )
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -283,7 +277,7 @@ class TestWishlistServer(TestCase):
         resp = self.client.post(
             f"{BASE_URL}/0/items",
             json={"item_property": "Example Property"},
-            content_type="application/json"
+            content_type="application/json",
         )
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
@@ -298,7 +292,26 @@ class TestWishlistServer(TestCase):
         resp = self.client.post(
             f'{BASE_URL}/{wishlist_data["id"]}/items',
             json={"item_property": "Example Property"},
-            content_type="test/html"  # Incorrect media type
+            content_type="test/html",  # Incorrect media type
         )
         self.assertEqual(resp.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
         self.assertIsNotNone(resp.get_json())
+
+    def test_get_wishlist_item_list(self):
+        """It should Get a list of items"""
+        # add two items to wishlist
+        wishlist = WishlistFactory()
+        items = WishlistItemFactory.create_batch(2)
+
+        wishlist.items.extend(items)
+
+        wishlist.create()
+
+        self.assertIsNotNone(wishlist.id)
+
+        # get the list back and make sure there are 2
+        resp = self.client.get(f"{BASE_URL}/{wishlist.id}/items")
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+        data = resp.get_json()
+        self.assertEqual(len(data), 2)
