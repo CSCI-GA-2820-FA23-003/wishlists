@@ -57,7 +57,7 @@ class PersistentBase:
         """
         Updates a Wishlist to the database
         """
-        logger.info("Updating %s", self.name)
+        logger.info("Updating %s", self.id)
         db.session.commit()
 
     def delete(self):
