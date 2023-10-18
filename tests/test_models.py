@@ -162,33 +162,32 @@ class TestWishlist(unittest.TestCase):
         wishlist = WishlistFactory()
         wishlist.create()
 
-        item_1 = WishlistItemFactory()
-        item_2 = WishlistItemFactory()
+        item1 = WishlistItemFactory()
+        item2 = WishlistItemFactory()
 
         self.assertIsNotNone(wishlist.id)
 
-        item_1.wishlist_id = wishlist.id
-        item_2.wishlist_id = wishlist.id
+        item1.wishlist_id = wishlist.id
+        item2.wishlist_id = wishlist.id
 
-        item_1.create()
-        item_2.create()
+        item1.create()
+        item2.create()
 
-        # wishlist.items.append(item_1)
-        # wishlist.items.append(item_2)
+        # wishlist.items.append(item1)
+        # wishlist.items.append(item2)
 
-        self.assertIsNotNone(item_1.id)
-        self.assertIsNotNone(item_2.id)
+        self.assertIsNotNone(item1.id)
+        self.assertIsNotNone(item2.id)
 
-        item_1_id = item_1.id
-        item_2_id = item_2.id
+        item1_id = item1.id
 
         Wishlist.delete(wishlist)
 
         self.assertIsNotNone(wishlist.id)
 
-        item_1_lookup = WishlistItem.find(item_1_id)
+        item1_lookup = WishlistItem.find(item1_id)
 
-        self.assertIsNone(item_1_lookup)
+        self.assertIsNone(item1_lookup)
 
     def test_list_all_wishlists(self):
         """It should List all Wishlists in the database"""
