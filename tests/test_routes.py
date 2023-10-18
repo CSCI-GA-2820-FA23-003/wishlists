@@ -199,12 +199,12 @@ class TestWishlistServer(TestCase):
 
         # update the wishlist
         new_wishlist = resp.get_json()
-        new_wishlist["name"] = "devops-wishlist"
+        new_wishlist["wishlist_name"] = "devops-wishlist"
         new_wishlist_id = new_wishlist["id"]
         resp = self.client.put(f"{BASE_URL}/{new_wishlist_id}", json=new_wishlist)
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         updated_wishlist = resp.get_json()
-        self.assertEqual(updated_wishlist["name"], "devops-wishlist")
+        self.assertEqual(updated_wishlist["wishlist_name"], "devops-wishlist")
 
     ######################################################################
     #  W I S H L I S T   I T E M   T E S T   C A S E S   H E R E
