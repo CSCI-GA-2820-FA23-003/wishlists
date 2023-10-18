@@ -190,6 +190,36 @@ class TestWishlistServer(TestCase):
         self.assertEqual(len(data), 5)
         self.assertEqual(data, wishlist_array)
 
+    def test_update_wishlist(self):
+        """It should Update an existing Wishlist"""
+        # create an Wishlist to update
+        test_wishlist = WishlistFactory()
+        resp = self.client.post(BASE_URL, json=test_wishlist.serialize())
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+
+        # update the wishlist
+        new_wishlist = resp.get_json()
+        new_wishlist["wishlist_name"] = "devops-wishlist"
+        new_wishlist_id = new_wishlist["id"]
+        resp = self.client.put(f"{BASE_URL}/{new_wishlist_id}", json=new_wishlist)
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        updated_wishlist = resp.get_json()
+        self.assertEqual(updated_wishlist["wishlist_name"], "devops-wishlist")
+
+    def test_update_nonexistent_wishlist(self):
+        """It should return 404 when trying to update a nonexistent Wishlist."""
+        # Create a test wishlist but do not persist it to the server.
+        test_wishlist = WishlistFactory()
+
+        # Try to update a wishlist that doesn't exist.
+        nonexistent_wishlist_id = 99999  # Assuming this ID doesn't exist.
+        resp = self.client.put(
+            f"{BASE_URL}/{nonexistent_wishlist_id}", json=test_wishlist.serialize()
+        )
+
+        # Check if the response status code indicates the wishlist is not found.
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
     ######################################################################
     #  W I S H L I S T   I T E M   T E S T   C A S E S   H E R E
     ######################################################################
