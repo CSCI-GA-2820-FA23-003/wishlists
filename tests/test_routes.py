@@ -8,7 +8,7 @@ Test cases can be run with the following:
 import os
 import logging
 from unittest import TestCase
-from tests.factories import WishlistFactory
+from tests.factories import WishlistFactory, WishlistItemFactory
 from service import app
 from service.models import db, Wishlist, init_db
 from service.common import status  # HTTP Status Codes
@@ -118,17 +118,18 @@ class TestWishlistServer(TestCase):
         wishlist_id = wishlist.id
         customer_id = wishlist.customer_id
         wishlist_name = wishlist.wishlist_name
-        created_date = str(wishlist.created_date)  # convert datetime object to string since resp will be in json
+        created_date = str(
+            wishlist.created_date
+        )  # convert datetime object to string since resp will be in json
         resp = self.client.get(
-            f'{BASE_URL}/{wishlist_id}',
-            content_type="application/json"
+            f"{BASE_URL}/{wishlist_id}", content_type="application/json"
         )
         data = resp.get_json()
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        self.assertEqual(data['id'], wishlist_id)
-        self.assertEqual(data['customer_id'], customer_id)
-        self.assertEqual(data['wishlist_name'], wishlist_name)
-        self.assertEqual(data['created_date'], str(created_date))
+        self.assertEqual(data["id"], wishlist_id)
+        self.assertEqual(data["customer_id"], customer_id)
+        self.assertEqual(data["wishlist_name"], wishlist_name)
+        self.assertEqual(data["created_date"], str(created_date))
 
     def test_delete_wishlist(self):
         """It should Delete a Wishlist"""
@@ -139,10 +140,7 @@ class TestWishlistServer(TestCase):
 
     def test_get_wishlist_not_found(self):
         """It should not Read an Wishlist that is not found"""
-        resp = self.client.get(
-            f"{BASE_URL}/0",
-            content_type="application/json"
-        )
+        resp = self.client.get(f"{BASE_URL}/0", content_type="application/json")
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_unsupported_media_type(self):
@@ -173,14 +171,34 @@ class TestWishlistServer(TestCase):
                     "id": wishlist_id,
                     "customer_id": customer_id,
                     "wishlist_name": wishlist_name,
-                    "created_date": created_date
+                    "created_date": created_date,
                 }
             )
-        resp = self.client.get(
-            BASE_URL,
-            content_type="application/json"
-        )
+        resp = self.client.get(BASE_URL, content_type="application/json")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = resp.get_json()
         self.assertEqual(len(data), 5)
         self.assertEqual(data, wishlist_array)
+
+    ######################################################################
+    #  WishlistItem Test Cases
+    ######################################################################
+
+    def test_get_wishlist_item_list(self):
+        """It should Get a list of items"""
+        # add two items to wishlist
+        wishlist = WishlistFactory()
+        items = WishlistItemFactory.create_batch(2)
+
+        wishlist.items.extend(items)
+
+        wishlist.create()
+
+        self.assertIsNotNone(wishlist.id)
+
+        # get the list back and make sure there are 2
+        resp = self.client.get(f"{BASE_URL}/{wishlist.id}/items")
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+        data = resp.get_json()
+        self.assertEqual(len(data), 2)
