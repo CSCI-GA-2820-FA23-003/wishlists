@@ -5,7 +5,6 @@ Test cases for Wishlist Model
 import os
 import logging
 import unittest
-from datetime import datetime
 from service import app
 from service.models import Wishlist, WishlistItem, DataValidationError, db
 from tests.factories import WishlistFactory, WishlistItemFactory
@@ -302,7 +301,6 @@ class TestWishlistItem(unittest.TestCase):
     # that would have set all these values in a single line.
     def test_wishlist_after_populating_properties(self):
         """It should create an instance using the constructor with arguments"""
-        now = datetime.now()
         values = {
             "id": 1,
             "wishlist_id": 2,

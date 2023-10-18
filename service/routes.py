@@ -5,7 +5,6 @@ Describe what your service does here
 """
 
 from flask import jsonify, request, abort, make_response
-from sqlalchemy.exc import SQLAlchemyError
 from service.common import status  # HTTP Status Codes
 from service.models import Wishlist, WishlistItem
 
