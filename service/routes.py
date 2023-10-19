@@ -240,6 +240,7 @@ def delete_addresses(wishlist_id, item_id):
 
     return make_response("", status.HTTP_204_NO_CONTENT)
 
+
 ######################################################################
 # UPDATE ITEMS
 ######################################################################
@@ -279,6 +280,7 @@ def update_wishlist_items(wishlist_id, item_id):
         status.HTTP_200_OK,
         {"Location": f"/wishlists/{wishlist.id}/items/{wishlist_item.id}"},
     )
+
 
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S
