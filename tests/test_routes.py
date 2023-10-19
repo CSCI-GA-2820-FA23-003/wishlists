@@ -475,6 +475,7 @@ class TestWishlistServer(TestCase):
             f"{BASE_URL}/{wishlist.id}/items/{item.id}",
             content_type="application/json",
         )
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_update_wishlist_item(self):
         """It should update a Wishlist Item (e.g., update quantity)"""
