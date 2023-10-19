@@ -462,3 +462,17 @@ class TestWishlistServer(TestCase):
             content_type="application/json",
         )
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_update_wishlist_item_sad_path(self):
+        """It should not update a Wishlist Item for a wishlist that is not found"""
+        # Create a Wishlist Item to attempt updating
+        wishlist_item = WishlistItemFactory()
+
+        # Attempt to update a Wishlist Item with a wishlist that doesn't exist
+        updated_data = {"quantity": 10}  # Change the quantity to 10
+        resp = self.client.put(
+            f"{BASE_URL}/0/items/{wishlist_item.id}",  # Use a non-existing wishlist_id
+            json=updated_data,
+            content_type="application/json",
+        )
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
