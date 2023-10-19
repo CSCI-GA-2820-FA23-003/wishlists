@@ -189,7 +189,6 @@ class WishlistItem(db.Model, PersistentBase):
 
     def deserialize(self, data: dict):
         try:
-            self.id = data["id"]
             self.wishlist_id = data["wishlist_id"]
             self.product_id = data["product_id"]
             self.product_name = data["product_name"]

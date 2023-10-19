@@ -240,16 +240,16 @@ class TestWishlistServer(TestCase):
         )
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
 
+        # Check the data is correct (response from db)
+        data = resp.get_json()
+
         # Ensure that the Location header is set and matches the expected URL
-        expected_location = f"{BASE_URL}/{wishlist.id}/items/{wishlist_item.id}"
+        expected_location = f"{BASE_URL}/{wishlist.id}/items/{data['id']}"
         self.assertEqual(resp.headers["Location"], expected_location)
 
         # Make sure location header is set (part of RESTful api definition)
         location = resp.headers.get("Location", None)
         self.assertIsNotNone(location)
-
-        # Check the data is correct (response from db)
-        data = resp.get_json()
 
         self.assertEqual(
             data["wishlist_id"],
