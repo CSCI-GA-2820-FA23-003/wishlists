@@ -476,4 +476,58 @@ class TestWishlistServer(TestCase):
             content_type="application/json",
         )
 
+    def test_update_wishlist_item(self):
+        """It should update a Wishlist Item (e.g., update quantity)"""
+        # Create a Wishlist to associate the item with
+        wishlist = self._create_wishlists(1)[0]
+
+        # Create a Wishlist Item
+        wishlist_item = WishlistItemFactory()
+        resp_create = self.client.post(
+            f"{BASE_URL}/{wishlist.id}/items",
+            json=wishlist_item.serialize(),
+            content_type="application/json",
+        )
+        self.assertEqual(resp_create.status_code, status.HTTP_201_CREATED)
+        data_create = resp_create.get_json()
+
+        # Update the Wishlist Item (e.g., change the quantity)
+        updated_data = {"quantity": 10}  # Change the quantity to 10
+        resp_update = self.client.put(
+            f"{BASE_URL}/{wishlist.id}/items/{data_create['id']}",
+            json=updated_data,
+            content_type="application/json",
+        )
+        self.assertEqual(resp_update.status_code, status.HTTP_200_OK)
+        data_update = resp_update.get_json()
+
+        # Verify that the quantity has been updated
+        self.assertEqual(data_update["quantity"], 10)
+
+    def test_update_wishlist_item_not_found(self):
+        """It should not update a Wishlist Item for an item that is not found"""
+        # Create a Wishlist to associate the item with
+        wishlist = self._create_wishlists(1)[0]
+
+        # Attempt to update a Wishlist Item that doesn't exist
+        updated_data = {"quantity": 10}  # Change the quantity to 10
+        resp = self.client.put(
+            f"{BASE_URL}/{wishlist.id}/items/0",  # Use a non-existing item_id
+            json=updated_data,
+            content_type="application/json",
+        )
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_update_wishlist_item_sad_path(self):
+        """It should not update a Wishlist Item for a wishlist that is not found"""
+        # Create a Wishlist Item to attempt updating
+        wishlist_item = WishlistItemFactory()
+
+        # Attempt to update a Wishlist Item with a wishlist that doesn't exist
+        updated_data = {"quantity": 10}  # Change the quantity to 10
+        resp = self.client.put(
+            f"{BASE_URL}/0/items/{wishlist_item.id}",  # Use a non-existing wishlist_id
+            json=updated_data,
+            content_type="application/json",
+        )
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)

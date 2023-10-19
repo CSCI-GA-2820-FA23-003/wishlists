@@ -1,0 +1,386 @@
+{
+	"info": {
+		"_postman_id": "e0ed66a3-0fdd-453a-bc7b-c74d3f7a65ba",
+		"name": "NYU Devops",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "List Wishlists",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/wishlists",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"wishlists"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Wishlist (Unsupported media type)",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"customer_id\": 42,\n    \"wishlist_name\": \"Halloween costume supplies\",\n    \"created_date\": \"2023-10-18 17:37:00\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/wishlists",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"wishlists"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Wishlist (Invalid Date String) Copy",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"customer_id\": 42,\n    \"wishlist_name\": \"Halloween costume supplies\",\n    \"created_date\": \"2023-10-18 17:37:00\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/wishlists",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"wishlists"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Wishlist Happy Path",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Set wishlist_id after successful post\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    console.debug(jsonData)",
+							"    pm.collectionVariables.unset(\"wishlist_id\");",
+							"    pm.collectionVariables.set(\"wishlist_id\", jsonData.id);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"customer_id\": 42,\n    \"wishlist_name\": \"Halloween costume supplies\",\n    \"created_date\": \"2023-10-18\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/wishlists",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"wishlists"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Read Wishlist",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"customer_id\": 42,\n    \"wishlist_name\": \"Halloween costume supplies\",\n    \"created_date\": \"2023-10-18T17:36:37−05:00\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/wishlists/{{wishlist_id}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"wishlists",
+						"{{wishlist_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update a Wishlist",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"customer_id\": 42,\n    \"wishlist_name\": \"Halloween costume supplies for Beckett\",\n    \"created_date\": \"2023-10-18\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/wishlists/{{wishlist_id}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"wishlists",
+						"{{wishlist_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Wishlist",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"customer_id\": 42,\n    \"wishlist_name\": \"Halloween costume supplies\",\n    \"created_date\": \"2023-10-18T17:36:37−05:00\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/wishlists/{{wishlist_id}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"wishlists",
+						"{{wishlist_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add Wishlist Item",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"id\": 1,\n    \"wishlist_id\": {{wishlist_id}},\n    \"product_id\": 1,\n    \"product_name\": \"Eva Foam\",\n    \"product_price\": 29.99,\n    \"quantity\": 1,\n    \"created_date\": \"2023-10-23\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/wishlists/{{wishlist_id}}/items",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"wishlists",
+						"{{wishlist_id}}",
+						"items"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Wishlist Item",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"id\": 1,\n    \"wishlist_id\": {{wishlist_id}},\n    \"product_id\": 1,\n    \"product_name\": \"Eva Foam\",\n    \"product_price\": 29.99,\n    \"quantity\": 100,\n    \"created_date\": \"2023-10-23\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/wishlists/{{wishlist_id}}/items/{{item_id}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"wishlists",
+						"{{wishlist_id}}",
+						"items",
+						"{{item_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List Wishlist Items",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"id\": 1,\n    \"wishlist_id\": {{wishlist_id}},\n    \"product_id\": 1,\n    \"product_name\": \"Eva Foam\",\n    \"product_price\": 29.99,\n    \"quantity\": 1,\n    \"created_date\": \"2023-10-23\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/wishlists/{{wishlist_id}}/items",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"wishlists",
+						"{{wishlist_id}}",
+						"items"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Wishlist Item",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"id\": 1,\n    \"wishlist_id\": {{wishlist_id}},\n    \"product_id\": 1,\n    \"product_name\": \"Eva Foam\",\n    \"product_price\": 29.99,\n    \"quantity\": 100,\n    \"created_date\": \"2023-10-23\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/wishlists/{{wishlist_id}}/items/{{item_id}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"wishlists",
+						"{{wishlist_id}}",
+						"items",
+						"{{item_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Wishlist Item",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/wishlists/{{wishlist_id}}/items/{{item_id}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"wishlists",
+						"{{wishlist_id}}",
+						"items",
+						"{{item_id}}"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "wishlist_id",
+			"value": "317",
+			"type": "string"
+		},
+		{
+			"key": "item_id",
+			"value": "1",
+			"type": "string"
+		}
+	]
+}

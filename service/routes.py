@@ -260,9 +260,50 @@ def read_wishlist_item(wishlist_id, item_id):
     if not item:
         abort(
             status.HTTP_404_NOT_FOUND,
-            f"Item with id '{item_id}' in Wishlist with id '{wishlist_id}' could not be found."
+            f"Item with id '{item_id}' in Wishlist with id '{wishlist_id}' could not be found.",
         )
     return make_response(jsonify(item.serialize()), status.HTTP_200_OK)
+
+
+######################################################################
+# UPDATE ITEMS
+######################################################################
+@app.route("/wishlists/<int:wishlist_id>/items/<int:item_id>", methods=["PUT"])
+def update_wishlist_items(wishlist_id, item_id):
+    """Update a wishlist item"""
+    app.logger.info(
+        "Request to update Item %s for Wishlist id: %s", item_id, wishlist_id
+    )
+
+    # Validate content is JSON
+    check_content_type("application/json")
+
+    # Find the specified Wishlist
+    wishlist = Wishlist.find(wishlist_id)
+    if not wishlist:
+        abort(status.HTTP_404_NOT_FOUND, f"Wishlist with ID {wishlist_id} not found")
+
+    # Find the specified WishlistItem
+    wishlist_item = None
+    for item in wishlist.items:
+        if item.id == item_id:
+            wishlist_item = item
+            break
+
+    if not wishlist_item:
+        abort(status.HTTP_404_NOT_FOUND, f"Wishlist Item with ID {item_id} not found")
+
+    # Update the Quantity of the WishlistItem
+    data = request.get_json()
+    if "quantity" in data:
+        wishlist_item.quantity = data["quantity"]
+        wishlist.update()
+
+    return make_response(
+        jsonify(wishlist_item.serialize()),
+        status.HTTP_200_OK,
+        {"Location": f"/wishlists/{wishlist.id}/items/{wishlist_item.id}"},
+    )
 
 
 ######################################################################
