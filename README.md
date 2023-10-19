@@ -66,6 +66,106 @@ To run all tests in the project, use the following at the command line.
 
 ```green```
 
+### Wishlist Endpoints
+​
+1. **Create Wishlist**
+   - **Endpoint**: `POST /wishlists`
+   - **Description**: Create a new wishlist for a customer.
+   - **Request JSON**:
+     ```json
+     {
+         "customer_id": 1,
+         "wishlist_name": "My Wishlist",
+         "created_date": "2023-10-12"
+     }
+     ```
+   - **Response**:
+     - **Status Code**:
+       - 201 (Created) - Successfully created a new wishlist.
+     - **Body**: Returns the newly created wishlist with its ID.
+​
+2. **Get Wishlist**
+   - **Endpoint**: `GET /wishlists?id=<wishlist_id>`
+   - **Description**: Retrieve information about a specific wishlist.
+   - **Response**:
+     - **Status Codes**:
+       - 200 (OK) - Successfully retrieved the wishlist.
+       - 404 (Not Found) - Wishlist not found.
+​
+3. **Delete Wishlist**
+   - **Endpoint**: `DELETE /wishlists/<wishlist_id>`
+   - **Description**: Delete a specific wishlist.
+   - **Response**:
+     - **Status Codes**:
+       - 204 (No Content) - Successfully deleted the wishlist.
+       - 404 (Not Found) - Wishlist not found.
+​
+4. **List Wishlists**
+   - **Endpoint**: `GET /wishlists`
+   - **Description**: Retrieve a list of all wishlists.
+   - **Response**:
+     - **Status Code**:
+       - 200 (OK) - Successfully retrieved the list of wishlists.
+​
+### Item Endpoints
+​
+1. **Create Item**
+   - **Endpoint**: `POST /wishlists/<wishlist_id>/items`
+   - **Description**: Add an item to a specific wishlist.
+   - **Request JSON**:
+     ```json
+     {
+         "id": 1,
+         "wishlist_id": 2,
+         "product_id": 3,
+         "product_name": "DevOps for Dummies",
+         "product_price": 29.99,
+         "quantity": 2,
+         "created_date": "2023-10-12"
+     }
+     ```
+   - **Response**:
+     - **Status Code**:
+       - 201 (Created) - Successfully created a new item in the wishlist.
+     - **Body**: Returns the newly created item with its ID.
+​
+2. **Get Item**
+   - **Endpoint**: `GET /wishlists/<wishlist_id>/items?id=<item_id>`
+   - **Description**: Retrieve information about a specific item within a wishlist.
+   - **Response**:
+     - **Status Codes**:
+       - 200 (OK) - Successfully retrieved the item.
+       - 404 (Not Found) - Item not found.
+​
+3. **Update Item**
+   - **Endpoint**: `PUT /wishlists/<wishlist_id>/items/<item_id>`
+   - **Description**: Update the details of an existing item within a wishlist.
+   - **Request JSON**:
+     ```json
+     {
+         "quantity": 3
+     }
+     ```
+   - **Response**:
+     - **Status Codes**:
+       - 200 (OK) - Successfully updated the item.
+       - 404 (Not Found) - Item not found.
+​
+4. **Delete Item**
+   - **Endpoint**: `DELETE /wishlists/<wishlist_id>/items/<item_id>`
+   - **Description**: Delete a specific item from a wishlist.
+   - **Response**:
+     - **Status Codes**:
+       - 204 (No Content) - Successfully deleted the item.
+       - 404 (Not Found) - Item not found.
+​
+5. **List Items in Wishlist**
+   - **Endpoint**: `GET /wishlists/<wishlist_id>/items`
+   - **Description**: Retrieve a list of all items within a specific wishlist.
+   - **Response**:
+     - **Status Code**:
+       - 200 (OK) - Successfully retrieved the list of items in the wishlist.
+
 ## License
 
 Copyright (c) John Rofrano. All rights reserved.
