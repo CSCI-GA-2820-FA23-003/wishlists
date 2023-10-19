@@ -47,7 +47,13 @@
 			"name": "Create Wishlist (Invalid Date String) Copy",
 			"request": {
 				"method": "POST",
-				"header": [],
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
 				"body": {
 					"mode": "raw",
 					"raw": "{\n    \"customer_id\": 42,\n    \"wishlist_name\": \"Halloween costume supplies\",\n    \"created_date\": \"2023-10-18 17:37:00\"\n}"
