@@ -240,6 +240,29 @@ def delete_addresses(wishlist_id, item_id):
 
     return make_response("", status.HTTP_204_NO_CONTENT)
 
+######################################################################
+# READ ITEM
+######################################################################
+@app.route("/wishlists/<int:wishlist_id>/items/<int:item_id>", methods=["GET"])
+def read_wishlist_item(wishlist_id, item_id):
+    """
+    Reads an Item from existing Wishlist
+    This endpoint will read an Item from a Wishlist based on the given id
+    """
+    app.logger.info("Request to read item: %d from Wishlist: %d", item_id, wishlist_id)
+
+    # Validate content is json
+    check_content_type("application/json")
+
+    # Check if wishlist exists
+    item = WishlistItem.find(item_id)
+    if not item:
+        abort(
+            status.HTTP_404_NOT_FOUND,
+            f"Item with id '{item_id}' in Wishlist with id '{wishlist_id}' could not be found."
+        )
+    return make_response(jsonify(item.serialize()), status.HTTP_200_OK)
+
 
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S

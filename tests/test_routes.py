@@ -420,3 +420,41 @@ class TestWishlistServer(TestCase):
         )
 
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_read_wishlist_item(self):
+        """It should read an existing Item from an existing Wishlist"""
+        # Create a Wishlist to associate the item with
+        wishlist = self._create_wishlists(1)[0]
+
+        # Confirm that wishlist.id is not None
+        self.assertIsNotNone(wishlist.id)
+
+        # Create a Wishlist Item
+        item = WishlistItemFactory()
+        item.wishlist_id = wishlist.id
+        resp = self.client.post(
+            f"{BASE_URL}/{wishlist.id}/items",
+            json=item.serialize(),
+            content_type="application/json",
+        )
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+
+        data = resp.get_json()
+        logging.debug(data)
+        item_id = data["id"]
+
+        resp = self.client.get(
+            f"{BASE_URL}/{wishlist.id}/items/{item_id}",
+            content_type="application/json",
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+        data = resp.get_json()
+        logging.debug(data)
+
+        self.assertEqual(data["wishlist_id"], item.wishlist_id)
+        self.assertEqual(data["product_id"], item.product_id)
+        self.assertEqual(data["product_name"], item.product_name)
+        self.assertEqual(float(data["product_price"]), item.product_price)
+        self.assertEqual(float(data["quantity"]), item.quantity)
+        self.assertEqual(data["created_date"], str(item.created_date))
