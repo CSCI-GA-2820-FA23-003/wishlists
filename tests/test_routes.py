@@ -458,3 +458,22 @@ class TestWishlistServer(TestCase):
         self.assertEqual(float(data["product_price"]), item.product_price)
         self.assertEqual(float(data["quantity"]), item.quantity)
         self.assertEqual(data["created_date"], str(item.created_date))
+
+    def test_read_wishlist_item_not_found(self):
+        """It should not be able to find the item and throw an error"""
+        # Create a Wishlist to associate the item with
+        wishlist = self._create_wishlists(1)[0]
+
+        # Confirm that wishlist.id is not None
+        self.assertIsNotNone(wishlist.id)
+
+        # Create a Wishlist Item
+        item = WishlistItemFactory()
+        item.wishlist_id = wishlist.id
+
+        resp = self.client.get(
+            f"{BASE_URL}/{wishlist.id}/items/{item.id}",
+            content_type="application/json",
+        )
+
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)

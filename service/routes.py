@@ -240,6 +240,7 @@ def delete_addresses(wishlist_id, item_id):
 
     return make_response("", status.HTTP_204_NO_CONTENT)
 
+
 ######################################################################
 # READ ITEM
 ######################################################################
