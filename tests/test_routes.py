@@ -240,16 +240,16 @@ class TestWishlistServer(TestCase):
         )
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
 
+        # Check the data is correct (response from db)
+        data = resp.get_json()
+
         # Ensure that the Location header is set and matches the expected URL
-        expected_location = f"{BASE_URL}/{wishlist.id}/items/{wishlist_item.id}"
+        expected_location = f"{BASE_URL}/{wishlist.id}/items/{data['id']}"
         self.assertEqual(resp.headers["Location"], expected_location)
 
         # Make sure location header is set (part of RESTful api definition)
         location = resp.headers.get("Location", None)
         self.assertIsNotNone(location)
-
-        # Check the data is correct (response from db)
-        data = resp.get_json()
 
         self.assertEqual(
             data["wishlist_id"],
@@ -282,6 +282,31 @@ class TestWishlistServer(TestCase):
             str(wishlist_item.created_date),
             "Created Date does not match",
         )
+
+    def test_create_duplicate_wishlist_item(self):
+        """It should create 2 new Wishlist Items and associate it with a specific Wishlist"""
+        # Create a Wishlist to associate the item with
+        wishlist = self._create_wishlists(1)[0]
+
+        # Confirm that wishlist.id is not None
+        self.assertIsNotNone(wishlist.id)
+
+        # Create a Wishlist Item
+        wishlist_item = WishlistItemFactory()
+        resp = self.client.post(
+            f"{BASE_URL}/{wishlist.id}/items",
+            json=wishlist_item.serialize(),
+            content_type="application/json",
+        )
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+
+        # Create a second identical Wishlist Item
+        resp = self.client.post(
+            f"{BASE_URL}/{wishlist.id}/items",
+            json=wishlist_item.serialize(),
+            content_type="application/json",
+        )
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
 
     def test_create_wishlist_item_bad_request(self):
         """It should not create a Wishlist Item when sending the wrong data"""

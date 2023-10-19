@@ -353,7 +353,6 @@ class TestWishlistItem(unittest.TestCase):
 
         item = WishlistItem()
         item.deserialize(self.serialized)
-        self.assertEqual(item.id, self.serialized["id"])
         self.assertEqual(item.wishlist_id, self.serialized["wishlist_id"])
         self.assertEqual(item.product_id, self.serialized["product_id"])
         self.assertEqual(item.product_name, self.serialized["product_name"])
