@@ -82,7 +82,9 @@ To run all tests in the project, use the following at the command line.
    - **Response**:
      - **Status Code**:
        - 201 (Created) - Successfully created a new wishlist.
-     - **Body**: Returns the newly created wishlist with its ID.
+     - **Header**: Return a header for the wishlist created. 
+       - Location: `/wishlists/<wishlist_id>`
+     - **Body**: Return the newly created wishlist with its ID.
 ​
 2. **Get Wishlist**
    - **Endpoint**: `GET /wishlists?id=<wishlist_id>`
@@ -102,7 +104,7 @@ To run all tests in the project, use the following at the command line.
 ​
 4. **List Wishlists**
    - **Endpoint**: `GET /wishlists`
-   - **Description**: Retrieve a list of all wishlists.
+   - **Description**: Retrieve meta information about a list of all wishlists.
    - **Response**:
      - **Status Code**:
        - 200 (OK) - Successfully retrieved the list of wishlists.
@@ -127,9 +129,11 @@ To run all tests in the project, use the following at the command line.
    - **Response**:
      - **Status Code**:
        - 201 (Created) - Successfully created a new item in the wishlist.
-     - **Body**: Returns the newly created item with its ID.
+     - **Header**: Return a header for the wishlist item created.
+       - Location: `/wishlists/<wishlist_id>/items/<item_id>`
+     - **Body**: Return the newly created item with its ID.
 ​
-2. **Get Item**
+1. **Get Item**
    - **Endpoint**: `GET /wishlists/<wishlist_id>/items?id=<item_id>`
    - **Description**: Retrieve information about a specific item within a wishlist.
    - **Response**:
@@ -137,7 +141,7 @@ To run all tests in the project, use the following at the command line.
        - 200 (OK) - Successfully retrieved the item.
        - 404 (Not Found) - Item not found.
 ​
-3. **Update Item**
+1. **Update Item**
    - **Endpoint**: `PUT /wishlists/<wishlist_id>/items/<item_id>`
    - **Description**: Update the details of an existing item within a wishlist.
    - **Request JSON**:
@@ -151,7 +155,7 @@ To run all tests in the project, use the following at the command line.
        - 200 (OK) - Successfully updated the item.
        - 404 (Not Found) - Item not found.
 ​
-4. **Delete Item**
+1. **Delete Item**
    - **Endpoint**: `DELETE /wishlists/<wishlist_id>/items/<item_id>`
    - **Description**: Delete a specific item from a wishlist.
    - **Response**:
@@ -159,7 +163,7 @@ To run all tests in the project, use the following at the command line.
        - 204 (No Content) - Successfully deleted the item.
        - 404 (Not Found) - Item not found.
 ​
-5. **List Items in Wishlist**
+1. **List Items in Wishlist**
    - **Endpoint**: `GET /wishlists/<wishlist_id>/items`
    - **Description**: Retrieve a list of all items within a specific wishlist.
    - **Response**:
