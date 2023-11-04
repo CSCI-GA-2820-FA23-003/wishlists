@@ -66,11 +66,11 @@ class TestWishlistServer(TestCase):
                 status.HTTP_201_CREATED,
                 "Could not create test Wishlist",
             )
-            new_account = resp.get_json()
-            wishlist.id = new_account["id"]
-            wishlist.customer_id = new_account["customer_id"]
-            wishlist.wishlist_name = new_account["wishlist_name"]
-            wishlist.created_date = new_account["created_date"]
+            new_wishlist = resp.get_json()
+            wishlist.id = new_wishlist["id"]
+            wishlist.customer_id = new_wishlist["customer_id"]
+            wishlist.wishlist_name = new_wishlist["wishlist_name"]
+            wishlist.created_date = new_wishlist["created_date"]
             wishlists.append(wishlist)
         return wishlists
 
@@ -105,6 +105,21 @@ class TestWishlistServer(TestCase):
             new_wishlist["created_date"],
             str(wishlist.created_date),
             "Created Date does not match",
+        )
+
+        # Check that the location header was correct by getting it
+        resp = self.client.get(location, content_type="application/json")
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        new_wishlist = resp.get_json()
+        self.assertEqual(
+            new_wishlist["wishlist_name"],
+            wishlist.wishlist_name,
+            "Names does not match",
+        )
+        self.assertEqual(
+            new_wishlist["created_date"],
+            str(wishlist.created_date),
+            "Created date does not match",
         )
 
     def test_bad_request(self):
