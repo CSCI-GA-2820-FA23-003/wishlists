@@ -30,6 +30,20 @@ def index():
 
 
 ######################################################################
+# LIST ALL WISHLISTs
+######################################################################
+@app.route("/wishlists", methods=["GET"])
+def list_wishlists():
+    """Returns all of the Wishlists"""
+    app.logger.info("Request for Wishlist list")
+    wishlists = Wishlist.all()
+    # Return as an array of dictionaries
+    results = [wishlist.serialize() for wishlist in wishlists]
+
+    return make_response(jsonify(results), status.HTTP_200_OK)
+
+
+######################################################################
 # CREATE A NEW WISHLIST
 ######################################################################
 @app.route("/wishlists", methods=["POST"])
@@ -108,20 +122,6 @@ def update_wishlists_by_name(wishlist_id):
     wishlist.update()
 
     return make_response(jsonify(wishlist.serialize()), status.HTTP_200_OK)
-
-
-######################################################################
-# LIST ALL WISHLISTs
-######################################################################
-@app.route("/wishlists", methods=["GET"])
-def list_wishlists():
-    """Returns all of the Wishlists"""
-    app.logger.info("Request for Wishlist list")
-    wishlists = Wishlist.all()
-    # Return as an array of dictionaries
-    results = [wishlist.serialize() for wishlist in wishlists]
-
-    return make_response(jsonify(results), status.HTTP_200_OK)
 
 
 ######################################################################
