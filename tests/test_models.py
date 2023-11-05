@@ -198,6 +198,33 @@ class TestWishlist(unittest.TestCase):
         wishlists = Wishlist.all()
         self.assertEqual(len(wishlists), 5)
 
+    def test_wishlist_find_by_customer_id(self):
+        """It should return all the wishlists for a given customer id"""
+        lists = WishlistFactory.create_batch(3)
+
+        lists[0].customer_id = 1111
+        lists[1].customer_id = 2222
+        lists[2].customer_id = 2222
+
+        # insert lists into db
+        for wishlist in lists:
+            wishlist.create()
+
+        # fetch all from db
+        db_lists = Wishlist.all()
+        # make sure the inserts were successful
+        self.assertEqual(len(lists), len(db_lists))
+
+        customer_lists = Wishlist.find_by_customer_id(2222)
+        self.assertEqual(len(customer_lists), 2)
+
+    def test_wishlist_find_by_customer_id_for_non_existent_customer_id(self):
+        """It should return an empty list for non-existent customer id"""
+
+        results = Wishlist.find_by_customer_id(-1)
+
+        self.assertEqual(results, [])
+
     def test_serialize_an_wishlist(self):
         """It should Serialize an wishlist"""
         wishlist = WishlistFactory()
