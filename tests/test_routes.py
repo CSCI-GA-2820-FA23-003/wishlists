@@ -190,6 +190,30 @@ class TestWishlistServer(TestCase):
         self.assertEqual(len(data), 5)
         self.assertEqual(data, wishlist_array)
 
+    def test_filter_wishlists_by_customer_id(self):
+        """It should return wishlists for a given customer"""
+        lists = WishlistFactory.create_batch(3)
+
+        lists[0].customer_id = 1111
+        lists[1].customer_id = 2222
+        lists[2].customer_id = 2222
+
+        # insert lists into db
+        for wishlist in lists:
+            wishlist.create()
+
+        # fetch all from db
+        db_lists = Wishlist.all()
+        # make sure the inserts were successful
+        self.assertEqual(len(lists), len(db_lists))
+
+        url = f"{BASE_URL}?customer-id=2222"
+        resp = self.client.get(url)
+        fetched_lists = resp.get_json()
+
+        # ensure we receive the two lists associated with customer 2222
+        self.assertEqual(len(fetched_lists), 2)
+
     def test_update_wishlist(self):
         """It should Update an existing Wishlist"""
         # create an Wishlist to update

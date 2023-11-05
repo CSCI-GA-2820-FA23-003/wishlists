@@ -35,8 +35,17 @@ def index():
 @app.route("/wishlists", methods=["GET"])
 def list_wishlists():
     """Returns all of the Wishlists"""
-    app.logger.info("Request for Wishlist list")
-    wishlists = Wishlist.all()
+    app.logger.info("Request for Wishlist lists")
+
+    customer_id = request.args.get("customer-id")
+
+    wishlists = []
+
+    if customer_id is not None:
+        wishlists = Wishlist.find_by_customer_id(customer_id)
+    else:
+        wishlists = Wishlist.all()
+
     # Return as an array of dictionaries
     results = [wishlist.serialize() for wishlist in wishlists]
 
