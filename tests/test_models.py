@@ -49,6 +49,15 @@ class TestWishlist(unittest.TestCase):
     #  T E S T   C A S E S
     ######################################################################
 
+    # I still see models.py line 36 as missing from coverage
+    def test_persistent_base_init(self):
+        """PersistentBase class __init__ method sets id to None"""
+        wishlist = Wishlist()
+        self.assertIsNone(wishlist.id)
+
+        item = WishlistItem()
+        self.assertIsNone(item.id)
+
     def test_define_a_wishlist(self):
         """It should Define a Wishlist and assert that it is correct"""
         fake_wishlist = WishlistFactory()
