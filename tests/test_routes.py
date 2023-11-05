@@ -214,6 +214,14 @@ class TestWishlistServer(TestCase):
         # ensure we receive the two lists associated with customer 2222
         self.assertEqual(len(fetched_lists), 2)
 
+    def test_filter_wishlists_by_non_existent_customer_id(self):
+        url = f"{BASE_URL}?customer-id=-1"
+        resp = self.client.get(url)
+        fetched_lists = resp.get_json()
+
+        # ensure we receive the two lists associated with customer 2222
+        self.assertEqual(fetched_lists, [])
+
     def test_update_wishlist(self):
         """It should Update an existing Wishlist"""
         # create an Wishlist to update
