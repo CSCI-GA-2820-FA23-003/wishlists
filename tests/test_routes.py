@@ -215,6 +215,7 @@ class TestWishlistServer(TestCase):
         self.assertEqual(len(fetched_lists), 2)
 
     def test_filter_wishlists_by_non_existent_customer_id(self):
+        """It should return an empty list for non-existent customer id"""
         url = f"{BASE_URL}?customer-id=-1"
         resp = self.client.get(url)
         fetched_lists = resp.get_json()
