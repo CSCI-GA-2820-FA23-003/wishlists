@@ -161,7 +161,7 @@ class TestWishlistServer(TestCase):
         for i in wishlist:
             max_wishlist_id = max(max_wishlist_id, i.id)
         resp = self.client.delete(f"{BASE_URL}/{max_wishlist_id+1}")
-        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
 
     def test_get_wishlist_not_found(self):
         """It should not Read an Wishlist that is not found"""
