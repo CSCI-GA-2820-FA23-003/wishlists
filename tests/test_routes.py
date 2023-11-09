@@ -459,7 +459,7 @@ class TestWishlistServer(TestCase):
             content_type="application/json",
         )
 
-        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
 
     def test_read_wishlist_item(self):
         """It should read an existing Item from an existing Wishlist"""

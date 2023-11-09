@@ -235,8 +235,6 @@ def delete_addresses(wishlist_id, item_id):
     wishlist = Wishlist.find(wishlist_id)
     if wishlist:
         wishlist.delete()
-    else:
-        return make_response("", status.HTTP_404_NOT_FOUND)
 
     return make_response("", status.HTTP_204_NO_CONTENT)
 
