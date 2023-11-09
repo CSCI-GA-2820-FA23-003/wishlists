@@ -572,3 +572,54 @@ class TestWishlistServer(TestCase):
             content_type="application/json",
         )
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_query_wishlist_items(self):
+        """It should query and return a list of Wishlist Items based on specific criteria"""
+        # Create a Wishlist and add multiple Wishlist Items to it
+        wishlist = self._create_wishlists(1)[0]
+        wishlist_id = wishlist.id
+        items = WishlistItemFactory.create_batch(5)
+        wishlist.items.extend(items)
+        wishlist.create()
+        for item in items:
+            item.wishlist_id = wishlist_id
+        db.session.commit()
+
+        # Query Wishlist Items by wishlist_id
+        resp = self.client.get(f"{BASE_URL}/{wishlist_id}/items")
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.get_json()
+
+
+        # Query Wishlist Items by product_name
+        product_name = items[0].product_name
+        resp = self.client.get(
+            f"{BASE_URL}/{wishlist_id}/items?product_name={product_name}"
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.get_json()
+
+        self.assertEqual(data[0]["product_name"], product_name)
+
+        # Query Wishlist Items by product_price
+        product_price = items[1].product_price
+        resp = self.client.get(
+            f"{BASE_URL}/{wishlist_id}/items?product_price={product_price}"
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.get_json()
+
+        self.assertEqual(data[1]["product_price"], str(product_price))
+
+        # Query Wishlist Items by quantity
+        quantity = items[2].quantity
+        resp = self.client.get(f"{BASE_URL}/{wishlist_id}/items?quantity={quantity}")
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.get_json()
+
+        self.assertEqual(data[2]["quantity"], quantity)
+
+    def test_query_wishlist_items_not_found(self):
+        """It should return a 404 status code when querying Wishlist Items for a non-existent Wishlist"""
+        resp = self.client.get(f"{BASE_URL}/0/items?product_name=example")
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)

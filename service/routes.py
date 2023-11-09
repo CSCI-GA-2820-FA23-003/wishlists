@@ -305,6 +305,37 @@ def update_wishlist_items(wishlist_id, item_id):
         {"Location": f"/wishlists/{wishlist.id}/items/{wishlist_item.id}"},
     )
 
+######################################################################
+# QUERY ITEMS
+######################################################################
+@app.route("/wishlists/<int:wishlist_id>/items?query", methods=["GET"])
+def query_wishlist_items(wishlist_id):
+    """Query wishlist items based on certain criteria"""
+    app.logger.info("Request to query wishlist items for Wishlist id: %s", wishlist_id)
+
+    # Validate content is JSON
+    check_content_type("application/json")
+
+    # Get the JSON data from the request
+    query_data = request.get_json()
+
+    # Find the specified Wishlist
+    wishlist = Wishlist.find(wishlist_id)
+    if not wishlist:
+        abort(status.HTTP_404_NOT_FOUND, f"Wishlist with ID {wishlist_id} not found")
+
+    # Query Wishlist Items based on criteria (e.g., product_id, product_name, etc.)
+    query_results = []
+    for item in wishlist.items:
+        match = True
+        for key, value in query_data.items():
+            if key not in item.serialize() or item.serialize()[key] != value:
+                match = False
+                break
+        if match:
+            query_results.append(item.serialize())
+
+    return make_response(jsonify(query_results), status.HTTP_200_OK)
 
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S
