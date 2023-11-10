@@ -619,7 +619,20 @@ class TestWishlistServer(TestCase):
 
         self.assertEqual(data[2]["quantity"], quantity)
 
-    def test_query_wishlist_items_not_found(self):
+    def test_query_wishlist_not_found(self):
         """It should return a 404 status code when querying Wishlist Items for a non-existent Wishlist"""
         resp = self.client.get(f"{BASE_URL}/0/items?product_name=example")
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_query_wishlist_items_no_match(self):
+        """It should return an empty list when no Wishlist Items match the criteria"""
+        # Create a Wishlist without adding any Wishlist Items
+        wishlist = self._create_wishlists(1)[0]
+        wishlist_id = wishlist.id
+
+        # Query Wishlist Items by a criteria that doesn't match any items
+        resp = self.client.get(f"{BASE_URL}/{wishlist_id}/items?product_name=nonexistent")
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.get_json()
+
+        self.assertEqual(len(data), 0)
