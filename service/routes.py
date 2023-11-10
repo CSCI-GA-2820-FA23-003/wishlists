@@ -305,6 +305,7 @@ def update_wishlist_items(wishlist_id, item_id):
         {"Location": f"/wishlists/{wishlist.id}/items/{wishlist_item.id}"},
     )
 
+
 ######################################################################
 # QUERY ITEMS
 ######################################################################
@@ -336,6 +337,7 @@ def query_wishlist_items(wishlist_id):
             query_results.append(item.serialize())
 
     return make_response(jsonify(query_results), status.HTTP_200_OK)
+
 
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S
