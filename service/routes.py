@@ -69,9 +69,6 @@ def read_wishlists(wishlist_id):
     """
     app.logger.info("Request to read Wishlist: %d", wishlist_id)
 
-    # Validate content is json
-    check_content_type("application/json")
-
     # Check if wishlist exists
     wishlist = Wishlist.find(wishlist_id)
     if not wishlist:
@@ -125,7 +122,7 @@ def list_wishlists():
 
 
 ######################################################################
-# DELETE A WISHLIST
+# DELETE A NEW WISHLIST
 ######################################################################
 @app.route("/wishlists/<int:wishlist_id>", methods=["DELETE"])
 def delete_wishlists(wishlist_id):
@@ -140,6 +137,8 @@ def delete_wishlists(wishlist_id):
     wishlist = Wishlist.find(wishlist_id)
     if wishlist:
         wishlist.delete()
+    else:
+        return make_response("", status.HTTP_404_NOT_FOUND)
 
     return make_response("", status.HTTP_204_NO_CONTENT)
 
@@ -233,6 +232,8 @@ def delete_addresses(wishlist_id, item_id):
     wishlist = Wishlist.find(wishlist_id)
     if wishlist:
         wishlist.delete()
+    else:
+        return make_response("", status.HTTP_404_NOT_FOUND)
 
     return make_response("", status.HTTP_204_NO_CONTENT)
 
