@@ -69,9 +69,6 @@ def read_wishlists(wishlist_id):
     """
     app.logger.info("Request to read Wishlist: %d", wishlist_id)
 
-    # Validate content is json
-    check_content_type("application/json")
-
     # Check if wishlist exists
     wishlist = Wishlist.find(wishlist_id)
     if not wishlist:
