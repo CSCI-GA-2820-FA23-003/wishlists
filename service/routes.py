@@ -245,9 +245,6 @@ def read_wishlist_item(wishlist_id, item_id):
     """
     app.logger.info("Request to read item: %d from Wishlist: %d", item_id, wishlist_id)
 
-    # Validate content is json
-    check_content_type("application/json")
-
     # Check if wishlist exists
     item = WishlistItem.find(item_id)
     if not item:
