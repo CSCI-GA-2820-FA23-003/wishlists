@@ -69,9 +69,6 @@ def read_wishlists(wishlist_id):
     """
     app.logger.info("Request to read Wishlist: %d", wishlist_id)
 
-    # Validate content is json
-    check_content_type("application/json")
-
     # Check if wishlist exists
     wishlist = Wishlist.find(wishlist_id)
     if not wishlist:
@@ -247,9 +244,6 @@ def read_wishlist_item(wishlist_id, item_id):
     This endpoint will read an Item from a Wishlist based on the given id
     """
     app.logger.info("Request to read item: %d from Wishlist: %d", item_id, wishlist_id)
-
-    # Validate content is json
-    check_content_type("application/json")
 
     # Check if wishlist exists
     item = WishlistItem.find(item_id)

@@ -137,7 +137,7 @@ class TestWishlistServer(TestCase):
             wishlist.created_date
         )  # convert datetime object to string since resp will be in json
         resp = self.client.get(
-            f"{BASE_URL}/{wishlist_id}", content_type="application/json"
+            f"{BASE_URL}/{wishlist_id}"
         )
         data = resp.get_json()
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
@@ -165,7 +165,7 @@ class TestWishlistServer(TestCase):
 
     def test_get_wishlist_not_found(self):
         """It should not Read an Wishlist that is not found"""
-        resp = self.client.get(f"{BASE_URL}/0", content_type="application/json")
+        resp = self.client.get(f"{BASE_URL}/0")
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_unsupported_media_type(self):
@@ -199,7 +199,7 @@ class TestWishlistServer(TestCase):
                     "created_date": created_date,
                 }
             )
-        resp = self.client.get(BASE_URL, content_type="application/json")
+        resp = self.client.get(BASE_URL)
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = resp.get_json()
         self.assertEqual(len(data), 5)
@@ -428,8 +428,7 @@ class TestWishlistServer(TestCase):
 
         # retrieve it back and make sure wishlist item is not there
         resp = self.client.get(
-            f"{BASE_URL}/{wishlist.id}/addresses/{item_id}",
-            content_type="application/json",
+            f"{BASE_URL}/{wishlist.id}/addresses/{item_id}"
         )
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
@@ -484,8 +483,7 @@ class TestWishlistServer(TestCase):
         item_id = data["id"]
 
         resp = self.client.get(
-            f"{BASE_URL}/{wishlist.id}/items/{item_id}",
-            content_type="application/json",
+            f"{BASE_URL}/{wishlist.id}/items/{item_id}"
         )
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
@@ -512,8 +510,7 @@ class TestWishlistServer(TestCase):
         item.wishlist_id = wishlist.id
 
         resp = self.client.get(
-            f"{BASE_URL}/{wishlist.id}/items/{item.id}",
-            content_type="application/json",
+            f"{BASE_URL}/{wishlist.id}/items/{item.id}"
         )
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
