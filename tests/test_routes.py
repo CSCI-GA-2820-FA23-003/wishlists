@@ -545,6 +545,10 @@ class TestWishlistServer(TestCase):
         # Verify that the quantity has been updated
         self.assertEqual(data_update["quantity"], 10)
 
+        # Verify that "update wishlist item" does not return a header
+        location = resp_update.headers.get("Location", None)
+        self.assertIsNone(location)
+
     def test_update_wishlist_item_not_found(self):
         """It should not update a Wishlist Item for an item that is not found"""
         # Create a Wishlist to associate the item with
