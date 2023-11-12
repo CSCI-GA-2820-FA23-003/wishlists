@@ -298,7 +298,6 @@ def update_wishlist_items(wishlist_id, item_id):
     return make_response(
         jsonify(wishlist_item.serialize()),
         status.HTTP_200_OK,
-        {"Location": f"/wishlists/{wishlist.id}/items/{wishlist_item.id}"},
     )
 
 
