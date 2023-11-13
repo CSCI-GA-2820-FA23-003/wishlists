@@ -309,16 +309,13 @@ def update_wishlist_items(wishlist_id, item_id):
 ######################################################################
 # QUERY ITEMS
 ######################################################################
-@app.route("/wishlists/<int:wishlist_id>/items?query", methods=["GET"])
+@app.route("/wishlists/<int:wishlist_id>/items", methods=["GET"])
 def query_wishlist_items(wishlist_id):
     """Query wishlist items based on certain criteria"""
     app.logger.info("Request to query wishlist items for Wishlist id: %s", wishlist_id)
 
-    # Validate content is JSON
-    check_content_type("application/json")
-
-    # Get the JSON data from the request
-    query_data = request.get_json()
+    # Get the query parameters from the request URL
+    query_data = request.args.to_dict()
 
     # Find the specified Wishlist
     wishlist = Wishlist.find(wishlist_id)
