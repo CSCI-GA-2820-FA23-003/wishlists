@@ -635,5 +635,29 @@ class TestWishlistServer(TestCase):
         resp = self.client.get(f"{BASE_URL}/{wishlist_id}/items?product_name=nonexistent")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = resp.get_json()
-
         self.assertEqual(len(data), 0)
+    
+    def test_query_wishlist_items_multiple_criteria(self):
+        """It should query and return a list of Wishlist Items based on multiple criteria"""
+        wishlist = self._create_wishlists(1)[0]
+        wishlist_id = wishlist.id
+        items = WishlistItemFactory.create_batch(5)
+        wishlist.items.extend(items)
+        wishlist.create()
+        for item in items:
+            item.wishlist_id = wishlist_id
+        db.session.commit()
+
+        # Query Wishlist Items by product_name and product_price
+        product_name = items[0].product_name
+        product_price = items[0].product_price
+        resp = self.client.get(
+            f"{BASE_URL}/{wishlist_id}/items?product_name={product_name}&product_price={product_price}"
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.get_json()
+
+        # Ensure only one item is returned and it matches the criteria
+        self.assertEqual(len(data), 5)
+        self.assertEqual(data[0]["product_name"], product_name)
+        self.assertEqual(data[0]["product_price"], str(product_price))
