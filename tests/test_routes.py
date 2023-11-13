@@ -676,3 +676,19 @@ class TestWishlistServer(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = resp.get_json()
         self.assertEqual(len(data), 0)
+
+    def test_query_wishlist_items_no_match_empty_list(self):
+        """It should return an empty list and a 200 status code when no Wishlist Items match the criteria"""
+        # Create a Wishlist with some Wishlist Items
+        wishlist = self._create_wishlists(1)[0]
+        wishlist_id = wishlist.id
+        items = WishlistItemFactory.create_batch(3)
+        wishlist.items.extend(items)
+        wishlist.create()
+        db.session.commit()
+
+        # Query Wishlist Items by a criteria that doesn't match any items
+        resp = self.client.get(f"{BASE_URL}/{wishlist_id}/items?product_name=nonexistent")
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.get_json()
+        self.assertEqual(len(data), 0)
