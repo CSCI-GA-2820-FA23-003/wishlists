@@ -136,9 +136,7 @@ class TestWishlistServer(TestCase):
         created_date = str(
             wishlist.created_date
         )  # convert datetime object to string since resp will be in json
-        resp = self.client.get(
-            f"{BASE_URL}/{wishlist_id}"
-        )
+        resp = self.client.get(f"{BASE_URL}/{wishlist_id}")
         data = resp.get_json()
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertEqual(data["id"], wishlist_id)
@@ -228,6 +226,8 @@ class TestWishlistServer(TestCase):
 
         # ensure we receive the two lists associated with customer 2222
         self.assertEqual(len(fetched_lists), 2)
+
+        self.assertEqual(resp.status_code, 200)
 
     def test_filter_wishlists_by_non_existent_customer_id(self):
         """It should return an empty list for non-existent customer id"""
@@ -460,9 +460,7 @@ class TestWishlistServer(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
 
         # retrieve it back and make sure wishlist item is not there
-        resp = self.client.get(
-            f"{BASE_URL}/{wishlist.id}/addresses/{item_id}"
-        )
+        resp = self.client.get(f"{BASE_URL}/{wishlist.id}/addresses/{item_id}")
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_sad_path_delete_wishlist_item(self):
@@ -515,9 +513,7 @@ class TestWishlistServer(TestCase):
         logging.debug(data)
         item_id = data["id"]
 
-        resp = self.client.get(
-            f"{BASE_URL}/{wishlist.id}/items/{item_id}"
-        )
+        resp = self.client.get(f"{BASE_URL}/{wishlist.id}/items/{item_id}")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
         data = resp.get_json()
@@ -542,9 +538,7 @@ class TestWishlistServer(TestCase):
         item = WishlistItemFactory()
         item.wishlist_id = wishlist.id
 
-        resp = self.client.get(
-            f"{BASE_URL}/{wishlist.id}/items/{item.id}"
-        )
+        resp = self.client.get(f"{BASE_URL}/{wishlist.id}/items/{item.id}")
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_update_wishlist_item(self):
