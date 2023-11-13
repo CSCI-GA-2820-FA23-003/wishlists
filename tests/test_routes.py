@@ -66,11 +66,11 @@ class TestWishlistServer(TestCase):
                 status.HTTP_201_CREATED,
                 "Could not create test Wishlist",
             )
-            new_account = resp.get_json()
-            wishlist.id = new_account["id"]
-            wishlist.customer_id = new_account["customer_id"]
-            wishlist.wishlist_name = new_account["wishlist_name"]
-            wishlist.created_date = new_account["created_date"]
+            new_wishlist = resp.get_json()
+            wishlist.id = new_wishlist["id"]
+            wishlist.customer_id = new_wishlist["customer_id"]
+            wishlist.wishlist_name = new_wishlist["wishlist_name"]
+            wishlist.created_date = new_wishlist["created_date"]
             wishlists.append(wishlist)
         return wishlists
 
@@ -107,6 +107,21 @@ class TestWishlistServer(TestCase):
             "Created Date does not match",
         )
 
+        # Check that the location header was correct by getting it
+        resp = self.client.get(location, content_type="application/json")
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        new_wishlist = resp.get_json()
+        self.assertEqual(
+            new_wishlist["wishlist_name"],
+            wishlist.wishlist_name,
+            "Names does not match",
+        )
+        self.assertEqual(
+            new_wishlist["created_date"],
+            str(wishlist.created_date),
+            "Created date does not match",
+        )
+
     def test_bad_request(self):
         """It should not Create when sending the wrong data"""
         resp = self.client.post(BASE_URL, json={"wishlist_name": "my wishlist"})
@@ -122,7 +137,7 @@ class TestWishlistServer(TestCase):
             wishlist.created_date
         )  # convert datetime object to string since resp will be in json
         resp = self.client.get(
-            f"{BASE_URL}/{wishlist_id}", content_type="application/json"
+            f"{BASE_URL}/{wishlist_id}"
         )
         data = resp.get_json()
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
@@ -146,11 +161,11 @@ class TestWishlistServer(TestCase):
         for i in wishlist:
             max_wishlist_id = max(max_wishlist_id, i.id)
         resp = self.client.delete(f"{BASE_URL}/{max_wishlist_id+1}")
-        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
 
     def test_get_wishlist_not_found(self):
         """It should not Read an Wishlist that is not found"""
-        resp = self.client.get(f"{BASE_URL}/0", content_type="application/json")
+        resp = self.client.get(f"{BASE_URL}/0")
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_unsupported_media_type(self):
@@ -184,7 +199,7 @@ class TestWishlistServer(TestCase):
                     "created_date": created_date,
                 }
             )
-        resp = self.client.get(BASE_URL, content_type="application/json")
+        resp = self.client.get(BASE_URL)
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = resp.get_json()
         self.assertEqual(len(data), 5)
@@ -446,8 +461,7 @@ class TestWishlistServer(TestCase):
 
         # retrieve it back and make sure wishlist item is not there
         resp = self.client.get(
-            f"{BASE_URL}/{wishlist.id}/addresses/{item_id}",
-            content_type="application/json",
+            f"{BASE_URL}/{wishlist.id}/addresses/{item_id}"
         )
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
@@ -477,7 +491,7 @@ class TestWishlistServer(TestCase):
             content_type="application/json",
         )
 
-        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
 
     def test_read_wishlist_item(self):
         """It should read an existing Item from an existing Wishlist"""
@@ -502,8 +516,7 @@ class TestWishlistServer(TestCase):
         item_id = data["id"]
 
         resp = self.client.get(
-            f"{BASE_URL}/{wishlist.id}/items/{item_id}",
-            content_type="application/json",
+            f"{BASE_URL}/{wishlist.id}/items/{item_id}"
         )
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
@@ -530,8 +543,7 @@ class TestWishlistServer(TestCase):
         item.wishlist_id = wishlist.id
 
         resp = self.client.get(
-            f"{BASE_URL}/{wishlist.id}/items/{item.id}",
-            content_type="application/json",
+            f"{BASE_URL}/{wishlist.id}/items/{item.id}"
         )
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
@@ -562,6 +574,10 @@ class TestWishlistServer(TestCase):
 
         # Verify that the quantity has been updated
         self.assertEqual(data_update["quantity"], 10)
+
+        # Verify that "update wishlist item" does not return a header
+        location = resp_update.headers.get("Location", None)
+        self.assertIsNone(location)
 
     def test_update_wishlist_item_not_found(self):
         """It should not update a Wishlist Item for an item that is not found"""

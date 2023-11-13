@@ -92,9 +92,6 @@ def read_wishlists(wishlist_id):
     """
     app.logger.info("Request to read Wishlist: %d", wishlist_id)
 
-    # Validate content is json
-    check_content_type("application/json")
-
     # Check if wishlist exists
     wishlist = Wishlist.find(wishlist_id)
     if not wishlist:
@@ -134,7 +131,7 @@ def update_wishlists_by_name(wishlist_id):
 
 
 ######################################################################
-# DELETE A NEW WISHLIST
+# DELETE A WISHLIST
 ######################################################################
 @app.route("/wishlists/<int:wishlist_id>", methods=["DELETE"])
 def delete_wishlists(wishlist_id):
@@ -149,8 +146,6 @@ def delete_wishlists(wishlist_id):
     wishlist = Wishlist.find(wishlist_id)
     if wishlist:
         wishlist.delete()
-    else:
-        return make_response("", status.HTTP_404_NOT_FOUND)
 
     return make_response("", status.HTTP_204_NO_CONTENT)
 
@@ -244,8 +239,6 @@ def delete_addresses(wishlist_id, item_id):
     wishlist = Wishlist.find(wishlist_id)
     if wishlist:
         wishlist.delete()
-    else:
-        return make_response("", status.HTTP_404_NOT_FOUND)
 
     return make_response("", status.HTTP_204_NO_CONTENT)
 
@@ -260,9 +253,6 @@ def read_wishlist_item(wishlist_id, item_id):
     This endpoint will read an Item from a Wishlist based on the given id
     """
     app.logger.info("Request to read item: %d from Wishlist: %d", item_id, wishlist_id)
-
-    # Validate content is json
-    check_content_type("application/json")
 
     # Check if wishlist exists
     item = WishlistItem.find(item_id)
@@ -311,7 +301,6 @@ def update_wishlist_items(wishlist_id, item_id):
     return make_response(
         jsonify(wishlist_item.serialize()),
         status.HTTP_200_OK,
-        {"Location": f"/wishlists/{wishlist.id}/items/{wishlist_item.id}"},
     )
 
 
