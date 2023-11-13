@@ -666,3 +666,13 @@ class TestWishlistServer(TestCase):
         """It should return a 404 status code when receiving an invalid id"""
         resp = self.client.get(f"{BASE_URL}/invalid/items?product_name=example")
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_query_empty_wishlist_items(self):
+        """It should return an empty list when querying Wishlist Items for an empty Wishlist"""
+        wishlist = self._create_wishlists(1)[0]
+        wishlist_id = wishlist.id
+
+        resp = self.client.get(f"{BASE_URL}/{wishlist_id}/items")
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.get_json()
+        self.assertEqual(len(data), 0)
