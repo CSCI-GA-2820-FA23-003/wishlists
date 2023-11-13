@@ -636,7 +636,7 @@ class TestWishlistServer(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = resp.get_json()
         self.assertEqual(len(data), 0)
-    
+
     def test_query_wishlist_items_multiple_criteria(self):
         """It should query and return a list of Wishlist Items based on multiple criteria"""
         wishlist = self._create_wishlists(1)[0]
@@ -661,3 +661,8 @@ class TestWishlistServer(TestCase):
         self.assertEqual(len(data), 5)
         self.assertEqual(data[0]["product_name"], product_name)
         self.assertEqual(data[0]["product_price"], str(product_price))
+
+    def test_query_wishlist_invalid_id(self):
+        """It should return a 404 status code when receiving an invalid id"""
+        resp = self.client.get(f"{BASE_URL}/invalid/items?product_name=example")
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
