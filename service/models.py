@@ -152,7 +152,7 @@ class Wishlist(db.Model, PersistentBase):
         :rtype: list
 
         """
-        logger.info(f"Querying wishlists for customer id: [{customer_id}]")
+        logger.info("Querying wishlists for customer id: [%s]", customer_id)
         return cls.query.filter(cls.customer_id == customer_id).all()
 
 
