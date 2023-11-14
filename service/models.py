@@ -141,6 +141,20 @@ class Wishlist(db.Model, PersistentBase):
             ) from error
         return self
 
+    @classmethod
+    def find_by_customer_id(cls, customer_id: int) -> list:
+        """Returns all wishlists for a given customer id
+
+        :param customer_id: customer id of customer who owns the list
+        :type customer_id: int
+
+        :return: a collection of wishlists (or empty list)
+        :rtype: list
+
+        """
+        logger.info("Querying wishlists for customer id: [%s]", customer_id)
+        return cls.query.filter(cls.customer_id == customer_id).all()
+
 
 ######################################################################
 # WISHLIST ITEM MODEL
