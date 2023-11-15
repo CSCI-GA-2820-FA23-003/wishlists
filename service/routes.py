@@ -18,11 +18,26 @@ from . import app
 @app.route("/")
 def index():
     """Root URL response"""
+
+    [{'id': 1, 'username': 'Alice'}, {'id': 2, 'username': 'Bob'}]
     return (
         jsonify(
-            name="Wishlist REST API Service",
-            version="1.0",
-            paths=url_for("list_wishlists", _external=True),
+            {
+                "resources":
+                {
+                    "wishlists":
+                    {
+                        "url": "/wishlists",
+                        "subResources":
+                        {
+                            "items":
+                            {
+                                "url": "{{wishlist_id}}/items"
+                            }
+                        }
+                    }
+                }
+             }
         ),
         status.HTTP_200_OK,
     )
