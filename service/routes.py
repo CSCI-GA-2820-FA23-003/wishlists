@@ -4,7 +4,7 @@ Wishlist
 Describe what your service does here
 """
 
-from flask import jsonify, request, abort, make_response
+from flask import jsonify, request, abort, make_response, url_for
 from service.common import status  # HTTP Status Codes
 from service.models import Wishlist, WishlistItem
 
@@ -19,7 +19,11 @@ from . import app
 def index():
     """Root URL response"""
     return (
-        "Reminder: return some useful information in json format about the service here",
+        jsonify(
+            name="Wishlist REST API Service",
+            version="1.0",
+            paths=url_for("list_wishlists", _external=True),
+        ),
         status.HTTP_200_OK,
     )
 
