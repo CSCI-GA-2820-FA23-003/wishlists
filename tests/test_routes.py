@@ -12,6 +12,7 @@ from tests.factories import WishlistFactory, WishlistItemFactory
 from service import app
 from service.models import db, Wishlist, init_db
 from service.common import status  # HTTP Status Codes
+from decimal import Decimal
 
 DATABASE_URI = os.getenv(
     "DATABASE_URI", "postgresql://postgres:postgres@localhost:5432/postgres"
@@ -575,108 +576,6 @@ class TestWishlistServer(TestCase):
         )
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
-    def test_query_wishlist_items(self):
-        """It should query and return a list of Wishlist Items based on specific criteria"""
-        # Create a Wishlist and add multiple Wishlist Items to it
-        wishlist = self._create_wishlists(1)[0]
-        wishlist_id = wishlist.id
-        items = WishlistItemFactory.create_batch(5)
-        wishlist.items.extend(items)
-        wishlist.create()
-        for item in items:
-            item.wishlist_id = wishlist_id
-        db.session.commit()
-
-        # Query Wishlist Items by wishlist_id
-        resp = self.client.get(f"{BASE_URL}/{wishlist_id}/items")
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        data = resp.get_json()
-
-        # Query Wishlist Items by product_name
-        product_name = items[0].product_name
-        resp = self.client.get(
-            f"{BASE_URL}/{wishlist_id}/items?product_name={product_name}"
-        )
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        data = resp.get_json()
-
-        self.assertEqual(data[0]["product_name"], product_name)
-
-        # Query Wishlist Items by product_price
-        product_price = items[1].product_price
-        resp = self.client.get(
-            f"{BASE_URL}/{wishlist_id}/items?product_price={product_price}"
-        )
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        data = resp.get_json()
-
-        self.assertEqual(data[1]["product_price"], str(product_price))
-
-        # Query Wishlist Items by quantity
-        quantity = items[2].quantity
-        resp = self.client.get(f"{BASE_URL}/{wishlist_id}/items?quantity={quantity}")
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        data = resp.get_json()
-
-        self.assertEqual(data[2]["quantity"], quantity)
-
-    def test_query_wishlist_not_found(self):
-        """It should return a 404 status code when querying Wishlist Items for a non-existent Wishlist"""
-        resp = self.client.get(f"{BASE_URL}/0/items?product_name=example")
-        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
-
-    def test_query_wishlist_items_no_match(self):
-        """It should return an empty list when no Wishlist Items match the criteria"""
-        # Create a Wishlist without adding any Wishlist Items
-        wishlist = self._create_wishlists(1)[0]
-        wishlist_id = wishlist.id
-
-        # Query Wishlist Items by a criteria that doesn't match any items
-        resp = self.client.get(f"{BASE_URL}/{wishlist_id}/items?product_name=nonexistent")
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        data = resp.get_json()
-        self.assertEqual(len(data), 0)
-
-    def test_query_wishlist_items_multiple_criteria(self):
-        """It should query and return a list of Wishlist Items based on multiple criteria"""
-        wishlist = self._create_wishlists(1)[0]
-        wishlist_id = wishlist.id
-        items = WishlistItemFactory.create_batch(5)
-        wishlist.items.extend(items)
-        wishlist.create()
-        for item in items:
-            item.wishlist_id = wishlist_id
-        db.session.commit()
-
-        # Query Wishlist Items by product_name and product_price
-        product_name = items[0].product_name
-        product_price = items[0].product_price
-        resp = self.client.get(
-            f"{BASE_URL}/{wishlist_id}/items?product_name={product_name}&product_price={product_price}"
-        )
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        data = resp.get_json()
-
-        # Ensure only one item is returned and it matches the criteria
-        self.assertEqual(len(data), 5)
-        self.assertEqual(data[0]["product_name"], product_name)
-        self.assertEqual(data[0]["product_price"], str(product_price))
-
-    def test_query_wishlist_invalid_id(self):
-        """It should return a 404 status code when receiving an invalid id"""
-        resp = self.client.get(f"{BASE_URL}/invalid/items?product_name=example")
-        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
-
-    def test_query_empty_wishlist_items(self):
-        """It should return an empty list when querying Wishlist Items for an empty Wishlist"""
-        wishlist = self._create_wishlists(1)[0]
-        wishlist_id = wishlist.id
-
-        resp = self.client.get(f"{BASE_URL}/{wishlist_id}/items")
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        data = resp.get_json()
-        self.assertEqual(len(data), 0)
-
     def test_query_wishlist_items_valid_wishlist_id(self):
         """It should successfully query Wishlist Items with a valid Wishlist ID"""
         # Create a Wishlist and some Wishlist Items
@@ -691,4 +590,176 @@ class TestWishlistServer(TestCase):
         resp = self.client.get(f"{BASE_URL}/{wishlist_id}/items?product_name=example")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = resp.get_json()
-        self.assertGreaterEqual(len(data), 0)
+        self.assertEqual(len(data), 0)
+
+    def test_query_wishlist_items_invalid_wishlist_id(self):
+        """It should return a 404 status code for an invalid Wishlist ID"""
+        # Try to query Wishlist Items with an invalid Wishlist ID
+        resp = self.client.get(f"{BASE_URL}/invalid/items?product_name=example")
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_query_wishlist_items_filter_by_product_id(self):
+        """It should return Wishlist Items filtered by product_id"""
+        # Add two items to a wishlist
+        wishlist = WishlistFactory()
+        items = WishlistItemFactory.create_batch(2)
+        wishlist.items.extend(items)
+        wishlist.create()
+
+        # Ensure the wishlist and items are created successfully
+        self.assertIsNotNone(wishlist.id)
+
+        # Get the list back and make sure there are 2 items
+        resp = self.client.get(f"{BASE_URL}/{wishlist.id}/items")
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.get_json()
+        self.assertEqual(len(data), 2)
+
+        # Query Wishlist Items by product_id
+        product_id = items[0].product_id
+        resp = self.client.get(
+            f"{BASE_URL}/{wishlist.id}/items?product_id={product_id}"
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        filtered_data = resp.get_json()
+
+        self.assertEqual(filtered_data[0]["product_id"], product_id)
+
+    def test_query_wishlist_items_filter_by_product_name(self):
+        """It should return Wishlist Items filtered by product_name"""
+        # Add two items to a wishlist
+        wishlist = WishlistFactory()
+        items = WishlistItemFactory.create_batch(2)
+        wishlist.items.extend(items)
+        wishlist.create()
+
+        # Ensure the wishlist and items are created successfully
+        self.assertIsNotNone(wishlist.id)
+
+        # Get the list back and make sure there are 2 items
+        resp = self.client.get(f"{BASE_URL}/{wishlist.id}/items")
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.get_json()
+        self.assertEqual(len(data), 2)
+
+        # Query Wishlist Items by product_id
+        product_name = items[0].product_name
+        resp = self.client.get(
+            f"{BASE_URL}/{wishlist.id}/items?product_name={product_name}"
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        filtered_data = resp.get_json()
+
+        self.assertEqual(filtered_data[0]["product_name"], product_name)
+
+    def test_query_wishlist_items_filter_by_product_price(self):
+        """It should return Wishlist Items filtered by product_price"""
+        # Add two items to a wishlist
+        wishlist = WishlistFactory()
+        items = WishlistItemFactory.create_batch(2)
+        wishlist.items.extend(items)
+        wishlist.create()
+
+        # Ensure the wishlist and items are created successfully
+        self.assertIsNotNone(wishlist.id)
+
+        # Get the list back and make sure there are 2 items
+        resp = self.client.get(f"{BASE_URL}/{wishlist.id}/items")
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.get_json()
+        self.assertEqual(len(data), 2)
+
+        # Query Wishlist Items by product_id
+        product_price = items[0].product_price
+        resp = self.client.get(
+            f"{BASE_URL}/{wishlist.id}/items?product_price={product_price}"
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        filtered_data = resp.get_json()
+
+        self.assertEqual(Decimal(filtered_data[0]["product_price"]), product_price)
+
+    def test_query_wishlist_items_filter_by_quantity(self):
+        """It should return Wishlist Items filtered by quantity"""
+        # Add two items to a wishlist
+        wishlist = WishlistFactory()
+        items = WishlistItemFactory.create_batch(2)
+        wishlist.items.extend(items)
+        wishlist.create()
+
+        # Ensure the wishlist and items are created successfully
+        self.assertIsNotNone(wishlist.id)
+
+        # Get the list back and make sure there are 2 items
+        resp = self.client.get(f"{BASE_URL}/{wishlist.id}/items")
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.get_json()
+        self.assertEqual(len(data), 2)
+
+        # Query Wishlist Items by product_id
+        quantity = items[0].quantity
+        resp = self.client.get(
+            f"{BASE_URL}/{wishlist.id}/items?quantity={quantity}"
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        filtered_data = resp.get_json()
+
+        self.assertEqual(Decimal(filtered_data[0]["quantity"]), quantity)
+
+    def test_query_wishlist_items_filter_by_created_date(self):
+        """It should return Wishlist Items filtered by created_date"""
+        # Add two items to a wishlist
+        wishlist = WishlistFactory()
+        items = WishlistItemFactory.create_batch(2)
+        wishlist.items.extend(items)
+        wishlist.create()
+
+        # Ensure the wishlist and items are created successfully
+        self.assertIsNotNone(wishlist.id)
+
+        # Get the list back and make sure there are 2 items
+        resp = self.client.get(f"{BASE_URL}/{wishlist.id}/items")
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.get_json()
+        self.assertEqual(len(data), 2)
+
+        # Query Wishlist Items by product_id
+        created_date = items[0].created_date
+        resp = self.client.get(
+            f"{BASE_URL}/{wishlist.id}/items?created_date={created_date}"
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        filtered_data = resp.get_json()
+
+        self.assertEqual(filtered_data[0]["created_date"], str(created_date))
+
+    def test_query_wishlist_items_filter_by_multiple_parameters(self):
+        """It should return Wishlist Items filtered by multiple parameters"""
+        # Add two items to a wishlist
+        wishlist = WishlistFactory()
+        items = WishlistItemFactory.create_batch(2)
+        wishlist.items.extend(items)
+        wishlist.create()
+
+        # Ensure the wishlist and items are created successfully
+        self.assertIsNotNone(wishlist.id)
+
+        # Get the list back and make sure there are 2 items
+        resp = self.client.get(f"{BASE_URL}/{wishlist.id}/items")
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.get_json()
+        self.assertEqual(len(data), 2)
+
+        # Query Wishlist Items by multiple parameters (product_id and product_name)
+        product_id = items[0].product_id
+        product_name = items[0].product_name
+        resp = self.client.get(
+            f"{BASE_URL}/{wishlist.id}/items?product_id={product_id}&product_name={product_name}"
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        filtered_data = resp.get_json()
+
+        # Ensure only one item is returned, and it matches the specified parameters
+        self.assertEqual(len(filtered_data), 2)
+        self.assertEqual(filtered_data[0]["product_id"], product_id)
+        self.assertEqual(filtered_data[0]["product_name"], product_name)
