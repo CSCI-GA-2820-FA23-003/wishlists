@@ -311,29 +311,49 @@ def update_wishlist_items(wishlist_id, item_id):
 ######################################################################
 @app.route("/wishlists/<int:wishlist_id>/items", methods=["GET"])
 def query_wishlist_items(wishlist_id):
-    """Query wishlist items based on certain criteria"""
-    app.logger.info("Request to query wishlist items for Wishlist id: %s", wishlist_id)
+    """Returns all of the Items for a Wishlist with optional query parameters"""
+    app.logger.info(
+        "Request for all WishlistItems for Wishlist with id: %s", wishlist_id
+    )
 
-    # Get the query parameters from the request URL
-    query_data = request.args.to_dict()
-
-    # Find the specified Wishlist
+    # See if the account exists and abort if it doesn't
     wishlist = Wishlist.find(wishlist_id)
     if not wishlist:
-        abort(status.HTTP_404_NOT_FOUND, f"Wishlist with ID {wishlist_id} not found")
+        abort(
+            status.HTTP_404_NOT_FOUND,
+            f"Wishlist with id '{wishlist_id}' could not be found.",
+        )
 
-    # Query Wishlist Items based on criteria (e.g., product_id, product_name, etc.)
-    query_results = []
-    for item in wishlist.items:
-        match = True
-        for key, value in query_data.items():
-            if key not in item.serialize() or item.serialize()[key] != value:
-                match = False
-                break
-        if match:
-            query_results.append(item.serialize())
+    # Get the items for the wishlist
+    items = wishlist.items
 
-    return make_response(jsonify(query_results), status.HTTP_200_OK)
+    # Apply filters based on query parameters
+    product_id = request.args.get("product_id")
+    if product_id:
+        items = items.filter_by(product_id=product_id)
+
+    product_name = request.args.get("product_name")
+    if product_name:
+        items = items.filter_by(product_name=product_name)
+
+    product_price = request.args.get("product_price")
+    if product_price:
+        items = items.filter_by(product_price=product_price)
+
+    quantity = request.args.get("quantity")
+    if quantity:
+        items = items.filter_by(quantity=quantity)
+
+    created_date = request.args.get("quantity")
+    if created_date:
+        items = items.filter_by(created_date=created_date)
+
+    # Add more filters for other fields if needed
+
+    # Serialize the filtered items
+    results = [item.serialize() for item in items]
+
+    return make_response(jsonify(results), status.HTTP_200_OK)
 
 
 ######################################################################
