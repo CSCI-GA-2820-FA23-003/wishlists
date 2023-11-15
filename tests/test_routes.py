@@ -8,11 +8,11 @@ Test cases can be run with the following:
 import os
 import logging
 from unittest import TestCase
+from decimal import Decimal
 from tests.factories import WishlistFactory, WishlistItemFactory
 from service import app
 from service.models import db, Wishlist, init_db
 from service.common import status  # HTTP Status Codes
-from decimal import Decimal
 
 DATABASE_URI = os.getenv(
     "DATABASE_URI", "postgresql://postgres:postgres@localhost:5432/postgres"
