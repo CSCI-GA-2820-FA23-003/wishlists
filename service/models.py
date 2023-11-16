@@ -101,6 +101,7 @@ class Wishlist(db.Model, PersistentBase):
 
     # Table Schema
     id = db.Column(db.Integer, primary_key=True)
+    is_public = db.Column(db.Boolean, default=False)
     customer_id = db.Column(db.Integer)
     wishlist_name = db.Column(db.String(64))  # e.g., work, home, vacation, etc.
     created_date = db.Column(db.Date(), nullable=False, default=date.today())
@@ -116,6 +117,8 @@ class Wishlist(db.Model, PersistentBase):
             "customer_id": self.customer_id,
             "wishlist_name": self.wishlist_name,
             "created_date": self.created_date.isoformat(),
+            "is_public" : self.is_public,
+
         }
         return wishlist
 
@@ -130,6 +133,7 @@ class Wishlist(db.Model, PersistentBase):
             self.customer_id = data["customer_id"]
             self.wishlist_name = data["wishlist_name"]
             self.created_date = date.fromisoformat(data["created_date"])
+            self.is_public = data.get("is_public", False)
         except KeyError as error:
             raise DataValidationError(
                 "Invalid Wishlist: missing " + error.args[0]
@@ -154,6 +158,21 @@ class Wishlist(db.Model, PersistentBase):
         """
         logger.info("Querying wishlists for customer id: [%s]", customer_id)
         return cls.query.filter(cls.customer_id == customer_id).all()
+    
+    @app.route('/wishlists/<int:wishlist_id>/publish', methods=['PUT'])
+    def publish_wishlist(wishlist_id):
+        """
+        Publish a wishlist
+        """
+        wishlist = Wishlist.find(wishlist_id)
+        if not wishlist:
+            raise NotFound("Wishlist with id '{}' was not found.".format(wishlist_id))
+
+        wishlist.is_public = True
+        wishlist.update()
+
+        return jsonify(wishlist.serialize()), 200
+
 
 
 ######################################################################

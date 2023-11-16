@@ -286,6 +286,41 @@ class TestWishlist(unittest.TestCase):
             wishlist.create()
             self.assertEqual(wishlist.id, expected)
             expected += 1
+    
+    def test_publish_wishlist(self):
+        """It should set a wishlist as public"""
+        wishlist = WishlistFactory()
+        wishlist.create()
+        self.assertFalse(wishlist.is_public)  # Wishlists are private by default
+
+        # Simulate publishing the wishlist
+        wishlist.is_public = True
+        wishlist.update()
+
+        # Fetch it back and assert it is now public
+        updated_wishlist = Wishlist.find(wishlist.id)
+        self.assertTrue(updated_wishlist.is_public)
+
+    def test_serialize_with_is_public(self):
+        """It should serialize a wishlist including the is_public field"""
+        wishlist = WishlistFactory()
+        wishlist.is_public = True  # Manually set public
+        serialized_data = wishlist.serialize()
+        self.assertIn("is_public", serialized_data)
+        self.assertTrue(serialized_data["is_public"])
+
+    def test_deserialize_with_is_public(self):
+        """It should deserialize a wishlist including the is_public field"""
+        data = {
+            "customer_id": 123,
+            "wishlist_name": "Sample Wishlist",
+            "created_date": "2023-01-01",
+            "is_public": True
+        }
+        wishlist = Wishlist()
+        wishlist.deserialize(data)
+        self.assertTrue(wishlist.is_public)
+
 
 
 #####################
