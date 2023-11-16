@@ -117,8 +117,7 @@ class Wishlist(db.Model, PersistentBase):
             "customer_id": self.customer_id,
             "wishlist_name": self.wishlist_name,
             "created_date": self.created_date.isoformat(),
-            "is_public" : self.is_public,
-
+            "is_public": self.is_public,
         }
         return wishlist
 
@@ -158,21 +157,6 @@ class Wishlist(db.Model, PersistentBase):
         """
         logger.info("Querying wishlists for customer id: [%s]", customer_id)
         return cls.query.filter(cls.customer_id == customer_id).all()
-    
-    @app.route('/wishlists/<int:wishlist_id>/publish', methods=['PUT'])
-    def publish_wishlist(wishlist_id):
-        """
-        Publish a wishlist
-        """
-        wishlist = Wishlist.find(wishlist_id)
-        if not wishlist:
-            raise NotFound("Wishlist with id '{}' was not found.".format(wishlist_id))
-
-        wishlist.is_public = True
-        wishlist.update()
-
-        return jsonify(wishlist.serialize()), 200
-
 
 
 ######################################################################
