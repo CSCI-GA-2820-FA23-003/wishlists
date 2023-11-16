@@ -9,7 +9,6 @@ import os
 import logging
 from unittest import TestCase
 from datetime import date
-from decimal import Decimal
 from tests.factories import WishlistFactory, WishlistItemFactory
 from service import app
 from service.models import db, Wishlist, init_db
@@ -645,7 +644,7 @@ class TestWishlistServer(TestCase):
         self.assertEqual(len(data), 1)
         self.assertLessEqual(data[0]["quantity"], 5)
 
-    def test_list_wishlist_items_by_quantity(self):
+    def test_query_wishlist_items_by_quantity(self):
         """It should list wishlist items filtered by quantity"""
         # Create a Wishlist and associated items
         wishlist = self._create_wishlists(1)[0]
@@ -678,6 +677,3 @@ class TestWishlistServer(TestCase):
         data = resp.get_json()
         self.assertEqual(len(data), 2)
         self.assertEqual(data[0]["created_date"], str(date.today()))
-
-
-    
