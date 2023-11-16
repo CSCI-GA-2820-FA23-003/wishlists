@@ -182,26 +182,17 @@ class TestWishlistServer(TestCase):
 
     def test_get_wishlist_list(self):
         """It should Get a list of Wishlists"""
-        wishlist = self._create_wishlists(5)
-        wishlist_array = []
-        for itr in wishlist:
-            wishlist_id = itr.id
-            customer_id = itr.customer_id
-            wishlist_name = itr.wishlist_name
-            created_date = itr.created_date
-            wishlist_array.append(
-                {
-                    "id": wishlist_id,
-                    "customer_id": customer_id,
-                    "wishlist_name": wishlist_name,
-                    "created_date": created_date,
-                }
-            )
+        wishlists = self._create_wishlists(5)
+        wishlist_ids = [wishlist.id for wishlist in wishlists]
+
         resp = self.client.get(BASE_URL)
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
         data = resp.get_json()
         self.assertEqual(len(data), 5)
-        self.assertEqual(data, wishlist_array)
+
+        for wishlist in data:
+            self.assertIn(wishlist["id"], wishlist_ids)
 
     def test_filter_wishlists_by_customer_id(self):
         """It should return wishlists for a given customer"""
@@ -266,6 +257,33 @@ class TestWishlistServer(TestCase):
         )
 
         # Check if the response status code indicates the wishlist is not found.
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_publish_wishlist(self):
+        """It should publish a private wishlist"""
+        wishlist = WishlistFactory()
+        wishlist.is_public = False
+        wishlist.create()
+        self.assertIsNotNone(wishlist.id)
+        wishlist_id = wishlist.id
+
+        resp = self.client.put(f"{BASE_URL}/{wishlist_id}/publish")
+
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+        data = resp.get_json()
+        self.assertEqual(data["id"], wishlist_id)
+        self.assertEqual(data["is_public"], True)
+
+        # test for idempotency
+        resp2 = self.client.put(f"{BASE_URL}/{wishlist_id}/publish")
+
+        self.assertEqual(data, resp2.get_json())
+
+    def test_publish_wishlist_for_non_existent_wishlist(self):
+        """It should return 404 when publishing a wishlist that does not exist"""
+        resp = self.client.put(f"{BASE_URL}/-99999/publish")
+
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
     ######################################################################

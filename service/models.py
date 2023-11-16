@@ -103,8 +103,9 @@ class Wishlist(db.Model, PersistentBase):
     id = db.Column(db.Integer, primary_key=True)
     customer_id = db.Column(db.Integer)
     wishlist_name = db.Column(db.String(64))  # e.g., work, home, vacation, etc.
-    created_date = db.Column(db.Date(), nullable=False, default=date.today())
+    is_public = db.Column(db.Boolean, default=False)
     items = db.relationship("WishlistItem", backref="wishlist", passive_deletes=True)
+    created_date = db.Column(db.Date(), nullable=False, default=date.today())
 
     def __repr__(self):
         return f"<wishlist_id=[{self.id}]>"
@@ -115,6 +116,7 @@ class Wishlist(db.Model, PersistentBase):
             "id": self.id,
             "customer_id": self.customer_id,
             "wishlist_name": self.wishlist_name,
+            "is_public": self.is_public,
             "created_date": self.created_date.isoformat(),
         }
         return wishlist
@@ -129,6 +131,7 @@ class Wishlist(db.Model, PersistentBase):
         try:
             self.customer_id = data["customer_id"]
             self.wishlist_name = data["wishlist_name"]
+            self.is_public = data.get("is_public", False)
             self.created_date = date.fromisoformat(data["created_date"])
         except KeyError as error:
             raise DataValidationError(

@@ -150,6 +150,27 @@ def delete_wishlists(wishlist_id):
     return make_response("", status.HTTP_204_NO_CONTENT)
 
 
+######################################################################
+# PUBLISH A WISHLIST
+######################################################################
+@app.route("/wishlists/<int:wishlist_id>/publish", methods=["PUT"])
+def publish_wishlist(wishlist_id):
+    """
+    Publish a wishlist
+    """
+    wishlist = Wishlist.find(wishlist_id)
+    if not wishlist:
+        abort(
+            status.HTTP_404_NOT_FOUND,
+            f"Wishlist with id '{wishlist_id}' was not found.",
+        )
+    # Update from the json in the body of the request
+    wishlist.is_public = True
+    wishlist.update()
+
+    return make_response(jsonify(wishlist.serialize()), status.HTTP_200_OK)
+
+
 # ---------------------------------------------------------------------
 #                W I S H L I S T   I T E M   M E T H O D S
 # ---------------------------------------------------------------------

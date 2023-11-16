@@ -65,12 +65,14 @@ class TestWishlist(unittest.TestCase):
         wishlist = Wishlist(
             customer_id=fake_wishlist.customer_id,
             wishlist_name=fake_wishlist.wishlist_name,
+            is_public=fake_wishlist.is_public,
             created_date=fake_wishlist.created_date,
         )
         self.assertIsNotNone(wishlist)
         self.assertEqual(wishlist.id, None)
         self.assertEqual(wishlist.customer_id, fake_wishlist.customer_id)
         self.assertEqual(wishlist.wishlist_name, fake_wishlist.wishlist_name)
+        self.assertEqual(wishlist.is_public, fake_wishlist.is_public)
         self.assertEqual(wishlist.created_date, fake_wishlist.created_date)
 
     def test_create_a_wishlist(self):
@@ -101,6 +103,7 @@ class TestWishlist(unittest.TestCase):
         self.assertEqual(found_wishlist.id, wishlist.id)
         self.assertEqual(found_wishlist.customer_id, wishlist.customer_id)
         self.assertEqual(found_wishlist.wishlist_name, wishlist.wishlist_name)
+        self.assertEqual(found_wishlist.is_public, wishlist.is_public)
         self.assertEqual(found_wishlist.created_date, wishlist.created_date)
 
     def test_update_wishlist(self):
@@ -241,6 +244,7 @@ class TestWishlist(unittest.TestCase):
         self.assertEqual(serial_wishlist["id"], wishlist.id)
         self.assertEqual(serial_wishlist["customer_id"], wishlist.customer_id)
         self.assertEqual(serial_wishlist["wishlist_name"], wishlist.wishlist_name)
+        self.assertEqual(serial_wishlist["is_public"], wishlist.is_public)
         self.assertEqual(serial_wishlist["created_date"], str(wishlist.created_date))
 
     def test_deserialize_an_wishlist(self):
@@ -252,6 +256,7 @@ class TestWishlist(unittest.TestCase):
         new_wishlist.deserialize(serial_wishlist)
         self.assertEqual(new_wishlist.customer_id, wishlist.customer_id)
         self.assertEqual(new_wishlist.wishlist_name, wishlist.wishlist_name)
+        self.assertEqual(new_wishlist.is_public, wishlist.is_public)
         self.assertEqual(new_wishlist.created_date, wishlist.created_date)
 
     def test_deserialize_with_key_error(self):
@@ -286,6 +291,16 @@ class TestWishlist(unittest.TestCase):
             wishlist.create()
             self.assertEqual(wishlist.id, expected)
             expected += 1
+
+    def test_wishlist_create_without_is_public_value(self):
+        """It should save false when is_public is not set"""
+        wishlist = Wishlist()
+        wishlist.name = "My Halloween List"
+        self.assertIsNone(wishlist.is_public)
+
+        wishlist.create()
+        self.assertIsNotNone(wishlist.id)
+        self.assertFalse(wishlist.is_public)
 
 
 #####################
