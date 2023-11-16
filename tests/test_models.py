@@ -292,6 +292,16 @@ class TestWishlist(unittest.TestCase):
             self.assertEqual(wishlist.id, expected)
             expected += 1
 
+    def test_wishlist_create_without_is_public_value(self):
+        """It should save false when is_public is not set"""
+        wishlist = Wishlist()
+        wishlist.name = "My Halloween List"
+        self.assertIsNone(wishlist.is_public)
+
+        wishlist.create()
+        self.assertIsNotNone(wishlist.id)
+        self.assertFalse(wishlist.is_public)
+
 
 #####################
 # WishistItem Tests
