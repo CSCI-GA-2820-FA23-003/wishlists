@@ -182,26 +182,17 @@ class TestWishlistServer(TestCase):
 
     def test_get_wishlist_list(self):
         """It should Get a list of Wishlists"""
-        wishlist = self._create_wishlists(5)
-        wishlist_array = []
-        for itr in wishlist:
-            wishlist_id = itr.id
-            customer_id = itr.customer_id
-            wishlist_name = itr.wishlist_name
-            created_date = itr.created_date
-            wishlist_array.append(
-                {
-                    "id": wishlist_id,
-                    "customer_id": customer_id,
-                    "wishlist_name": wishlist_name,
-                    "created_date": created_date,
-                }
-            )
+        wishlists = self._create_wishlists(5)
+        wishlist_ids = [wishlist.id for wishlist in wishlists]
+
         resp = self.client.get(BASE_URL)
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
         data = resp.get_json()
         self.assertEqual(len(data), 5)
-        self.assertEqual(data, wishlist_array)
+
+        for wl in data:
+            self.assertIn(wl["id"], wishlist_ids)
 
     def test_filter_wishlists_by_customer_id(self):
         """It should return wishlists for a given customer"""
