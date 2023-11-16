@@ -323,11 +323,9 @@ def update_wishlist_items(wishlist_id, item_id):
     if not wishlist_item:
         abort(status.HTTP_404_NOT_FOUND, f"Wishlist Item with ID {item_id} not found")
 
-    # Update the Quantity of the WishlistItem
-    data = request.get_json()
-    if "quantity" in data:
-        wishlist_item.quantity = data["quantity"]
-        wishlist.update()
+    wishlist_item.deserialize(request.get_json())
+    wishlist_item.id = item_id
+    wishlist_item.update()
 
     return make_response(
         jsonify(wishlist_item.serialize()),

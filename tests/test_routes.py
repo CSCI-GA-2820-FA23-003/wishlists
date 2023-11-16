@@ -574,21 +574,36 @@ class TestWishlistServer(TestCase):
         self.assertEqual(resp_create.status_code, status.HTTP_201_CREATED)
         data_create = resp_create.get_json()
 
+        item_id = data_create["id"]
+
         # Update the Wishlist Item (e.g., change the quantity)
-        updated_data = {"quantity": 10}  # Change the quantity to 10
+        new_data = {
+            "wishlist_id": wishlist.id,
+            "product_id": 12345,
+            "product_name": data_create["product_name"] + " UPDATED",
+            "product_price": float(data_create["product_price"]) + 1000.0,
+            "created_date": "2016-09-12",
+            "quantity": data_create["quantity"] + 1000,
+        }
         resp_update = self.client.put(
-            f"{BASE_URL}/{wishlist.id}/items/{data_create['id']}",
-            json=updated_data,
+            f"{BASE_URL}/{wishlist.id}/items/{item_id}",
+            json=new_data,
             content_type="application/json",
         )
         self.assertEqual(resp_update.status_code, status.HTTP_200_OK)
-        data_update = resp_update.get_json()
+        updated_data = resp_update.get_json()
 
-        # Verify that the quantity has been updated
-        self.assertEqual(data_update["quantity"], 10)
+        # Verify that each attribute was updated and returned
+        self.assertEqual(updated_data["product_id"], new_data["product_id"])
+        self.assertEqual(updated_data["product_name"], new_data["product_name"])
+        self.assertEqual(
+            float(updated_data["product_price"]), new_data["product_price"]
+        )
+        self.assertEqual(updated_data["created_date"], new_data["created_date"])
+        self.assertEqual(updated_data["quantity"], new_data["quantity"])
 
         # Verify that "update wishlist item" does not return a header
-        location = resp_update.headers.get("Location", None)
+        location = resp_update.headers.get("Location")
         self.assertIsNone(location)
 
     def test_update_wishlist_item_not_found(self):
