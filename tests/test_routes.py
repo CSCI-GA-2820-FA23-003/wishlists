@@ -191,8 +191,8 @@ class TestWishlistServer(TestCase):
         data = resp.get_json()
         self.assertEqual(len(data), 5)
 
-        for wl in data:
-            self.assertIn(wl["id"], wishlist_ids)
+        for wishlist in data:
+            self.assertIn(wishlist["id"], wishlist_ids)
 
     def test_filter_wishlists_by_customer_id(self):
         """It should return wishlists for a given customer"""
