@@ -328,56 +328,6 @@ def update_wishlist_items(wishlist_id, item_id):
 
 
 ######################################################################
-# QUERY ITEMS
-######################################################################
-@app.route("/wishlists/<int:wishlist_id>/items", methods=["GET"])
-def query_wishlist_items(wishlist_id):
-    """Returns all of the Items for a Wishlist with optional query parameters"""
-    app.logger.info(
-        "Request for all WishlistItems for Wishlist with id: %s", wishlist_id
-    )
-
-    # See if the account exists and abort if it doesn't
-    wishlist = Wishlist.find(wishlist_id)
-    if not wishlist:
-        abort(
-            status.HTTP_404_NOT_FOUND,
-            f"Wishlist with id '{wishlist_id}' could not be found.",
-        )
-
-    # Get the items for the wishlist
-    items = wishlist.items
-
-    # Apply filters based on query parameters
-    product_id = request.args.get("product_id")
-    if product_id:
-        items = items.filter_by(product_id=product_id)
-
-    product_name = request.args.get("product_name")
-    if product_name:
-        items = items.filter_by(product_name=product_name)
-
-    product_price = request.args.get("product_price")
-    if product_price:
-        items = items.filter_by(product_price=product_price)
-
-    quantity = request.args.get("quantity")
-    if quantity:
-        items = items.filter_by(quantity=quantity)
-
-    created_date = request.args.get("quantity")
-    if created_date:
-        items = items.filter_by(created_date=created_date)
-
-    # Add more filters for other fields if needed
-
-    # Serialize the filtered items
-    results = [item.serialize() for item in items]
-
-    return make_response(jsonify(results), status.HTTP_200_OK)
-
-
-######################################################################
 #  U T I L I T Y   F U N C T I O N S
 ######################################################################
 def check_content_type(media_type):
