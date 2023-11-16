@@ -4,7 +4,7 @@ Wishlist
 Describe what your service does here
 """
 
-from flask import jsonify, request, abort, make_response, url_for
+from flask import jsonify, request, abort, make_response
 from service.common import status  # HTTP Status Codes
 from service.models import Wishlist, WishlistItem
 
@@ -19,25 +19,16 @@ from . import app
 def index():
     """Root URL response"""
 
-    [{'id': 1, 'username': 'Alice'}, {'id': 2, 'username': 'Bob'}]
     return (
         jsonify(
             {
-                "resources":
-                {
-                    "wishlists":
-                    {
+                "resources": {
+                    "wishlists": {
                         "url": "/wishlists",
-                        "subResources":
-                        {
-                            "items":
-                            {
-                                "url": "{{wishlist_id}}/items"
-                            }
-                        }
+                        "subResources": {"items": {"url": "{wishlist_id}/items"}},
                     }
                 }
-             }
+            }
         ),
         status.HTTP_200_OK,
     )
