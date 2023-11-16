@@ -8,6 +8,7 @@ Test cases can be run with the following:
 import os
 import logging
 from unittest import TestCase
+from datetime import date
 from tests.factories import WishlistFactory, WishlistItemFactory
 from service import app
 from service.models import db, Wishlist, init_db
@@ -19,12 +20,14 @@ DATABASE_URI = os.getenv(
 
 BASE_URL = "/wishlists"
 
-
 ######################################################################
 #  T E S T   C A S E S
 ######################################################################
 # pylint: disable=too-many-public-methods
+
+
 class TestWishlistServer(TestCase):
+
     """Wishlist REST API Server Tests"""
 
     @classmethod
@@ -633,3 +636,105 @@ class TestWishlistServer(TestCase):
             content_type="application/json",
         )
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_list_wishlist_items_by_product_id(self):
+        """It should list wishlist items filtered by product_id"""
+        # Create a Wishlist and associated items
+        wishlist = self._create_wishlists(1)[0]
+        item1 = WishlistItemFactory(product_id=123)
+        item2 = WishlistItemFactory(product_id=456)
+        wishlist.items.extend([item1, item2])
+        wishlist.create()
+
+        # Make a GET request to filter by product_id 123
+        resp = self.client.get(f"{BASE_URL}/{wishlist.id}/items?product_id=123")
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+        data = resp.get_json()
+        self.assertEqual(len(data), 1)
+        self.assertEqual(data[0]["product_id"], 123)
+
+    def test_list_wishlist_items_by_product_name(self):
+        """It should list wishlist items filtered by product_name"""
+        # Create a Wishlist and associated items
+        wishlist = self._create_wishlists(1)[0]
+        item1 = WishlistItemFactory(product_name="Product ABC")
+        item2 = WishlistItemFactory(product_name="Product XYZ")
+        wishlist.items.extend([item1, item2])
+        wishlist.create()
+
+        # Make a GET request to filter by product_name "Product XYZ"
+        resp = self.client.get(f"{BASE_URL}/{wishlist.id}/items?product_name=Product XYZ")
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+        data = resp.get_json()
+        self.assertEqual(len(data), 1)
+        self.assertEqual(data[0]["product_name"], "Product XYZ")
+
+    def test_list_wishlist_items_by_product_price(self):
+        """It should list wishlist items filtered by product_price"""
+        # Create a Wishlist and associated items
+        wishlist = self._create_wishlists(1)[0]
+        item1 = WishlistItemFactory(product_price=50)
+        item2 = WishlistItemFactory(product_price=100)
+        wishlist.items.extend([item1, item2])
+        wishlist.create()
+
+        # Make a GET request to filter by product_price <= 50
+        resp = self.client.get(f"{BASE_URL}/{wishlist.id}/items?product_price=50")
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+        data = resp.get_json()
+        self.assertEqual(len(data), 1)
+        self.assertLessEqual(data[0]["product_price"], str(50))
+
+    def test_list_wishlist_items_by_quantity(self):
+        """It should list wishlist items filtered by quantity"""
+        # Create a Wishlist and associated items
+        wishlist = self._create_wishlists(1)[0]
+        item1 = WishlistItemFactory(quantity=5)
+        item2 = WishlistItemFactory(quantity=10)
+        wishlist.items.extend([item1, item2])
+        wishlist.create()
+
+        # Make a GET request to filter by quantity <= 5
+        resp = self.client.get(f"{BASE_URL}/{wishlist.id}/items?quantity=5")
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+        data = resp.get_json()
+        self.assertEqual(len(data), 1)
+        self.assertLessEqual(data[0]["quantity"], 5)
+
+    def test_query_wishlist_items_by_quantity(self):
+        """It should list wishlist items filtered by quantity"""
+        # Create a Wishlist and associated items
+        wishlist = self._create_wishlists(1)[0]
+        item1 = WishlistItemFactory(quantity=5)
+        item2 = WishlistItemFactory(quantity=10)
+        wishlist.items.extend([item1, item2])
+        wishlist.create()
+
+        # Make a GET request to filter by quantity <= 5
+        resp = self.client.get(f"{BASE_URL}/{wishlist.id}/items?quantity=5")
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+        data = resp.get_json()
+        self.assertEqual(len(data), 1)
+        self.assertLessEqual(data[0]["quantity"], 5)
+
+    def test_list_wishlist_items_by_created_date(self):
+        """It should list wishlist items filtered by created_date"""
+        # Create a Wishlist and associated items
+        wishlist = self._create_wishlists(1)[0]
+        item1 = WishlistItemFactory(created_date=date.today())
+        item2 = WishlistItemFactory(created_date=date.today())
+        wishlist.items.extend([item1, item2])
+        wishlist.create()
+
+        # Make a GET request to filter by created_date (today's date)
+        resp = self.client.get(f"{BASE_URL}/{wishlist.id}/items?created_date={date.today()}")
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+        data = resp.get_json()
+        self.assertEqual(len(data), 2)
+        self.assertEqual(data[0]["created_date"], str(date.today()))

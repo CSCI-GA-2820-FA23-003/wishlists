@@ -232,7 +232,7 @@ def create_wishlist_item(wishlist_id):
 ######################################################################
 @app.route("/wishlists/<int:wishlist_id>/items", methods=["GET"])
 def list_wishlist_items(wishlist_id):
-    """Returns all of the Items for a Wishlist"""
+    """Returns wishlist items based on query parameters"""
     app.logger.info(
         "Request for all WishlistItems for Wishlist with id: %s", wishlist_id
     )
@@ -245,8 +245,29 @@ def list_wishlist_items(wishlist_id):
             f"Wishlist with id '{wishlist_id}' could not be found.",
         )
 
-    # Get the items for the wishlist
-    results = [item.serialize() for item in wishlist.items]
+    query_params = request.args.to_dict()
+
+    # Initialize base query for items related to this wishlist
+    base_query = WishlistItem.query.filter_by(wishlist_id=wishlist_id)
+
+    # Check for query parameters and filter the base query accordingly
+    if 'product_id' in query_params:
+        base_query = base_query.filter_by(product_id=query_params['product_id'])
+
+    if 'product_name' in query_params:
+        base_query = base_query.filter(WishlistItem.product_name.ilike(f"%{query_params['product_name']}%"))
+
+    if 'product_price' in query_params:
+        base_query = base_query.filter(WishlistItem.product_price <= query_params['product_price'])
+
+    if 'quantity' in query_params:
+        base_query = base_query.filter(WishlistItem.quantity <= query_params['quantity'])
+
+    if 'created_date' in query_params:
+        base_query = base_query.filter_by(created_date=query_params['created_date'])
+
+    # Fetch the filtered results
+    results = [item.serialize() for item in base_query.all()]
 
     return make_response(jsonify(results), status.HTTP_200_OK)
 
