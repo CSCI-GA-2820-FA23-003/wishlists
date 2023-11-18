@@ -4,4 +4,4 @@ Feature: Wishlists Admin UI
     So that I can keep track of all customers wishlists
 
 Scenario:
-    Given hello world
+    When hello world

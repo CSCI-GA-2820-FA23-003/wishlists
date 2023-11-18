@@ -10,7 +10,7 @@ import requests
 # despite the fact that it is there and functions as expected, so adding this 
 # disable to avoid linter false positives
 # pylint: disable=E0611
-from behave import given
+from behave import when
 
 # HTTP Return Codes
 HTTP_200_OK = 200
@@ -18,7 +18,7 @@ HTTP_201_CREATED = 201
 HTTP_204_NO_CONTENT = 204
 
 
-@given("hello world")
+@when("hello world")
 def step_impl(context):
     """Stubbing out first test"""
     print("hello BDD world!")
