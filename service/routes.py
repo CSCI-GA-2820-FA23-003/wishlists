@@ -11,33 +11,17 @@ from service.models import Wishlist, WishlistItem
 # Import Flask application
 from . import app
 
-
 ######################################################################
 # GET INDEX
 ######################################################################
 @app.route("/")
 def index():
-    """Root URL response"""
-
-    return (
-        jsonify(
-            {
-                "resources": {
-                    "wishlists": {
-                        "url": "/wishlists",
-                        "subResources": {"items": {"url": "{wishlist_id}/items"}},
-                    }
-                }
-            }
-        ),
-        status.HTTP_200_OK,
-    )
-
+    """Base URL for our service"""
+    return app.send_static_file("index.html")
 
 ######################################################################
 #  R E S T   A P I   E N D P O I N T S
 ######################################################################
-
 
 ######################################################################
 # LIST ALL WISHLISTs
