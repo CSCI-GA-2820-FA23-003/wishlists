@@ -59,7 +59,8 @@ $(function () {
 
         ajax.done(function(res){
             //update_form_data(res)
-            flash_message("Successfully created Wishlist with ID " + res.responseJSON.wishlist_id)
+            $("#wishlist_id").val(res.id)
+            flash_message("Successfully created Wishlist with ID " + res.id)
         });
 
         ajax.fail(function(res){
