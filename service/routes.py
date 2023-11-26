@@ -11,6 +11,7 @@ from service.models import Wishlist, WishlistItem
 # Import Flask application
 from . import app
 
+
 ######################################################################
 # GET INDEX
 ######################################################################
@@ -18,6 +19,7 @@ from . import app
 def index():
     """Base URL for our service"""
     return app.send_static_file("index.html")
+
 
 ######################################################################
 #  R E S T   A P I   E N D P O I N T S
