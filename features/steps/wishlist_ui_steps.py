@@ -79,7 +79,6 @@ def step_impl(context, element_name):
         expected_conditions.presence_of_element_located((By.ID, element_id))
     )
     context.clipboard = element.get_attribute("value")
-    logging.info("Clipboard contains: %s", context.clipboard)
 
 
 @then('the "{element_name}" field should be empty')
@@ -89,8 +88,36 @@ def step_impl(context, element_name):
     assert element.get_attribute("value") == ""
 
 
-@then('the "{element_name}" field should be unchecked')
+@when('I paste the "{element_name}" field')
 def step_impl(context, element_name):
-    element_id = ID_PREFIX + element_name.lower().replace(" ", "_")
+    element_id = ID_PREFIX + element_name.lower().replace(' ', '_')
+    element = WebDriverWait(context.driver, context.wait_seconds).until(
+        expected_conditions.presence_of_element_located((By.ID, element_id))
+    )
+    element.clear()
+    element.send_keys(context.clipboard)
+
+
+@then('I should see "{text_string}" in the "{element_name}" field')
+def step_impl(context, text_string, element_name):
+    element_id = ID_PREFIX + element_name.lower().replace(' ', '_')
+    found = WebDriverWait(context.driver, context.wait_seconds).until(
+        expected_conditions.text_to_be_present_in_element_value(
+            (By.ID, element_id),
+            text_string
+        )
+    )
+    assert(found)
+
+
+@then('"{element_name}" should "{be_or_not_be}" checked')
+def step_impl(context, element_name, be_or_not_be):
+    element_id = ID_PREFIX + element_name.lower().replace(' ', '_')
     checkbox = context.driver.find_element(By.ID, element_id)
-    assert not checkbox.is_selected()
+    be_or_not_be = be_or_not_be.lower()
+    if be_or_not_be == "be":
+        assert checkbox.is_selected()
+    elif be_or_not_be == "not be":
+        assert not checkbox.is_selected()
+    else:
+        raise ValueError(f'Invalid value for "be_or_not_be": {be_or_not_be}') 
