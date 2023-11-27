@@ -20,11 +20,9 @@ $(function () {
 
     /// Clears all form fields
     function clear_form_data() {
-        $("#pet_name").val("");
-        $("#pet_category").val("");
-        $("#pet_available").val("");
-        $("#pet_gender").val("");
-        $("#pet_birthday").val("");
+        $("#wishlist_name").val("");
+        $("#wishlist_id").val("");
+        $("#wishlist_is_public").prop("checked", false)
     }
 
     // Updates the flash message area
@@ -172,7 +170,7 @@ $(function () {
     // ****************************************
 
     $("#clear-btn").click(function () {
-        $("#pet_id").val("");
+        $("#wishlist_id").val("");
         $("#flash_message").empty();
         clear_form_data()
     });
