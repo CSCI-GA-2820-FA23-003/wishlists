@@ -25,6 +25,7 @@ def index():
 #  R E S T   A P I   E N D P O I N T S
 ######################################################################
 
+
 ######################################################################
 # LIST ALL WISHLISTs
 ######################################################################
@@ -237,20 +238,26 @@ def list_wishlist_items(wishlist_id):
     base_query = WishlistItem.query.filter_by(wishlist_id=wishlist_id)
 
     # Check for query parameters and filter the base query accordingly
-    if 'product_id' in query_params:
-        base_query = base_query.filter_by(product_id=query_params['product_id'])
+    if "product_id" in query_params:
+        base_query = base_query.filter_by(product_id=query_params["product_id"])
 
-    if 'product_name' in query_params:
-        base_query = base_query.filter(WishlistItem.product_name.ilike(f"%{query_params['product_name']}%"))
+    if "product_name" in query_params:
+        base_query = base_query.filter(
+            WishlistItem.product_name.ilike(f"%{query_params['product_name']}%")
+        )
 
-    if 'product_price' in query_params:
-        base_query = base_query.filter(WishlistItem.product_price <= query_params['product_price'])
+    if "product_price" in query_params:
+        base_query = base_query.filter(
+            WishlistItem.product_price <= query_params["product_price"]
+        )
 
-    if 'quantity' in query_params:
-        base_query = base_query.filter(WishlistItem.quantity <= query_params['quantity'])
+    if "quantity" in query_params:
+        base_query = base_query.filter(
+            WishlistItem.quantity <= query_params["quantity"]
+        )
 
-    if 'created_date' in query_params:
-        base_query = base_query.filter_by(created_date=query_params['created_date'])
+    if "created_date" in query_params:
+        base_query = base_query.filter_by(created_date=query_params["created_date"])
 
     # Fetch the filtered results
     results = [item.serialize() for item in base_query.all()]

@@ -26,8 +26,13 @@ $(function () {
         $("#flash_message").append(message);
     }
 
+    // Render list of items in a given wishlist
+    // function render_wishlist_item_table(res){
+    //     for res.items
+    // }
+
     // ****************************************
-    // Create a Pet
+    // Create a Wishlist
     // ****************************************
 
     $("#create-btn").click(function () {
@@ -63,7 +68,7 @@ $(function () {
 
 
     // ****************************************
-    // Update a Pet
+    // Update a Wishlist
     // ****************************************
 
     $("#update-btn").click(function () {
@@ -121,6 +126,27 @@ $(function () {
         ajax.done(function(res){
             update_form_data(res)
             flash_message("Success")
+            $.ajax({
+                type: "GET",
+                url: `/wishlists/${res.id}/items`,
+            }).done(function(res){
+                $("#wishlist-items-table tbody").empty()
+                if (res.length == 0){
+                    window.alert("No results")
+                } else {
+                    $.each(res, function(index, item) {
+                        $("#wishlist-items-table tbody").append(`<tr>
+                            <td><a class"wishlist-item-id-link">${item.id}</a></td>
+                            <td>${item.product_id}</td>
+                            <td>${item.product_name}</td>
+                            <td>${item.product_price}</td>
+                            <td>${item.quantity}</td>
+                        </tr>`)
+                    })
+                }
+                
+            })
+            
         });
 
         ajax.fail(function(res){
@@ -131,7 +157,7 @@ $(function () {
     });
 
     // ****************************************
-    // Delete a Pet
+    // Delete a Wishlist
     // ****************************************
 
     $("#delete-btn").click(function () {
@@ -168,7 +194,8 @@ $(function () {
     });
 
     // ****************************************
-    // Search for a Pet
+    // Search for a Wishlist by Customer ID
+    // TODO
     // ****************************************
 
     $("#search-btn").click(function () {
