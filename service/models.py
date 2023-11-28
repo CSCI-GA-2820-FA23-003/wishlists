@@ -4,7 +4,7 @@ Models for Wishlist
 All of the models are stored in this module
 """
 import logging
-from datetime import date
+from datetime import date, datetime
 from abc import abstractmethod
 from flask_sqlalchemy import SQLAlchemy
 
@@ -132,7 +132,7 @@ class Wishlist(db.Model, PersistentBase):
             self.customer_id = data["customer_id"]
             self.wishlist_name = data["wishlist_name"]
             self.is_public = data.get("is_public", False)
-            self.created_date = date.fromisoformat(data["created_date"])
+            self.created_date = datetime.fromisoformat(data["created_date"]).date()
         except KeyError as error:
             raise DataValidationError(
                 "Invalid Wishlist: missing " + error.args[0]
