@@ -134,13 +134,18 @@ $(function () {
                 if (res.length == 0){
                     window.alert("No results")
                 } else {
+                    // create a table row for each item in the retrieved wishlist
                     $.each(res, function(index, item) {
                         $("#wishlist-items-table tbody").append(`<tr>
-                            <td><a class"wishlist-item-id-link">${item.id}</a></td>
+                            <td>${item.id}</td>
                             <td>${item.product_id}</td>
                             <td>${item.product_name}</td>
                             <td>${item.product_price}</td>
                             <td>${item.quantity}</td>
+                            <td>
+                                <button class="btn btn-sm btn-default" data-wishlist-and-item-id="${item.wishlist_id}:${item.id}">Edit</button>
+                                <button class="btn btn-sm btn-danger" data-wishlist-and-item-id="${item.wishlist_id}:${item.id}">Delete</button>
+                            </td>
                         </tr>`)
                     })
                 }
