@@ -15,3 +15,15 @@ Scenario: Create a Wishlist
     And I check the "Is Public" checkbox
     And I press the "Create" button
     Then I should see the message "Successfully created Wishlist"
+    When I copy the "Id" field
+    And I press the "Clear" button
+    Then the "Id" field should be empty
+    And the "Name" field should be empty
+    And the "Customer ID" field should be empty
+    And "Is Public" should "not be" checked
+    When I paste the "Id" field
+    And I press the "Retrieve" button
+    Then I should see the message "Success"
+    And I should see "Beckett's Halloween Costume List" in the "Name" field
+    And I should see "42" in the "Customer ID" field
+    And "Is Public" should "be" checked

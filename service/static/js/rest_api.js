@@ -6,25 +6,18 @@ $(function () {
 
     // Updates the form with data from the response
     function update_form_data(res) {
-        $("#pet_id").val(res.id);
-        $("#pet_name").val(res.name);
-        $("#pet_category").val(res.category);
-        if (res.available == true) {
-            $("#pet_available").val("true");
-        } else {
-            $("#pet_available").val("false");
-        }
-        $("#pet_gender").val(res.gender);
-        $("#pet_birthday").val(res.birthday);
+        $("#wishlist_id").val(res.id);
+        $("#wishlist_name").val(res.wishlist_name);
+        $("#wishlist_customer_id").val(res.customer_id)
+        $("#wishlist_is_public").prop("checked", res.is_public);
     }
 
     /// Clears all form fields
     function clear_form_data() {
-        $("#pet_name").val("");
-        $("#pet_category").val("");
-        $("#pet_available").val("");
-        $("#pet_gender").val("");
-        $("#pet_birthday").val("");
+        $("#wishlist_name").val("");
+        $("#wishlist_id").val("");
+        $("#wishlist_customer_id").val("")
+        $("#wishlist_is_public").prop("checked", false)
     }
 
     // Updates the flash message area
@@ -111,24 +104,21 @@ $(function () {
     });
 
     // ****************************************
-    // Retrieve a Pet
+    // Retrieve a Wishlist
     // ****************************************
 
     $("#retrieve-btn").click(function () {
 
-        let pet_id = $("#pet_id").val();
+        let wishlist_id = $("#wishlist_id").val();
 
         $("#flash_message").empty();
 
         let ajax = $.ajax({
             type: "GET",
-            url: `/pets/${pet_id}`,
-            contentType: "application/json",
-            data: ''
+            url: `/wishlists/${wishlist_id}`,
         })
 
         ajax.done(function(res){
-            //alert(res.toSource())
             update_form_data(res)
             flash_message("Success")
         });
@@ -172,7 +162,7 @@ $(function () {
     // ****************************************
 
     $("#clear-btn").click(function () {
-        $("#pet_id").val("");
+        $("#wishlist_id").val("");
         $("#flash_message").empty();
         clear_form_data()
     });
