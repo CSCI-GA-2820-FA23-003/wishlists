@@ -20,7 +20,3 @@ HTTP_204_NO_CONTENT = 204
 
 # this is only if we need to create db items to work on it is the equivalent of
 # pet_steps.py here: https://github.com/nyu-devops/lab-flask-bdd/blob/master/features/steps/pets_steps.py
-@given("hello wishlist item world")
-def step_impl(context):
-    """Stubbing out first wishlist item test"""
-    print("hello BDD world!")
