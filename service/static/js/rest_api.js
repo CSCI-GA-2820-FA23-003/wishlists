@@ -84,6 +84,7 @@ $(function () {
         ajax.done(function(res){
             //update_form_data(res)
             $("#wishlist_id").val(res.id)
+            $("#item_wishlist_id").val(res.id)
             flash_message("Successfully created Wishlist with ID " + res.id)
         });
 
@@ -159,9 +160,7 @@ $(function () {
                 url: `/wishlists/${res.id}/items`,
             }).done(function(res){
                 $("#wishlist-items-table tbody").empty()
-                if (res.length == 0){
-                    window.alert("No results")
-                } else {
+                if (res.length > 0){
                     // create a table row for each item in the retrieved wishlist
                     $.each(res, function(index, item) {
                         $("#wishlist-items-table tbody").append(`<tr>
@@ -170,7 +169,7 @@ $(function () {
                             <td>${item.product_name}</td>
                             <td>${item.product_price}</td>
                             <td>${item.quantity}</td>
-                            <td>
+                            <td class="item-actions">
                                 <button class="btn btn-sm btn-default item-edit-btn" data-wishlist-and-item-id="${item.wishlist_id}:${item.id}">Edit</button>
                                 <button class="btn btn-sm btn-danger" data-wishlist-and-item-id="${item.wishlist_id}:${item.id}">Delete</button>
                             </td>
@@ -353,6 +352,7 @@ $(function () {
             data: JSON.stringify(post_data)
         }).done(function(res){
             $("#item_id").val(res.id)
+            flash_message("Successfully added item")
         })
     })
 
