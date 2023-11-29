@@ -35,7 +35,7 @@
           <div class="form-group">
             <label class="control-label col-sm-2" for="wishlist_id">Wishlist ID:</label>
             <div class="col-sm-6">
-              <input type="text" class="form-control" id="wishlist_id" placeholder="Enter ID of Wishlist">
+              <input type="text" class="form-control" id="wishlist_id" placeholder="Enter ID of Wishlist (Leave Blank if Creating New Wishlist)">
             </div>
             <div class="col-sm-4">
               <button type="submit" class="btn btn-primary" id="retrieve-btn">Retrieve</button>
@@ -109,10 +109,12 @@
         <h3>Wishlist Item Form:</h3>
         <div class="well">
           <div class="form-horizontal">
+            
+            <!-- WISHLIST ITEM ID-->
             <div class="form-group">
               <label class="control-label col-sm-2" for="item_id">Item ID:</label>
               <div class="col-sm-10">
-                <input type="text" class="form-control" id="item_id" placeholder="Enter ID of Wishlist Item">
+                <input type="text" class="form-control" id="item_id" placeholder="Enter ID of Wishlist Item (Leave Blank if Creating New Item)">
               </div>
             </div>
           </div> <!-- form horizontal -->

@@ -35,6 +35,10 @@ $(function () {
 
         selectors.forEach( selector => $(selector).val(""))
 
+        // set wishlist_id into item form in case there is one loaded into
+        // wishlist form
+        $("#item_wishlist_id").val($("#wishlist_id").val())
+
     }
 
     // Updates the flash message area
@@ -146,7 +150,9 @@ $(function () {
         })
 
         ajax.done(function(res){
+            clear_form_data()
             update_form_data(res)
+            $("#item_wishlist_id").val(res.id)
             flash_message("Success")
             $.ajax({
                 type: "GET",
@@ -323,6 +329,30 @@ $(function () {
             $("#item_product_name").val(res.product_name)
             $("#item_price").val(res.product_price)
             $("#item_quantity").val(res.quantity)
+        })
+    })
+
+    // add a new item to the wishlist list
+    $("#item-create-btn").click(function(){
+        
+        const wishlist_id = $("#item_wishlist_id").val()
+
+        const post_data = {
+            wishlist_id: $("#item_wishlist_id").val(),
+            product_id: $("#item_product_id").val(),
+            product_name: $("#item_product_name").val(),
+            product_price: $("#item_price").val(),
+            quantity: $("#item_quantity").val(),
+            created_date: (new Date().toISOString()).slice(0, -1) //remove trailing Z which python doesn't like
+        }
+
+        $.ajax({
+            method: "POST",
+            url: `/wishlists/${wishlist_id}/items`,
+            contentType: "application/json",
+            data: JSON.stringify(post_data)
+        }).done(function(res){
+            $("#item_id").val(res.id)
         })
     })
 
