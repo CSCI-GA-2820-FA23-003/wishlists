@@ -18,12 +18,34 @@ $(function () {
         $("#wishlist_id").val("");
         $("#wishlist_customer_id").val("")
         $("#wishlist_is_public").prop("checked", false)
+        clear_wishlist_item_form()
+        clear_wishlist_item_table()
+    }
+
+    // clears wishlist item form
+    function clear_wishlist_item_form() {
+        const selectors = [
+            "#item_id",
+            "#item_wishlist_id",
+            "#item_product_id",
+            "#item_product_name",
+            "#item_price",
+            "#item_quantity"
+        ]
+
+        selectors.forEach( selector => $(selector).val(""))
+
     }
 
     // Updates the flash message area
     function flash_message(message) {
         $("#flash_message").empty();
         $("#flash_message").append(message);
+    }
+
+    // clear wishlist item table
+    function clear_wishlist_item_table(){
+        $("#wishlist-item-table tbody").empty()
     }
 
     // Render list of items in a given wishlist
@@ -143,7 +165,7 @@ $(function () {
                             <td>${item.product_price}</td>
                             <td>${item.quantity}</td>
                             <td>
-                                <button class="btn btn-sm btn-default" data-wishlist-and-item-id="${item.wishlist_id}:${item.id}">Edit</button>
+                                <button class="btn btn-sm btn-default item-edit-btn" data-wishlist-and-item-id="${item.wishlist_id}:${item.id}">Edit</button>
                                 <button class="btn btn-sm btn-danger" data-wishlist-and-item-id="${item.wishlist_id}:${item.id}">Delete</button>
                             </td>
                         </tr>`)
@@ -274,5 +296,34 @@ $(function () {
         });
 
     });
+
+    /*******************
+     * WISHLIST ITEMS
+     *******************/
+    $("#item-clear-btn").click(function(){
+        clear_wishlist_item_form()
+    })
+
+    $("#wishlist-items-table").on("click", ".item-edit-btn", function(evnt){
+        // make a call to the endpoint 
+        // this isn't really efficient or necessary but for the purpose of explicitly testing 
+        // the Read endpoint we include it
+        const btn = $(evnt.target)
+        const ids = btn.data("wishlist-and-item-id")
+        const tokens = ids.split(":")
+
+        $.ajax({
+            method: "GET",
+            url: `/wishlists/${tokens[0]}/items/${tokens[1]}`
+        }).done(function(res){
+            // populate wishlist item form with data from response
+            $("#item_id").val(res.id)
+            $("#item_wishlist_id").val(res.wishlist_id)
+            $("#item_product_id").val(res.product_id)
+            $("#item_product_name").val(res.product_name)
+            $("#item_price").val(res.product_price)
+            $("#item_quantity").val(res.quantity)
+        })
+    })
 
 })
