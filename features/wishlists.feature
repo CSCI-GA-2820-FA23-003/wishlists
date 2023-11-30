@@ -27,3 +27,11 @@ Scenario: Create a Wishlist
     And I should see "Beckett's Halloween Costume List" in the "Name" field
     And I should see "42" in the "Customer ID" field
     And "Is Public" should "be" checked
+
+Scenario: Delete a Wishlist
+    When I visit the "Admin UI Page"
+    And I set the "ID" to "42"
+    And I press the "Delete" button
+    Then I should see the message "Successfully deleted Wishlist"
+    When I press the "Retrieve" button
+    Then I should see the message "Wishlist Could not be Found"

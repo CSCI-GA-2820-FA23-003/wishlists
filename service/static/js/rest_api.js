@@ -131,25 +131,25 @@ $(function () {
     });
 
     // ****************************************
-    // Delete a Pet
+    // Delete a wishlist
     // ****************************************
 
     $("#delete-btn").click(function () {
 
-        let pet_id = $("#pet_id").val();
+        let wishlist_id = $("#wishlist_id").val();
 
         $("#flash_message").empty();
 
         let ajax = $.ajax({
             type: "DELETE",
-            url: `/pets/${pet_id}`,
+            url: `/wishlists/${wishlist_id}`,
             contentType: "application/json",
             data: '',
         })
 
         ajax.done(function(res){
             clear_form_data()
-            flash_message("Pet has been Deleted!")
+            flash_message("Successfully deleted Wishlist with ID " + wishlist_id)
         });
 
         ajax.fail(function(res){
