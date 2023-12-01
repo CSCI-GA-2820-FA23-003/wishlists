@@ -102,3 +102,6 @@ ENV/
 
 # Rope project settings
 .ropeproject
+
+# behave screen shot of home_page for debugging
+home_page.png
