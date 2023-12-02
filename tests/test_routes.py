@@ -85,6 +85,13 @@ class TestWishlistServer(TestCase):
         resp = self.client.get("/")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
+    def test_health_endpoint(self):
+        """It should return 200 and correct message"""
+        resp = self.client.get("/health")
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        resp_json = resp.get_json()
+        self.assertEqual(resp_json["status"], "OK")
+
     def test_create_wishlist(self):
         """It should Create a new Wishlist"""
         wishlist = WishlistFactory()
