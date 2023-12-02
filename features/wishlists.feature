@@ -27,3 +27,4 @@ Scenario: Create a Wishlist
     And I should see "Beckett's Halloween Costume List" in the "Name" field
     And I should see "42" in the "Customer ID" field
     And "Is Public" should "be" checked
+

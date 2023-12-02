@@ -178,7 +178,7 @@ class WishlistItem(db.Model, PersistentBase):
     product_name = db.Column(db.String(255))
     product_price = db.Column(db.Numeric)
     quantity = db.Column(db.Integer)
-    created_date = db.Column(db.Date(), nullable=False, default=date.today())
+    created_date = db.Column(db.Date(), nullable=False, default=datetime.now())
 
     def __repr__(self):
         return (
@@ -211,7 +211,7 @@ class WishlistItem(db.Model, PersistentBase):
             self.product_name = data["product_name"]
             self.product_price = data["product_price"]
             self.quantity = data["quantity"]
-            self.created_date = date.fromisoformat(data["created_date"])
+            self.created_date = datetime.fromisoformat(data["created_date"])
         except KeyError as error:
             raise DataValidationError(
                 "Invalid Wishlist Item: missing " + error.args[0]
