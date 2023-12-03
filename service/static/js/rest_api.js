@@ -139,10 +139,8 @@ $(function () {
     // Retrieve a Wishlist
     // ****************************************
 
-    $("#retrieve-btn").click(function () {
-
-        let wishlist_id = $("#wishlist_id").val();
-
+    // Reusable function to retrieve and update wishlist information
+    function retrieveAndUpdateWishlist(wishlist_id) {
         $("#flash_message").empty();
 
         let ajax = $.ajax({
@@ -171,21 +169,24 @@ $(function () {
                             <td>${item.quantity}</td>
                             <td class="item-actions">
                                 <button class="btn btn-sm btn-default item-edit-btn" data-wishlist-and-item-id="${item.wishlist_id}:${item.id}">Edit</button>
-                                <button class="btn btn-sm btn-danger" data-wishlist-and-item-id="${item.wishlist_id}:${item.id}">Delete</button>
+                                <button class="btn btn-sm btn-danger item-delete-btn" data-wishlist-and-item-id="${item.wishlist_id}:${item.id}">Delete</button>
                             </td>
                         </tr>`)
                     })
                 }
                 
             })
-            
         });
 
         ajax.fail(function(res){
             clear_form_data()
             flash_message(res.responseJSON.message)
         });
+    }
 
+    $("#retrieve-btn").click(function () {
+        let wishlist_id = $("#wishlist_id").val();
+        retrieveAndUpdateWishlist(wishlist_id);
     });
 
     // ****************************************
@@ -353,6 +354,27 @@ $(function () {
         }).done(function(res){
             $("#item_id").val(res.id)
             flash_message("Successfully added item")
+        })
+    })
+
+    // Delete an item from the list
+    $("#wishlist-items-table").on("click", ".item-delete-btn", function(evnt){
+        // make a call to the endpoint 
+        const btn = $(evnt.target)
+        const ids = btn.data("wishlist-and-item-id")
+        const tokens = ids.split(":")
+
+        $.ajax({
+            method: "DELETE",
+            url: `/wishlists/${tokens[0]}/items/${tokens[1]}`
+        }).done(function(res){
+            // populate wishlist item form with data from response
+            $("#item_id").val(res.id)
+            $("#item_wishlist_id").val(res.wishlist_id)
+            $("#item_product_id").val(res.product_id)
+            $("#item_product_name").val(res.product_name)
+            $("#item_price").val(res.product_price)
+            $("#item_quantity").val(res.quantity)
         })
     })
 
