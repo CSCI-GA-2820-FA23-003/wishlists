@@ -70,13 +70,14 @@ Scenario: Delete Wishlist Item
     And The item "Quantity" field should be empty
     And I should see "0" rows in the table "wishlist-items-table"
     # Adding 2 items
-    When I set the item "Product ID" to "987654"
+    When I set the item "Product ID" to "1234"
     And I set the item "Product Name" to "Super Glue"
     And I set the item "Price" to "9.99"
     And I set the item "Quantity" to "11"
     And I press the item "Create" button
     Then I should see the message "Successfully added item"
     When I clear the item "ID"
+    When I set the item "Product ID" to "123456"
     And I set the item "Product Name" to "Super Glue"
     And I set the item "Price" to "9.99"
     And I set the item "Quantity" to "11"
@@ -93,3 +94,8 @@ Scenario: Delete Wishlist Item
     And The item "Price" field should be empty
     And The item "Quantity" field should be empty
     And I should see "1" rows in the table "wishlist-items-table"
+    When I click the "Edit" button in the item table row "1"
+    Then I should see "123456" in the item "Product ID" field
+    And I should see "Super Glue" in the item "Product Name" field
+    And I should see "9.99" in the item "Price" field
+    And I should see "11" in the item "Quantity" field

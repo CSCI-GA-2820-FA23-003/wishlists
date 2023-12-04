@@ -122,32 +122,4 @@ def step_impl(context, element_name):
     # Clear the existing value
     element.clear()
 
-
-@then(
-    'I should not see "{text_string}" in the column "{column_index}" of the table "{table_id}"'
-)
-def step_impl(context, text_string, column_index, table_id):
-    table_selector = "#" + table_id
-    column_index = int(column_index)
-
-    # Wait for the table to be present
-    table_present = WebDriverWait(context.driver, context.wait_seconds).until(
-        expected_conditions.presence_of_element_located(
-            (By.CSS_SELECTOR, table_selector)
-        )
-    )
-
-    # Wait for the absence of the value in the specified column
-    value_absent = WebDriverWait(context.driver, context.wait_seconds).until(
-        lambda driver: all(
-            text_string
-            not in row.find_elements(
-                By.CSS_SELECTOR, f"td:nth-child({column_index + 1})"
-            )[0].text
-            for row in driver.find_elements(
-                By.CSS_SELECTOR, f"{table_selector} tbody tr"
-            )
-        )
-    )
-
-    assert value_absent
+# TODO  Confirm absent from list / see data
