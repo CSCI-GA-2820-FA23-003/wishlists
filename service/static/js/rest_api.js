@@ -140,7 +140,7 @@ $(function () {
     // ****************************************
 
     // Reusable function to retrieve and update wishlist information
-    function retrieveAndUpdateWishlist(wishlist_id) {
+    function retrieveAndUpdateWishlist(wishlist_id, shouldFlashSuccess) {
         $("#flash_message").empty();
 
         let ajax = $.ajax({
@@ -152,7 +152,7 @@ $(function () {
             clear_form_data()
             update_form_data(res)
             $("#item_wishlist_id").val(res.id)
-            flash_message("Success")
+            if(shouldFlashSuccess) {flash_message("Success");}
             $.ajax({
                 type: "GET",
                 url: `/wishlists/${res.id}/items`,
@@ -169,7 +169,7 @@ $(function () {
                             <td>${item.quantity}</td>
                             <td class="item-actions">
                                 <button class="btn btn-sm btn-default item-edit-btn" data-wishlist-and-item-id="${item.wishlist_id}:${item.id}">Edit</button>
-                                <button class="btn btn-sm btn-danger item-delete-btn" data-wishlist-and-item-id="${item.wishlist_id}:${item.id}">Delete</button>
+                                <button class="btn btn-sm btn-danger delete-item-btn" data-wishlist-and-item-id="${item.wishlist_id}:${item.id}">Delete</button>
                             </td>
                         </tr>`)
                     })
@@ -186,7 +186,7 @@ $(function () {
 
     $("#retrieve-btn").click(function () {
         let wishlist_id = $("#wishlist_id").val();
-        retrieveAndUpdateWishlist(wishlist_id);
+        retrieveAndUpdateWishlist(wishlist_id, true);
     });
 
     // ****************************************
@@ -358,24 +358,36 @@ $(function () {
     })
 
     // Delete an item from the list
-    $("#wishlist-items-table").on("click", ".item-delete-btn", function(evnt){
+    $("#wishlist-items-table").on("click", ".delete-item-btn", function(evnt){
         // make a call to the endpoint 
         const btn = $(evnt.target)
         const ids = btn.data("wishlist-and-item-id")
         const tokens = ids.split(":")
 
+        const wishlist_id = tokens[0];
+
+        console.log("DELETE request URL:", `/wishlists/${tokens[0]}/items/${tokens[1]}`);
+
         $.ajax({
             method: "DELETE",
-            url: `/wishlists/${tokens[0]}/items/${tokens[1]}`
-        }).done(function(res){
-            // populate wishlist item form with data from response
-            $("#item_id").val(res.id)
-            $("#item_wishlist_id").val(res.wishlist_id)
-            $("#item_product_id").val(res.product_id)
-            $("#item_product_name").val(res.product_name)
-            $("#item_price").val(res.product_price)
-            $("#item_quantity").val(res.quantity)
+            url: `/wishlists/${tokens[0]}/items/${tokens[1]}`,
+        }).done(function(res, statusText, jqXHR){
+            // update visible list w/o changing success flash
+            console.log('done a thing');
+            if (jqXHR.status === 204) {
+                // Success - update visible list without changing success flash
+                retrieveAndUpdateWishlist(wishlist_id, false);
+                flash_message("Successfully deleted item");
+
+            } else {
+                // Handle other status codes if needed
+                console.log(`/wishlists/${tokens[0]}/items/${tokens[1]}`);
+            }
         })
+
+        ajax.fail(function(res, statusText, jqXHR){
+            flash_message(`/wishlists/${tokens[0]}/items/${tokens[1]}`)
+        });
     })
 
 })
