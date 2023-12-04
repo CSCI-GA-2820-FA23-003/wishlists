@@ -96,14 +96,8 @@ def step_impl(context, expected_rows, table_id):
                 (By.CSS_SELECTOR, table_selector)
             )
         )
-        print("table is vis: ", table_visible)
-        # Check if tbody element exists
-        tbody_tr_present = context.driver.find_elements(
-            By.CSS_SELECTOR, f"{table_selector} tbody tr"
-        )
-
+        
         rows_found = len(context.driver.find_elements(By.CSS_SELECTOR, f"{table_selector} tbody tr"))
-
         assert int(rows_found) == expected_rows
 
     except TimeoutException:
