@@ -169,7 +169,7 @@ $(function () {
                             <td>${item.quantity}</td>
                             <td class="item-actions">
                                 <button class="btn btn-sm btn-default item-edit-btn" data-wishlist-and-item-id="${item.wishlist_id}:${item.id}">Edit</button>
-                                <button class="btn btn-sm btn-danger delete-item-btn" data-wishlist-and-item-id="${item.wishlist_id}:${item.id}">Delete</button>
+                                <button class="btn btn-sm btn-danger item-delete-btn" data-wishlist-and-item-id="${item.wishlist_id}:${item.id}">Delete</button>
                             </td>
                         </tr>`)
                     })
@@ -358,36 +358,29 @@ $(function () {
     })
 
     // Delete an item from the list
-    $("#wishlist-items-table").on("click", ".delete-item-btn", function(evnt){
+    $("#wishlist-items-table").on("click", ".item-delete-btn", function(evnt){
         // make a call to the endpoint 
         const btn = $(evnt.target)
         const ids = btn.data("wishlist-and-item-id")
         const tokens = ids.split(":")
 
-        const wishlist_id = tokens[0];
-
-        console.log("DELETE request URL:", `/wishlists/${tokens[0]}/items/${tokens[1]}`);
-
         $.ajax({
             method: "DELETE",
             url: `/wishlists/${tokens[0]}/items/${tokens[1]}`,
+            contentType: "application/json",
+            data: '',
         }).done(function(res, statusText, jqXHR){
             // update visible list w/o changing success flash
-            console.log('done a thing');
             if (jqXHR.status === 204) {
                 // Success - update visible list without changing success flash
-                retrieveAndUpdateWishlist(wishlist_id, false);
+                retrieveAndUpdateWishlist(tokens[0], false);
                 flash_message("Successfully deleted item");
 
             } else {
                 // Handle other status codes if needed
-                console.log(`/wishlists/${tokens[0]}/items/${tokens[1]}`);
+                console.log(`Request failed with status: ${jqXHR.status}`);
             }
         })
-
-        ajax.fail(function(res, statusText, jqXHR){
-            flash_message(`/wishlists/${tokens[0]}/items/${tokens[1]}`)
-        });
     })
 
 })
