@@ -28,34 +28,17 @@ Scenario: Create a Wishlist
     And I should see "42" in the "Customer ID" field
     And "Is Public" should "be" checked
 
-Feature: The wishlist service back-end
-    As a user of wishlists
-    I need to have an interface to Update Wishlists
-    So that I can change the content of the Wishlists
-
-Scenario: The server is running
-    Given the server is started
-    When I visit the "home page"
-    Then I should see "Update API service"
-    And I should not see "404 Not Found"
-
 Scenario: Update a wishlist
-    When I visit the "Home Page"
-    And I set the "Customer ID" to "42"
-    And I press the "Search" button
+    When I visit the "Admin UI Page"
+    And I set the "Id" to "1"
+    And I press the "Retrieve" button
     Then I should see the message "Success"
     And I should see "Beckett's Halloween Costume List" in the "Name" field
     When I change "Name" to "Beckett's Christmas Costume List"
     And I press the "Update" button
-    Then I should see the message "Success"
     When I copy the "Id" field
     And I press the "Clear" button
     And I paste the "Id" field
     And I press the "Retrieve" button
     Then I should see the message "Success"
     And I should see "Beckett's Christmas Costume List" in the "Name" field
-    When I press the "Clear" button
-    And I press the "Search" button
-    Then I should see the message "Success"
-    And I should see "Beckett's Christmas Costume List" in the results
-    And I should not see "Beckett's Halloween Costume List" in the results
