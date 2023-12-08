@@ -5,11 +5,93 @@ Describe what your service does here
 """
 
 from flask import jsonify, request, abort, make_response
+
+# from flask_restx import Api, Resource
+from flask_restx import fields, reqparse
 from service.common import status  # HTTP Status Codes
 from service.models import Wishlist, WishlistItem
 
 # Import Flask application
-from . import app
+from . import app, api
+
+# MODELS
+
+create_item_model = api.model(
+    "WishlistItem",
+    {
+        "wishlist_id": fields.Integer(
+            required=True, description="The Unique ID of the wishlist for the item"
+        ),
+        "product_name": fields.String(
+            required=True, description="The name of the product in the wishlist"
+        ),
+        "product_id": fields.Integer(
+            required=True, description="The ID of the product in the wishlist"
+        ),
+        "item_quantity": fields.Integer(
+            required=True, description="The quantity of the product in the wishlist"
+        ),
+    },
+)
+
+item_model = api.inherit(
+    "ItemModel",
+    create_item_model,
+    {
+        "id": fields.Integer(
+            readOnly=True, description="The unique id assigned internally by service"
+        ),
+    },
+)
+
+
+create_wishlist_model = api.model(
+    "Wishlist",
+    {
+        "name": fields.String(required=True, description="The Name of the wishlist"),
+        "owner_id": fields.Integer(
+            required=True, description="The owner id of the wishlist"
+        ),
+    },
+)
+
+wishlist_model = api.inherit(
+    "WishlistModel",
+    create_wishlist_model,
+    {
+        "id": fields.Integer(
+            readOnly=True, description="The unique id assigned internally by service"
+        ),
+        "created_at": fields.Date(
+            readOnly=True, description="The day the wishlist was created"
+        ),
+        "wishlist_items": fields.List(
+            fields.Nested(item_model),
+            required=False,
+            description="The items that the wishlist contains",
+        ),
+    },
+)
+
+# Query string arguments
+wishlist_args = reqparse.RequestParser()
+wishlist_args.add_argument(
+    "name", type=str, location="args", required=False, help="List Wishlists by name"
+)
+wishlist_args.add_argument(
+    "owner_id",
+    type=int,
+    location="args",
+    required=False,
+    help="List Wishlists by Owner ID",
+)
+wishlist_args.add_argument(
+    "product_name",
+    type=int,
+    location="args",
+    required=False,
+    help="List Wishlist Items by product name",
+)
 
 
 ######################################################################
@@ -27,10 +109,9 @@ def index():
 @app.route("/health")
 def health():
     """Health endpoint"""
-    res = {
-        "status": "OK"
-    }
+    res = {"status": "OK"}
     return make_response(jsonify(res), status.HTTP_200_OK)
+
 
 ######################################################################
 #  R E S T   A P I   E N D P O I N T S
