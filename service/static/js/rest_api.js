@@ -139,53 +139,64 @@ $(function () {
     // Retrieve a Wishlist
     // ****************************************
 
-    $("#retrieve-btn").click(function () {
-
-        let wishlist_id = $("#wishlist_id").val();
-
-        $("#flash_message").empty();
-
-        let ajax = $.ajax({
-            type: "GET",
-            url: `/wishlists/${wishlist_id}`,
-        })
-
-        ajax.done(function(res){
-            clear_form_data()
-            update_form_data(res)
-            $("#item_wishlist_id").val(res.id)
-            flash_message("Success")
-            $.ajax({
+    // Reusable function to retrieve and update wishlist information
+    function retrieveAndUpdateWishlist(wishlist_id, shouldFlashSuccess) {
+        return new Promise((resolve, reject) => {
+            $("#flash_message").empty();
+    
+            let ajax = $.ajax({
                 type: "GET",
-                url: `/wishlists/${res.id}/items`,
-            }).done(function(res){
-                $("#wishlist-items-table tbody").empty()
-                if (res.length > 0){
-                    // create a table row for each item in the retrieved wishlist
-                    $.each(res, function(index, item) {
-                        $("#wishlist-items-table tbody").append(`<tr>
-                            <td>${item.id}</td>
-                            <td>${item.product_id}</td>
-                            <td>${item.product_name}</td>
-                            <td>${item.product_price}</td>
-                            <td>${item.quantity}</td>
-                            <td class="item-actions">
-                                <button class="btn btn-sm btn-default item-edit-btn" data-wishlist-and-item-id="${item.wishlist_id}:${item.id}">Edit</button>
-                                <button class="btn btn-sm btn-danger" data-wishlist-and-item-id="${item.wishlist_id}:${item.id}">Delete</button>
-                            </td>
-                        </tr>`)
-                    })
+                url: `/wishlists/${wishlist_id}`,
+            });
+    
+            ajax.done(function(res) {
+                clear_form_data();
+                update_form_data(res);
+                $("#item_wishlist_id").val(res.id);
+                if (shouldFlashSuccess) {
+                    flash_message("Success");
                 }
-                
-            })
-            
+                $.ajax({
+                    type: "GET",
+                    url: `/wishlists/${res.id}/items`,
+                }).done(function(res) {
+                    $("#wishlist-items-table tbody").empty();
+                    if (res.length > 0) {
+                        // create a table row for each item in the retrieved wishlist
+                        $.each(res, function(index, item) {
+                            $("#wishlist-items-table tbody").append(`<tr>
+                                <td>${item.id}</td>
+                                <td>${item.product_id}</td>
+                                <td>${item.product_name}</td>
+                                <td>${item.product_price}</td>
+                                <td>${item.quantity}</td>
+                                <td class="item-actions">
+                                    <button class="btn btn-sm btn-default item-edit-btn" data-wishlist-and-item-id="${item.wishlist_id}:${item.id}">Edit</button>
+                                    <button class="btn btn-sm btn-danger item-delete-btn" data-wishlist-and-item-id="${item.wishlist_id}:${item.id}">Delete</button>
+                                </td>
+                            </tr>`);
+                        });
+                    }
+                    resolve(res); // Resolve the promise when the asynchronous operations are done
+                });
+            });
+    
+            ajax.fail(function(res) {
+                clear_form_data();
+                flash_message(res.responseJSON.message);
+                reject(res); // Reject the promise in case of failure
+            });
         });
+    }
 
-        ajax.fail(function(res){
-            clear_form_data()
-            flash_message(res.responseJSON.message)
-        });
-
+    $("#retrieve-btn").click(async function () {
+        let wishlist_id = $("#wishlist_id").val();
+        try {
+            let result = await retrieveAndUpdateWishlist(wishlist_id, true);
+        } catch (error) {
+            // Handle error
+            flash_message("unexpected error has ocurred when calling retrieveAndUpdateWishlist");
+        }
     });
 
     // ****************************************
@@ -353,6 +364,37 @@ $(function () {
         }).done(function(res){
             $("#item_id").val(res.id)
             flash_message("Successfully added item")
+        })
+    })
+
+    // Delete an item from the list
+    $("#wishlist-items-table").on("click", ".item-delete-btn", function(evnt){
+        // make a call to the endpoint 
+        const btn = $(evnt.target)
+        const ids = btn.data("wishlist-and-item-id")
+        const tokens = ids.split(":")
+
+        $.ajax({
+            method: "DELETE",
+            url: `/wishlists/${tokens[0]}/items/${tokens[1]}`,
+            contentType: "application/json",
+            data: '',
+        }).done(function(res, statusText, jqXHR){
+            // Update visible list without changing success flash
+            if (jqXHR.status === 204) {
+                // Success - update visible list without changing success flash
+                retrieveAndUpdateWishlist(tokens[0], false)
+                    .then(() => {
+                        flash_message("Successfully deleted item");
+                    })
+                    .catch((error) => {
+                        console.log("Error updating wishlist:", error);
+                        // Handle error if needed
+                    });
+            } else {
+                // Handle other status codes if needed
+                console.log(`Request failed with status: ${jqXHR.status}`);
+            }
         })
     })
 

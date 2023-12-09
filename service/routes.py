@@ -291,10 +291,18 @@ def delete_addresses(wishlist_id, item_id):
         "Request to delete Item %s for Wishlist id: %s", item_id, wishlist_id
     )
 
-    # See if the address exists and delete it if it does
+    # Find the specified Wishlist
     wishlist = Wishlist.find(wishlist_id)
+
+    # Find the specified WishlistItem
     if wishlist:
-        wishlist.delete()
+        wishlist_item = None
+        for item in wishlist.items:
+            if item.id == item_id:
+                wishlist_item = item
+                break
+
+        wishlist_item.delete()
 
     return make_response("", status.HTTP_204_NO_CONTENT)
 
