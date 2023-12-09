@@ -66,11 +66,11 @@ def step_impl(context, button, row_index):
         + button.lower()
         + "-btn')]",
     )
+
     edit_button = WebDriverWait(context.driver, context.wait_seconds).until(
         expected_conditions.presence_of_element_located(edit_button_locator)
     )
     edit_button.click()
-
 
 @then('I should see "{text_string}" in the item "{element_name}" field')
 def step_impl(context, text_string, element_name):
