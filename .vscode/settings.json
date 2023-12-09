@@ -18,6 +18,7 @@
     "cucumberautocomplete.smartSnippets": true,
     "cucumberautocomplete.gherkinDefinitionPart": "@(given|when|then)\\(",
     "cSpell.words": [
+        "idempotency",
         "sqlalchemy"
     ],
 }

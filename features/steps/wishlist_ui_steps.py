@@ -107,7 +107,7 @@ def step_impl(context, text_string, element_name):
             text_string
         )
     )
-    assert(found)
+    assert found
 
 
 @then('"{element_name}" should "{be_or_not_be}" checked')
@@ -120,4 +120,4 @@ def step_impl(context, element_name, be_or_not_be):
     elif be_or_not_be == "not be":
         assert not checkbox.is_selected()
     else:
-        raise ValueError(f'Invalid value for "be_or_not_be": {be_or_not_be}') 
+        raise ValueError(f'Invalid value for "be_or_not_be": {be_or_not_be}')

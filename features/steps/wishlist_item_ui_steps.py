@@ -5,7 +5,7 @@ Wishlist Item UI Steps
 
 Steps file for web interactions with Selenium
 """
-import logging
+# import logging
 
 # for some reason pylint flags this import as E0611 - no-name-in-module
 # despite the fact that it is there and functions as expected, so adding this
@@ -13,7 +13,7 @@ import logging
 # pylint: disable=E0611
 from behave import when, then
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import Select, WebDriverWait
+from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions
 
 ID_PREFIX = "item_"
@@ -27,7 +27,8 @@ def step_impl(context):
     assert wishlist_id_element.text == item_id_element.text
 
 
-# this differs from the similar when clause from wishlist_ui by the inclusion of 'item' in the sentence
+# this differs from the similar when-
+# clause from wishlist_ui by the inclusion of 'item' in the sentence
 # i.e. I set the "element" to "value" versus I set the **item** "element to "value"
 @when('I set the item "{element_name}" to "{text_string}"')
 def step_impl(context, element_name, text_string):
@@ -80,3 +81,20 @@ def step_impl(context, text_string, element_name):
         )
     )
     assert found
+
+@then('I should see the message item "{message}"')
+def step_impl(context, message):
+    found = WebDriverWait(context.driver, context.wait_seconds).until(
+        expected_conditions.text_to_be_present_in_element(
+            (By.ID, "flash_message"), message
+        )
+    )
+    assert found
+
+@when('I copy the item "{element_name}" field')
+def step_impl(context, element_name):
+    element_id = ID_PREFIX + element_name.lower().replace(" ", "_")
+    element = WebDriverWait(context.driver, context.wait_seconds).until(
+        expected_conditions.presence_of_element_located((By.ID, element_id))
+    )
+    context.clipboard = element.get_attribute("value")
