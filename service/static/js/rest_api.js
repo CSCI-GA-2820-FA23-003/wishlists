@@ -398,4 +398,47 @@ $(function () {
         })
     })
 
+    // ****************************************
+    // Update a Wishlist Item
+    // ****************************************
+
+    $("#item-update-btn").click(function () {
+
+        let item_id = $("#item_id").val()
+        let wishlist_id = $("#item_wishlist_id").val()
+        let product_id = $("#item_product_id").val()
+        let product_name = $("#item_product_name").val()
+        let product_price = $("#item_price").val()
+        let quantity = $("#item_quantity").val()
+
+        let data = {
+            "item_id": item_id,
+            "wishlist_id": wishlist_id,
+            "product_id": product_id,
+            "product_name": product_name,
+            "product_price": product_price,
+            "quantity": quantity,
+            "created_date": (new Date()).toISOString()
+        };
+
+        $("#flash_message").empty();
+
+        let ajax = $.ajax({
+                type: "PUT",
+                url: `/wishlists/${wishlist_id}/items/${item_id}`,
+                contentType: "application/json",
+                data: JSON.stringify(data)
+            })
+
+        ajax.done(function(res){
+            update_form_data(res)
+            flash_message("Successfully updated item")
+        });
+
+        ajax.fail(function(res){
+            flash_message(res.responseJSON.message)
+        });
+
+    });
+
 })
