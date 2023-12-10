@@ -28,7 +28,8 @@ def step_impl(context):
     assert wishlist_id_element.text == item_id_element.text
 
 
-# this differs from the similar when clause from wishlist_ui by the inclusion of 'item' in the sentence
+# this differs from the similar when clause from wishlist_ui
+# by the inclusion of 'item' in the sentence
 # i.e. I set the "element" to "value" versus I set the **item** "element to "value"
 @when('I set the item "{element_name}" to "{text_string}"')
 def step_impl(context, element_name, text_string):
@@ -122,4 +123,13 @@ def step_impl(context, element_name):
     # Clear the existing value
     element.clear()
 
-# TODO  Confirm absent from list / see data
+# To do - Confirm absent from list / see data
+
+@then('I should see the message item "{message}"')
+def step_impl(context, message):
+    found = WebDriverWait(context.driver, context.wait_seconds).until(
+        expected_conditions.text_to_be_present_in_element(
+            (By.ID, "flash_message"), message
+        )
+    )
+    assert found
