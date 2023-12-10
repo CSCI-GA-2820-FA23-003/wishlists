@@ -3,11 +3,8 @@ FROM docker.io/rofrano/nyu-devops-base:fa23
 # Create working folder and install dependencies
 WORKDIR /app
 COPY requirements.txt .
-RUN pip install -U pip wheel && \
-    pip install --no-cache-dir -r requirements.txt
-
-# Install gunicorn
-RUN pip install gunicorn
+RUN sudo pip install -U pip wheel && \
+    sudo pip install --no-cache-dir -r requirements.txt
 
 # Copy the application contents
 COPY service/ ./service/
