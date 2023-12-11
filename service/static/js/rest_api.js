@@ -195,30 +195,28 @@ $(function () {
             let result = await retrieveAndUpdateWishlist(wishlist_id, true);
         } catch (error) {
             // Handle error
-            flash_message("unexpected error has ocurred when calling retrieveAndUpdateWishlist");
+            flash_message(error?.responseJSON?.message)
         }
     });
 
     // ****************************************
-    // Delete a Wishlist
+    // Delete a wishlist
     // ****************************************
 
     $("#delete-btn").click(function () {
 
-        let pet_id = $("#pet_id").val();
+        let wishlist_id = $("#wishlist_id").val();
 
         $("#flash_message").empty();
 
         let ajax = $.ajax({
             type: "DELETE",
-            url: `/pets/${pet_id}`,
-            contentType: "application/json",
-            data: '',
+            url: `/wishlists/${wishlist_id}`
         })
 
         ajax.done(function(res){
+            flash_message("Successfully deleted Wishlist with ID " + wishlist_id)
             clear_form_data()
-            flash_message("Pet has been Deleted!")
         });
 
         ajax.fail(function(res){
