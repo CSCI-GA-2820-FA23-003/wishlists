@@ -68,6 +68,20 @@ To run all tests in the project, use the following at the command line.
 
 ```green```
 
+## Running a local Kubernetes cluster with k3d
+
+To create a cluster and run our app within it.  Follow these steps:
+
+1. `make cluster-rm`
+2. `make cluster`
+3. `make build`
+4. `make push`
+5. (If the push target fails, run this command and retry `sudo sh -c 'echo "127.0.0.1 k3d-registry.local" >> /etc/hosts'`
+6. `kubectl apply -f ./k8s/`
+7. `kubectl get all` until all pods are in Running status
+
+Then you can view the app at http://localhost:8000/
+
 ### Wishlist Endpoints
 ​
 1. **Create Wishlist**
