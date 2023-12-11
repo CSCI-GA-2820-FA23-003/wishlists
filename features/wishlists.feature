@@ -48,4 +48,3 @@ Scenario: Delete a Wishlist
     When I set the "ID" to "42"
     And I press the "Delete" button
     Then I should see the message "Wishlist not found"
-

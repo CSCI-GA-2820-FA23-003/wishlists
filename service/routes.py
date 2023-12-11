@@ -22,8 +22,20 @@ def index():
 
 
 ######################################################################
+# HEALTH
+######################################################################
+@app.route("/health")
+def health():
+    """Health endpoint"""
+    res = {
+        "status": "OK"
+    }
+    return make_response(jsonify(res), status.HTTP_200_OK)
+
+######################################################################
 #  R E S T   A P I   E N D P O I N T S
 ######################################################################
+
 
 ######################################################################
 # LIST ALL WISHLISTs
@@ -237,20 +249,26 @@ def list_wishlist_items(wishlist_id):
     base_query = WishlistItem.query.filter_by(wishlist_id=wishlist_id)
 
     # Check for query parameters and filter the base query accordingly
-    if 'product_id' in query_params:
-        base_query = base_query.filter_by(product_id=query_params['product_id'])
+    if "product_id" in query_params:
+        base_query = base_query.filter_by(product_id=query_params["product_id"])
 
-    if 'product_name' in query_params:
-        base_query = base_query.filter(WishlistItem.product_name.ilike(f"%{query_params['product_name']}%"))
+    if "product_name" in query_params:
+        base_query = base_query.filter(
+            WishlistItem.product_name.ilike(f"%{query_params['product_name']}%")
+        )
 
-    if 'product_price' in query_params:
-        base_query = base_query.filter(WishlistItem.product_price <= query_params['product_price'])
+    if "product_price" in query_params:
+        base_query = base_query.filter(
+            WishlistItem.product_price <= query_params["product_price"]
+        )
 
-    if 'quantity' in query_params:
-        base_query = base_query.filter(WishlistItem.quantity <= query_params['quantity'])
+    if "quantity" in query_params:
+        base_query = base_query.filter(
+            WishlistItem.quantity <= query_params["quantity"]
+        )
 
-    if 'created_date' in query_params:
-        base_query = base_query.filter_by(created_date=query_params['created_date'])
+    if "created_date" in query_params:
+        base_query = base_query.filter_by(created_date=query_params["created_date"])
 
     # Fetch the filtered results
     results = [item.serialize() for item in base_query.all()]
@@ -273,10 +291,18 @@ def delete_addresses(wishlist_id, item_id):
         "Request to delete Item %s for Wishlist id: %s", item_id, wishlist_id
     )
 
-    # See if the address exists and delete it if it does
+    # Find the specified Wishlist
     wishlist = Wishlist.find(wishlist_id)
+
+    # Find the specified WishlistItem
     if wishlist:
-        wishlist.delete()
+        wishlist_item = None
+        for item in wishlist.items:
+            if item.id == item_id:
+                wishlist_item = item
+                break
+
+        wishlist_item.delete()
 
     return make_response("", status.HTTP_204_NO_CONTENT)
 

@@ -45,11 +45,12 @@
 				"rangav.vscode-thunder-client",
 				"ms-azuretools.vscode-docker",
 				"ms-kubernetes-tools.vscode-kubernetes-tools",
-				"streetsidesoftware.code-spell-checker"
+				"streetsidesoftware.code-spell-checker",
+				"waderyan.gitblame"
 			]	
 		}
 	},
-	//"postCreateCommand": "",
+	"postCreateCommand": "bash /app/.devcontainer/scripts/install-tools.sh",
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": 8080,

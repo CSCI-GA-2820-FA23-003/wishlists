@@ -16,7 +16,7 @@ on:
     - '**.md'
 
 jobs:
-  build:
+  tdd-tests:
     runs-on: ubuntu-latest
     container: python:3.11-slim
 
@@ -68,3 +68,46 @@ jobs:
 
       - name: Upload code coverage
         uses: codecov/codecov-action@v3.1.4
+  bdd-tests:
+    runs-on: ubuntu-latest
+    container: rofrano/pipeline-selenium:latest
+    services:
+      postgres:
+        image: postgres
+        env:
+            POSTGRES_PASSWORD: postgres
+            POSTGRES_DB: testdb
+        ports:
+            - 5432:5432
+        # Set health checks to wait until postgres has started
+        options: >-
+            --health-cmd pg_isready
+            --health-interval 10s
+            --health-timeout 5s
+            --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install OS dependencies
+        run: |
+            apt-get update
+            apt-get install -y gcc libpq-dev
+
+      - name: Install Python packages
+        run: |
+            python -m pip install --upgrade pip wheel
+            pip install -r requirements.txt
+
+      - name: Run the service locally
+        run: |
+            echo "\n*** STARTING APPLICATION ***\n"
+            gunicorn --log-level=critical --bind=0.0.0.0:8000 service:app &
+            sleep 5
+            curl -i http://localhost:8000/health
+            echo "\n*** SERVER IS RUNNING ***"
+        env:
+            DATABASE_URI: "postgresql://postgres:postgres@postgres:5432/testdb"
+
+      - name: Run Integration Tests
+        run: behave

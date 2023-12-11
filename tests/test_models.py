@@ -329,7 +329,7 @@ class TestWishlistItem(unittest.TestCase):
             "product_name": "DevOps for Dummies",
             "product_price": 29.99,
             "quantity": 2,
-            "created_date": "2016-09-12",
+            "created_date": "2016-09-12T03:42:59.400000",
         }
 
     def tearDown(self):
@@ -409,7 +409,7 @@ class TestWishlistItem(unittest.TestCase):
         self.assertEqual(item.product_name, self.serialized["product_name"])
         self.assertEqual(item.product_price, self.serialized["product_price"])
         self.assertEqual(item.quantity, self.serialized["quantity"])
-        self.assertEqual(str(item.created_date), self.serialized["created_date"])
+        self.assertEqual(item.created_date.isoformat(), self.serialized["created_date"])
 
     def test_wishlist_item_deserialize_with_invalid_data_type(self):
         """It should raise a DataValidationError when serializing from incorrect type"""
