@@ -40,11 +40,12 @@ Scenario: Delete a Wishlist
     Then the "Id" field should be empty
     And the "Name" field should be empty
     And the "Customer ID" field should be empty
-    When I set the "ID" to "42"
+    When I paste the "ID" field
     And I press the "Delete" button
     Then I should see the message "Successfully deleted Wishlist"
-    When I press the "Retrieve" button
-    Then I should see the message "Wishlist Could not be Found"
-    When I set the "ID" to "42"
-    And I press the "Delete" button
-    Then I should see the message "Wishlist not found"
+    Then the "ID" field should be empty
+    And the "Name" field should be empty
+    And the "Customer ID" field should be empty
+    When I paste the "ID" field
+    And I press the "Retrieve" button
+    Then I should see the message "404 Not Found"

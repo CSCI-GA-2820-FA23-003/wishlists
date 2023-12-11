@@ -195,7 +195,7 @@ $(function () {
             let result = await retrieveAndUpdateWishlist(wishlist_id, true);
         } catch (error) {
             // Handle error
-            flash_message("unexpected error has ocurred when calling retrieveAndUpdateWishlist");
+            flash_message(error?.responseJSON?.message)
         }
     });
 
@@ -211,22 +211,12 @@ $(function () {
 
         let ajax = $.ajax({
             type: "DELETE",
-            url: `/wishlists/${wishlist_id}`,
-            contentType: "application/json",
-            data: '',
+            url: `/wishlists/${wishlist_id}`
         })
 
         ajax.done(function(res){
-            if (res.status == 204)
-            {
-                clear_form_data()
-                flash_message("Wishlist with ID " + wishlist_id + " not found")
-            }
-            else
-            {
-                clear_form_data()
-                flash_message("Successfully deleted Wishlist with ID " + wishlist_id)
-            }
+            flash_message("Successfully deleted Wishlist with ID " + wishlist_id)
+            clear_form_data()
         });
 
         ajax.fail(function(res){
