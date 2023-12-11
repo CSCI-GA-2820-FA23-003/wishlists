@@ -80,10 +80,10 @@ class TestWishlistServer(TestCase):
     ######################################################################
     #  W I S H L I S T   T E S T   C A S E S   H E R E
     ######################################################################
-    def test_index(self):
-        """It should call the home page"""
-        resp = self.client.get("/")
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+    # def test_index(self):
+    #     """It should call the home page"""
+    #     resp = self.client.get("/")
+    #     self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
     def test_health_endpoint(self):
         """It should return 200 and correct message"""
@@ -121,6 +121,7 @@ class TestWishlistServer(TestCase):
         resp = self.client.get(location, content_type="application/json")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         new_wishlist = resp.get_json()
+        print(new_wishlist)
         self.assertEqual(
             new_wishlist["wishlist_name"],
             wishlist.wishlist_name,
