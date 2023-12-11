@@ -52,6 +52,11 @@ create_wishlist_model = api.model(
         "owner_id": fields.Integer(
             required=True, description="The owner id of the wishlist"
         ),
+        "is_public": fields.Boolean(
+            required=False,
+            default=False,
+            description="Whether the wishlist is public or not",
+        ),
     },
 )
 
