@@ -121,7 +121,6 @@ class TestWishlistServer(TestCase):
         resp = self.client.get(location, content_type="application/json")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         new_wishlist = resp.get_json()
-        print(new_wishlist)
         self.assertEqual(
             new_wishlist["wishlist_name"],
             wishlist.wishlist_name,

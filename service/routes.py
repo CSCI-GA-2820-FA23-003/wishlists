@@ -174,7 +174,6 @@ def create_wishlists():
         {"Location": f"/wishlists/{wishlist.id}"},
     )
 
-
 ######################################################################
 #  PATH: /wishlist/{wishlist_id}
 ######################################################################
@@ -198,19 +197,18 @@ class WishlistResource(Resource):
     @api.marshal_with(wishlist_model)
     def get(self, wishlist_id):
         """
-        Reads an Existing Wishlist
-        This endpoint will read a Wishlist based on the given id
-        """
-        app.logger.info("Request to read Wishlist: %d", wishlist_id)
+        Retrieve a single Wishlist
 
-        # Check if wishlist exists
+        This endpoint will return a Wishlist based on it's id
+        """
+        app.logger.info("Request to Retrieve a Wishlist with id [%s]", wishlist_id)    
         wishlist = Wishlist.find(wishlist_id)
         if not wishlist:
             abort(
                 status.HTTP_404_NOT_FOUND,
                 f"Wishlist with id '{wishlist_id}' could not be found.",
             )
-        return make_response(jsonify(wishlist.serialize()), status.HTTP_200_OK)
+        return wishlist.serialize(), status.HTTP_200_OK
 
 
 # ######################################################################
