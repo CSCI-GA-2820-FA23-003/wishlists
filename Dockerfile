@@ -1,16 +1,17 @@
-FROM docker.io/rofrano/nyu-devops-base:fa23
+FROM quay.io/rofrano/python:3.11-slim
+
+# Add PostgreSQL library
+RUN apt-get update && \
+    apt-get install -y gcc libpq-dev
 
 # Create working folder and install dependencies
 WORKDIR /app
 COPY requirements.txt .
-RUN sudo pip install -U pip wheel && \
-    sudo pip install --no-cache-dir -r requirements.txt
+RUN pip install -U pip wheel && \
+    pip install --no-cache-dir -r requirements.txt
 
 # Copy the application contents
 COPY service/ ./service/
-
-# added this to solve an error complaining about locking the /etc/passwd file
-USER root
 
 # Switch to a non-root user
 RUN useradd --uid 2000 flask && chown -R flask /app
