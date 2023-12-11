@@ -148,8 +148,16 @@ $(function () {
         })
 
         ajax.done(function(res){
-            clear_form_data()
-            flash_message("Successfully deleted Wishlist with ID " + wishlist_id)
+            if (res.status == 204)
+            {
+                clear_form_data()
+                flash_message("Wishlist with ID " + wishlist_id + " not found")
+            }
+            else
+            {
+                clear_form_data()
+                flash_message("Successfully deleted Wishlist with ID " + wishlist_id)
+            }
         });
 
         ajax.fail(function(res){

@@ -30,8 +30,22 @@ Scenario: Create a Wishlist
 
 Scenario: Delete a Wishlist
     When I visit the "Admin UI Page"
-    And I set the "ID" to "42"
+    And I set the "Name" to "Beckett's Halloween Costume List"
+    And I set the "Customer ID" to "42"
+    And I check the "Is Public" checkbox
+    And I press the "Create" button
+    Then I should see the message "Successfully created Wishlist"
+    When I copy the "Id" field
+    And I press the "Clear" button
+    Then the "Id" field should be empty
+    And the "Name" field should be empty
+    And the "Customer ID" field should be empty
+    When I set the "ID" to "42"
     And I press the "Delete" button
     Then I should see the message "Successfully deleted Wishlist"
     When I press the "Retrieve" button
     Then I should see the message "Wishlist Could not be Found"
+    When I set the "ID" to "42"
+    And I press the "Delete" button
+    Then I should see the message "Wishlist not found"
+
