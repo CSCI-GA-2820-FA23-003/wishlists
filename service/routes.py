@@ -174,6 +174,7 @@ def create_wishlists():
         {"Location": f"/wishlists/{wishlist.id}"},
     )
 
+
 ######################################################################
 #  PATH: /wishlist/{wishlist_id}
 ######################################################################
@@ -198,10 +199,9 @@ class WishlistResource(Resource):
     def get(self, wishlist_id):
         """
         Retrieve a single Wishlist
-
         This endpoint will return a Wishlist based on it's id
         """
-        app.logger.info("Request to Retrieve a Wishlist with id [%s]", wishlist_id)    
+        app.logger.info("Request to Retrieve a Wishlist with id [%s]", wishlist_id)
         wishlist = Wishlist.find(wishlist_id)
         if not wishlist:
             abort(
