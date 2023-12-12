@@ -31,6 +31,12 @@ create_item_model = api.model(
         "quantity": fields.Integer(
             required=True, description="The quantity of the product in the wishlist"
         ),
+        "product_price": fields.String(
+            required=True, description="The price of the product in the wishlist"
+        ),
+        "created_date": fields.Date(
+            readOnly=True, description="The day the wishlist item was created"
+        )
     },
 )
 
@@ -80,9 +86,6 @@ wishlist_model = api.inherit(
 
 # Query string arguments
 wishlist_args = reqparse.RequestParser()
-# wishlist_args.add_argument(
-#     "name", type=str, location="args", required=False, help="List Wishlists by name"
-# )
 wishlist_args.add_argument(
     "customer_id",
     type=int,
@@ -90,13 +93,6 @@ wishlist_args.add_argument(
     required=False,
     help="List Wishlists by Owner ID",
 )
-# wishlist_args.add_argument(
-#     "product_name",
-#     type=int,
-#     location="args",
-#     required=False,
-#     help="List Wishlist Items by product name",
-# )
 
 
 ######################################################################
@@ -287,46 +283,107 @@ def publish_wishlist(wishlist_id):
 #                W I S H L I S T   I T E M   M E T H O D S
 # ---------------------------------------------------------------------
 
+######################################################################
+#  PATH: /wishlist/{wishlist_id}/items
+######################################################################
+@api.route("/wishlists/<wishlist_id>/items/<wishlist_item_id>")
+@api.param("wishlist_id", "The Wishlist identifier")
+@api.param("wishlist_item_id", "The Wishlist Item identifier")
+class WishlistItemsResource(Resource):
+    """
+    To be Added
+    """
+
+
+######################################################################
+#  PATH: /wishlists/{wishlist_id}/items
+######################################################################
+@api.route("/wishlists/<int:wishlist_id>/items", strict_slashes=False)
+class WishlistItemsCollection(Resource):
+    """Handles all interactions with collections of Wishlist Items"""
+    # ------------------------------------------------------------------
+    # ADD A NEW WISHLISTS
+    # ------------------------------------------------------------------
+    @api.doc("create_wishlist_items")
+    @api.response(400, "The posted data was not valid")
+    @api.expect(create_item_model)
+    @api.marshal_with(item_model, code=201)
+    def post(self, wishlist_id):
+        """
+        Creates a Wishlist Item and associates it with a specific Wishlist
+        This endpoint will create a Wishlist Item based on the data in the request body
+        and associate it with the specified Wishlist.
+        """
+        app.logger.info("Request to create a Wishlist Item")
+
+        # Validate content is JSON
+        check_content_type("application/json")
+
+        # Find the specified Wishlist
+        wishlist = Wishlist.find(wishlist_id)
+        if not wishlist:
+            abort(status.HTTP_404_NOT_FOUND, f"Wishlist with ID {wishlist_id} not found")
+
+        # Create the Wishlist Item
+        wishlist_item = WishlistItem()
+        wishlist_item.deserialize(request.get_json())
+        wishlist_item.wishlist_id = (
+            wishlist.id
+        )  # Associate the item with the specified wishlist
+
+        # Append items to the wishlist
+        wishlist.items.append(wishlist_item)
+        wishlist.update()
+
+        # Create a message to return
+        message = wishlist_item.serialize()
+
+        return (
+            message,
+            status.HTTP_201_CREATED,
+            {"Location": f"/wishlists/{wishlist.id}/items/{wishlist_item.id}"},
+        )
+
 
 ######################################################################
 # CREATE A NEW WISHLIST ITEM
 ######################################################################
-@app.route("/wishlists/<int:wishlist_id>/items", methods=["POST"])
-def create_wishlist_item(wishlist_id):
-    """
-    Creates a Wishlist Item and associates it with a specific Wishlist
-    This endpoint will create a Wishlist Item based on the data in the request body
-    and associate it with the specified Wishlist.
-    """
-    app.logger.info("Request to create a Wishlist Item")
+# @app.route("/wishlists/<int:wishlist_id>/items", methods=["POST"])
+# def create_wishlist_item(wishlist_id):
+#     """
+#     Creates a Wishlist Item and associates it with a specific Wishlist
+#     This endpoint will create a Wishlist Item based on the data in the request body
+#     and associate it with the specified Wishlist.
+#     """
+#     app.logger.info("Request to create a Wishlist Item")
 
-    # Validate content is JSON
-    check_content_type("application/json")
+#     # Validate content is JSON
+#     check_content_type("application/json")
 
-    # Find the specified Wishlist
-    wishlist = Wishlist.find(wishlist_id)
-    if not wishlist:
-        abort(status.HTTP_404_NOT_FOUND, f"Wishlist with ID {wishlist_id} not found")
+#     # Find the specified Wishlist
+#     wishlist = Wishlist.find(wishlist_id)
+#     if not wishlist:
+#         abort(status.HTTP_404_NOT_FOUND, f"Wishlist with ID {wishlist_id} not found")
 
-    # Create the Wishlist Item
-    wishlist_item = WishlistItem()
-    wishlist_item.deserialize(request.get_json())
-    wishlist_item.wishlist_id = (
-        wishlist.id
-    )  # Associate the item with the specified wishlist
+#     # Create the Wishlist Item
+#     wishlist_item = WishlistItem()
+#     wishlist_item.deserialize(request.get_json())
+#     wishlist_item.wishlist_id = (
+#         wishlist.id
+#     )  # Associate the item with the specified wishlist
 
-    # Append items to the wishlist
-    wishlist.items.append(wishlist_item)
-    wishlist.update()
+#     # Append items to the wishlist
+#     wishlist.items.append(wishlist_item)
+#     wishlist.update()
 
-    # Create a message to return
-    message = wishlist_item.serialize()
+#     # Create a message to return
+#     message = wishlist_item.serialize()
 
-    return make_response(
-        jsonify(message),
-        status.HTTP_201_CREATED,
-        {"Location": f"/wishlists/{wishlist.id}/items/{wishlist_item.id}"},
-    )
+#     return make_response(
+#         jsonify(message),
+#         status.HTTP_201_CREATED,
+#         {"Location": f"/wishlists/{wishlist.id}/items/{wishlist_item.id}"},
+#     )
 
 
 ######################################################################
