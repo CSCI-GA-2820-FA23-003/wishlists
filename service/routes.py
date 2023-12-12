@@ -57,6 +57,9 @@ create_wishlist_model = api.model(
             default=False,
             description="Whether the wishlist is public or not",
         ),
+        "created_date": fields.Date(
+            readOnly=True, description="The day the wishlist was created"
+        )
     },
 )
 
@@ -66,9 +69,6 @@ wishlist_model = api.inherit(
     {
         "id": fields.Integer(
             readOnly=True, description="The unique id assigned internally by service"
-        ),
-        "created_date": fields.Date(
-            readOnly=True, description="The day the wishlist was created"
         ),
         "wishlist_items": fields.List(
             fields.Nested(item_model),
@@ -147,35 +147,6 @@ def list_wishlists():
 
 
 ######################################################################
-# CREATE A NEW WISHLIST
-######################################################################
-@app.route("/wishlists", methods=["POST"])
-def create_wishlists():
-    """
-    Creates a Wishlist
-    This endpoint will create an Wishlist based on the data in the body that is posted
-    """
-    app.logger.info("Request to create an Wishlist")
-
-    # Validate content is json
-    check_content_type("application/json")
-
-    # Create the wishlist
-    wishlist = Wishlist()
-    wishlist.deserialize(request.get_json())
-    wishlist.create()
-
-    # Create a message to return
-    message = wishlist.serialize()  # match test case
-
-    return make_response(
-        jsonify(message),
-        status.HTTP_201_CREATED,
-        {"Location": f"/wishlists/{wishlist.id}"},
-    )
-
-
-######################################################################
 #  PATH: /wishlist/{wishlist_id}
 ######################################################################
 @api.route("/wishlists/<wishlist_id>")
@@ -198,7 +169,7 @@ class WishlistResource(Resource):
     @api.marshal_with(wishlist_model)
     def get(self, wishlist_id):
         """
-        Retrieve a single Wishlist
+        Retrieves a single Wishlist
         This endpoint will return a Wishlist based on it's id
         """
         app.logger.info("Request to Retrieve a Wishlist with id [%s]", wishlist_id)
@@ -221,8 +192,8 @@ class WishlistResource(Resource):
     # @token_required
     def put(self, wishlist_id):
         """
-        Update an Wishlist
-        This endpoint will update an Wishlist based the body that is posted
+        Updates a Wishlist
+        This endpoint will update n Wishlist based the body that is posted
         """
         app.logger.info("Request to update wishlist with id: %s", wishlist_id)
         check_content_type("application/json")
@@ -241,6 +212,7 @@ class WishlistResource(Resource):
         wishlist.update()
 
         return wishlist.serialize(), status.HTTP_200_OK
+
 
 ######################################################################
 #  PATH: /wishlists
@@ -266,8 +238,8 @@ class WishlistsCollection(Resource):
         app.logger.debug("Payload = %s", api.payload)
         wishlist.deserialize(api.payload)
         wishlist.create()
-        app.logger.info("Pet with new id [%s] created!", wishlist.id)
-        location_url = api.url_for(WishlistResource, pet_id=wishlist.id, _external=True)
+        app.logger.info("Wishlist with new id [%s] created!", wishlist.id)
+        location_url = api.url_for(WishlistResource, wishlist_id=wishlist.id, _external=True)
         return wishlist.serialize(), status.HTTP_201_CREATED, {"Location": location_url}
 
 
