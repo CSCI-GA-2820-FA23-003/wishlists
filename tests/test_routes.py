@@ -223,7 +223,6 @@ class TestWishlistServer(TestCase):
 
         url = f"{BASE_URL}?customer-id=2222"
         resp = self.client.get(url)
-        print (f"{resp.get_json()}")
         fetched_lists = resp.get_json()
 
         # ensure we receive the two lists associated with customer 2222
