@@ -28,6 +28,7 @@ Scenario: Create a Wishlist
     And I should see "42" in the "Customer ID" field
     And "Is Public" should "be" checked
 
+
 Scenario: Update a wishlist
     When I visit the "Admin UI Page"
     And I set the "Id" to "1"
@@ -42,6 +43,7 @@ Scenario: Update a wishlist
     And I press the "Retrieve" button
     Then I should see the message "Success"
     And I should see "Beckett's Christmas Costume List" in the "Name" field
+
 
 Scenario: Delete a Wishlist
     When I visit the "Admin UI Page"
