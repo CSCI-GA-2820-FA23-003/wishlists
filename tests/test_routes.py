@@ -18,7 +18,8 @@ DATABASE_URI = os.getenv(
     "DATABASE_URI", "postgresql://postgres:postgres@localhost:5432/postgres"
 )
 
-BASE_URL = "/wishlists"
+OLD_BASE_URL = "/wishlists"
+BASE_URL = "/api/wishlists"
 
 ######################################################################
 #  T E S T   C A S E S
@@ -277,7 +278,7 @@ class TestWishlistServer(TestCase):
         self.assertIsNotNone(wishlist.id)
         wishlist_id = wishlist.id
 
-        resp = self.client.put(f"{BASE_URL}/{wishlist_id}/publish")
+        resp = self.client.put(f"{OLD_BASE_URL}/{wishlist_id}/publish")
 
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
@@ -286,14 +287,13 @@ class TestWishlistServer(TestCase):
         self.assertEqual(data["is_public"], True)
 
         # test for idempotency
-        resp2 = self.client.put(f"{BASE_URL}/{wishlist_id}/publish")
+        resp2 = self.client.put(f"{OLD_BASE_URL}/{wishlist_id}/publish")
 
         self.assertEqual(data, resp2.get_json())
 
     def test_publish_wishlist_for_non_existent_wishlist(self):
         """It should return 404 when publishing a wishlist that does not exist"""
-        resp = self.client.put(f"{BASE_URL}/-99999/publish")
-
+        resp = self.client.put(f"{OLD_BASE_URL}/-99999/publish")
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
     ######################################################################

@@ -76,7 +76,7 @@ $(function () {
         
         let ajax = $.ajax({
             type: "POST",
-            url: "/wishlists",
+            url: "/api/wishlists",
             contentType: "application/json",
             data: JSON.stringify(data),
         });
@@ -146,7 +146,7 @@ $(function () {
     
             let ajax = $.ajax({
                 type: "GET",
-                url: `/wishlists/${wishlist_id}`,
+                url: `/api/wishlists/${wishlist_id}`,
             });
     
             ajax.done(function(res) {
@@ -158,7 +158,7 @@ $(function () {
                 }
                 $.ajax({
                     type: "GET",
-                    url: `/wishlists/${res.id}/items`,
+                    url: `/api/wishlists/${res.id}/items`,
                 }).done(function(res) {
                     $("#wishlist-items-table tbody").empty();
                     if (res.length > 0) {
@@ -211,7 +211,7 @@ $(function () {
 
         let ajax = $.ajax({
             type: "DELETE",
-            url: `/wishlists/${wishlist_id}`
+            url: `/api/wishlists/${wishlist_id}`
         })
 
         ajax.done(function(res){
@@ -328,7 +328,7 @@ $(function () {
 
         $.ajax({
             method: "GET",
-            url: `/wishlists/${tokens[0]}/items/${tokens[1]}`
+            url: `/api/wishlists/${tokens[0]}/items/${tokens[1]}`
         }).done(function(res){
             // populate wishlist item form with data from response
             $("#item_id").val(res.id)
@@ -356,7 +356,7 @@ $(function () {
 
         $.ajax({
             method: "POST",
-            url: `/wishlists/${wishlist_id}/items`,
+            url: `/api/wishlists/${wishlist_id}/items`,
             contentType: "application/json",
             data: JSON.stringify(post_data)
         }).done(function(res){
@@ -374,7 +374,7 @@ $(function () {
 
         $.ajax({
             method: "DELETE",
-            url: `/wishlists/${tokens[0]}/items/${tokens[1]}`,
+            url: `/api/wishlists/${tokens[0]}/items/${tokens[1]}`,
             contentType: "application/json",
             data: '',
         }).done(function(res, statusText, jqXHR){
@@ -423,7 +423,7 @@ $(function () {
 
         let ajax = $.ajax({
                 type: "PUT",
-                url: `/wishlists/${wishlist_id}/items/${item_id}`,
+                url: `/api/wishlists/${wishlist_id}/items/${item_id}`,
                 contentType: "application/json",
                 data: JSON.stringify(data)
             })

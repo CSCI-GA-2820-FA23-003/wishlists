@@ -26,7 +26,7 @@ api = Api(
     default="wishlists",
     default_label="Wishlist operations",
     doc="/apidocs",  # default also could use doc='/apidocs/'
-    prefix="/",
+    prefix="/api",
 )
 
 # Dependencies require we import the routes AFTER the Flask app is created

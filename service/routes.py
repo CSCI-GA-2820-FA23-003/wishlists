@@ -202,6 +202,8 @@ class WishlistResource(Resource):
         if wishlist:
             wishlist.delete()
             app.logger.info("Wishlist with id [%s] was deleted", wishlist_id)
+        else:
+            return "", status.HTTP_404_NO_CONTENT
 
         return "", status.HTTP_204_NO_CONTENT
 
@@ -237,7 +239,7 @@ class WishlistsCollection(Resource):
         return results, status.HTTP_200_OK
 
     # ------------------------------------------------------------------
-    # ADD A NEW WISHLISTS
+    # ADD A NEW WISHLIST
     # ------------------------------------------------------------------
     @api.doc("create_wishlists")
     @api.response(400, "The posted data was not valid")
@@ -300,7 +302,7 @@ class WishlistItemsResource(Resource):
     """
 
     # ------------------------------------------------------------------
-    # RETRIEVE A WISHLIST
+    # RETRIEVE A WISHLIST ITEM
     # ------------------------------------------------------------------
     @api.doc("get_wishlist_item")
     @api.response(404, "Wishlist Item not found")
@@ -361,7 +363,7 @@ class WishlistItemsResource(Resource):
         return wishlist_item.serialize(), status.HTTP_200_OK
 
     # ------------------------------------------------------------------
-    # DELETE A WISHLIST
+    # DELETE A WISHLIST ITEM
     # ------------------------------------------------------------------
     @api.doc("delete_wishlist_items")
     @api.response(204, "Wishlist Item deleted")
@@ -491,7 +493,7 @@ class WishlistItemsCollection(Resource):
         return (
             message,
             status.HTTP_201_CREATED,
-            {"Location": f"/wishlists/{wishlist.id}/items/{wishlist_item.id}"},
+            {"Location": f"/api/wishlists/{wishlist.id}/items/{wishlist_item.id}"},
         )
 
 
