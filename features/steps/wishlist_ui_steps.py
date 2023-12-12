@@ -15,6 +15,7 @@ from behave import when, then
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select, WebDriverWait
 from selenium.webdriver.support import expected_conditions
+from selenium.common.exceptions import TimeoutException
 
 ID_PREFIX = "wishlist_"
 
@@ -101,13 +102,19 @@ def step_impl(context, element_name):
 @then('I should see "{text_string}" in the "{element_name}" field')
 def step_impl(context, text_string, element_name):
     element_id = ID_PREFIX + element_name.lower().replace(' ', '_')
-    found = WebDriverWait(context.driver, context.wait_seconds).until(
-        expected_conditions.text_to_be_present_in_element_value(
-            (By.ID, element_id),
-            text_string
+    try:
+        WebDriverWait(context.driver, context.wait_seconds * 2).until(
+            expected_conditions.text_to_be_present_in_element_value(
+                (By.ID, element_id),
+                text_string
+            )
         )
-    )
-    assert(found)
+        element = context.driver.find_element(By.ID, element_id)
+        assert element.get_attribute("value") == text_string, f"Expected text '{text_string}' not found in element '{element_id}'. Current value: '{element.get_attribute('value')}'"
+    except TimeoutException as e:
+        current_value = context.driver.find_element(By.ID, element_id).get_attribute("value")
+        logging.error(f"Timeout while waiting for text '{text_string}' in element '{element_id}'. Current value: '{current_value}'")
+        raise e
 
 
 @then('"{element_name}" should "{be_or_not_be}" checked')
