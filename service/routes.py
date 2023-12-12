@@ -211,6 +211,35 @@ class WishlistResource(Resource):
         return wishlist.serialize(), status.HTTP_200_OK
 
 
+######################################################################
+#  PATH: /wishlists
+######################################################################
+@api.route("/wishlists", strict_slashes=False)
+class WishlistsCollection(Resource):
+    """Handles all interactions with collections of Wishlists"""
+
+    # ------------------------------------------------------------------
+    # ADD A NEW WISHLISTS
+    # ------------------------------------------------------------------
+    @api.doc("create_wishlists")
+    @api.response(400, "The posted data was not valid")
+    @api.expect(create_wishlist_model)
+    @api.marshal_with(wishlist_model, code=201)
+    def post(self):
+        """
+        Creates a Wishlist
+        This endpoint will create a Wishlist based the data in the body that is posted
+        """
+        app.logger.info("Request to Create a Wishlist")
+        wishlist = Wishlist()
+        app.logger.debug("Payload = %s", api.payload)
+        wishlist.deserialize(api.payload)
+        wishlist.create()
+        app.logger.info("Pet with new id [%s] created!", wishlist.id)
+        location_url = api.url_for(WishlistResource, pet_id=wishlist.id, _external=True)
+        return wishlist.serialize(), status.HTTP_201_CREATED, {"Location": location_url}
+
+
 # ######################################################################
 # # READ A WISHLIST
 # ######################################################################
@@ -235,29 +264,29 @@ class WishlistResource(Resource):
 ######################################################################
 # UPDATE A WISHLIST
 ######################################################################
-@app.route("/wishlists/<int:wishlist_id>", methods=["PUT"])
-def update_wishlists_by_name(wishlist_id):
-    """
-    Update an Wishlist
-    This endpoint will update an Wishlist based the body that is posted
-    """
-    app.logger.info("Request to update wishlist with id: %s", wishlist_id)
-    check_content_type("application/json")
+# @app.route("/wishlists/<int:wishlist_id>", methods=["PUT"])
+# def update_wishlists_by_name(wishlist_id):
+#     """
+#     Update an Wishlist
+#     This endpoint will update an Wishlist based the body that is posted
+#     """
+#     app.logger.info("Request to update wishlist with id: %s", wishlist_id)
+#     check_content_type("application/json")
 
-    # See if the wishlist exists and abort if it doesn't
-    wishlist = Wishlist.find(wishlist_id)
-    if not wishlist:
-        abort(
-            status.HTTP_404_NOT_FOUND,
-            f"Wishlist with id '{wishlist_id}' was not found.",
-        )
-    # Update from the json in the body of the request
-    wishlist.deserialize(request.get_json())
-    wishlist.id = wishlist_id
-    # wishlist.name = newname
-    wishlist.update()
+#     # See if the wishlist exists and abort if it doesn't
+#     wishlist = Wishlist.find(wishlist_id)
+#     if not wishlist:
+#         abort(
+#             status.HTTP_404_NOT_FOUND,
+#             f"Wishlist with id '{wishlist_id}' was not found.",
+#         )
+#     # Update from the json in the body of the request
+#     wishlist.deserialize(request.get_json())
+#     wishlist.id = wishlist_id
+#     # wishlist.name = newname
+#     wishlist.update()
 
-    return make_response(jsonify(wishlist.serialize()), status.HTTP_200_OK)
+#     return make_response(jsonify(wishlist.serialize()), status.HTTP_200_OK)
 
 
 ######################################################################
