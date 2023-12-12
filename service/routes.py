@@ -202,8 +202,6 @@ class WishlistResource(Resource):
         if wishlist:
             wishlist.delete()
             app.logger.info("Wishlist with id [%s] was deleted", wishlist_id)
-        else:
-            return "", status.HTTP_404_NO_CONTENT
 
         return "", status.HTTP_204_NO_CONTENT
 
