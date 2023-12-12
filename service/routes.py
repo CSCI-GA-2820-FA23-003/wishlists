@@ -7,7 +7,7 @@ Describe what your service does here
 from flask import jsonify, request, abort, make_response
 
 # from flask_restx import Api, Resource
-from flask_restx import fields, reqparse
+from flask_restx import fields, reqparse, Resource
 from service.common import status  # HTTP Status Codes
 from service.models import Wishlist, WishlistItem
 
@@ -28,7 +28,7 @@ create_item_model = api.model(
         "product_id": fields.Integer(
             required=True, description="The ID of the product in the wishlist"
         ),
-        "item_quantity": fields.Integer(
+        "quantity": fields.Integer(
             required=True, description="The quantity of the product in the wishlist"
         ),
     },
@@ -48,8 +48,8 @@ item_model = api.inherit(
 create_wishlist_model = api.model(
     "Wishlist",
     {
-        "name": fields.String(required=True, description="The Name of the wishlist"),
-        "owner_id": fields.Integer(
+        "wishlist_name": fields.String(required=True, description="The Name of the wishlist"),
+        "customer_id": fields.Integer(
             required=True, description="The owner id of the wishlist"
         ),
         "is_public": fields.Boolean(
@@ -67,7 +67,7 @@ wishlist_model = api.inherit(
         "id": fields.Integer(
             readOnly=True, description="The unique id assigned internally by service"
         ),
-        "created_at": fields.Date(
+        "created_date": fields.Date(
             readOnly=True, description="The day the wishlist was created"
         ),
         "wishlist_items": fields.List(
@@ -176,24 +176,60 @@ def create_wishlists():
 
 
 ######################################################################
-# READ A WISHLIST
+#  PATH: /wishlist/{wishlist_id}
 ######################################################################
-@app.route("/wishlists/<int:wishlist_id>", methods=["GET"])
-def read_wishlists(wishlist_id):
+@api.route("/wishlists/<wishlist_id>")
+@api.param("wishlist_id", "The Wishlist identifier")
+class WishlistResource(Resource):
     """
-    Reads an Existing Wishlist
-    This endpoint will read a Wishlist based on the given id
-    """
-    app.logger.info("Request to read Wishlist: %d", wishlist_id)
+    WishlistResource class
 
-    # Check if wishlist exists
-    wishlist = Wishlist.find(wishlist_id)
-    if not wishlist:
-        abort(
-            status.HTTP_404_NOT_FOUND,
-            f"Wishlist with id '{wishlist_id}' could not be found.",
-        )
-    return make_response(jsonify(wishlist.serialize()), status.HTTP_200_OK)
+    Allows the manipulation of a single Wishlist
+    GET /wishlist{id} - Returns a Wishlist with the id
+    PUT /wishlist{id} - Update a Wishlist with the id
+    DELETE /wishlist{id} -  Deletes a Wishlist with the id
+    """
+
+    # ------------------------------------------------------------------
+    # RETRIEVE A WISHLIST
+    # ------------------------------------------------------------------
+    @api.doc("get_wishlist")
+    @api.response(404, "Wishlist not found")
+    @api.marshal_with(wishlist_model)
+    def get(self, wishlist_id):
+        """
+        Retrieve a single Wishlist
+        This endpoint will return a Wishlist based on it's id
+        """
+        app.logger.info("Request to Retrieve a Wishlist with id [%s]", wishlist_id)
+        wishlist = Wishlist.find(wishlist_id)
+        if not wishlist:
+            abort(
+                status.HTTP_404_NOT_FOUND,
+                f"Wishlist with id '{wishlist_id}' could not be found.",
+            )
+        return wishlist.serialize(), status.HTTP_200_OK
+
+
+# ######################################################################
+# # READ A WISHLIST
+# ######################################################################
+# @app.route("/wishlists/<int:wishlist_id>", methods=["GET"])
+# def read_wishlists(wishlist_id):
+#     """
+#     Reads an Existing Wishlist
+#     This endpoint will read a Wishlist based on the given id
+#     """
+#     app.logger.info("Request to read Wishlist: %d", wishlist_id)
+
+#     # Check if wishlist exists
+#     wishlist = Wishlist.find(wishlist_id)
+#     if not wishlist:
+#         abort(
+#             status.HTTP_404_NOT_FOUND,
+#             f"Wishlist with id '{wishlist_id}' could not be found.",
+#         )
+#     return make_response(jsonify(wishlist.serialize()), status.HTTP_200_OK)
 
 
 ######################################################################
