@@ -360,36 +360,36 @@ class WishlistItemsResource(Resource):
 
         return wishlist_item.serialize(), status.HTTP_200_OK
 
-    # # ------------------------------------------------------------------
-    # # DELETE A WISHLIST
-    # # ------------------------------------------------------------------
-    # @api.doc("delete_wishlist_items")
-    # @api.response(204, "Wishlist Item deleted")
-    # def delete(self, wishlist_id, item_id):
-    #     """
-    #     Delete an Item
+    # ------------------------------------------------------------------
+    # DELETE A WISHLIST
+    # ------------------------------------------------------------------
+    @api.doc("delete_wishlist_items")
+    @api.response(204, "Wishlist Item deleted")
+    def delete(self, wishlist_id, item_id):
+        """
+        Delete an Item
 
-    #     This endpoint will delete an Item based the id specified in the path
-    #     """
+        This endpoint will delete an Item based the id specified in the path
+        """
 
-    #     app.logger.info(
-    #         "Request to delete Item %s for Wishlist id: %s", item_id, wishlist_id
-    #     )
+        app.logger.info(
+            "Request to delete Item %s for Wishlist id: %s", item_id, wishlist_id
+        )
 
-    #     # Find the specified Wishlist
-    #     wishlist = Wishlist.find(wishlist_id)
+        # Find the specified Wishlist
+        wishlist = Wishlist.find(wishlist_id)
 
-    #     # Find the specified WishlistItem
-    #     if wishlist:
-    #         wishlist_item = None
-    #         for item in wishlist.items:
-    #             if item.id == item_id:
-    #                 wishlist_item = item
-    #                 break
+        # Find the specified WishlistItem
+        if wishlist:
+            wishlist_item = None
+            for item in wishlist.items:
+                if item.id == item_id:
+                    wishlist_item = item
+                    break
 
-    #         wishlist_item.delete()
+            wishlist_item.delete()
 
-    #     return "", status.HTTP_204_NO_CONTENT
+        return "", status.HTTP_204_NO_CONTENT
 
 
 ######################################################################
