@@ -189,6 +189,26 @@ class WishlistResource(Resource):
 
         return wishlist.serialize(), status.HTTP_200_OK
 
+    # ------------------------------------------------------------------
+    # DELETE A WISHLIST
+    # ------------------------------------------------------------------
+    @api.doc("delete_wishlist")
+    @api.response(204, "Wishlist deleted")
+    # @token_required
+    def delete(self, wishlist_id):
+        """
+        Delete a Wishlist
+
+        This endpoint will delete a Wishlist based the id specified in the path
+        """
+        app.logger.info("Request to Delete a Wishlist with id [%s]", wishlist_id)
+        wishlist = Wishlist.find(wishlist_id)
+        if wishlist:
+            wishlist.delete()
+            app.logger.info("Wishlist with id [%s] was deleted", wishlist_id)
+
+        return "", status.HTTP_204_NO_CONTENT
+
 
 ######################################################################
 #  PATH: /wishlists
@@ -240,26 +260,6 @@ class WishlistsCollection(Resource):
         app.logger.info("Wishlist with new id [%s] created!", wishlist.id)
         location_url = api.url_for(WishlistResource, wishlist_id=wishlist.id, _external=True)
         return wishlist.serialize(), status.HTTP_201_CREATED, {"Location": location_url}
-
-
-######################################################################
-# DELETE A WISHLIST
-######################################################################
-@app.route("/wishlists/<int:wishlist_id>", methods=["DELETE"])
-def delete_wishlists(wishlist_id):
-    """
-    Delete a Wishlist
-
-    This endpoint will delete a Wishlist based the id specified in the path
-    """
-    app.logger.info("Request to delete account with id: %s", wishlist_id)
-
-    # Retrieve the account to delete and delete it if it exists
-    wishlist = Wishlist.find(wishlist_id)
-    if wishlist:
-        wishlist.delete()
-
-    return make_response("", status.HTTP_204_NO_CONTENT)
 
 
 ######################################################################
