@@ -76,7 +76,7 @@ $(function () {
         
         let ajax = $.ajax({
             type: "POST",
-            url: "/wishlists",
+            url: "/api/wishlists",
             contentType: "application/json",
             data: JSON.stringify(data),
         });
@@ -100,26 +100,23 @@ $(function () {
 
     $("#update-btn").click(function () {
 
-        let pet_id = $("#pet_id").val();
-        let name = $("#pet_name").val();
-        let category = $("#pet_category").val();
-        let available = $("#pet_available").val() == "true";
-        let gender = $("#pet_gender").val();
-        let birthday = $("#pet_birthday").val();
+        let wishlist_id = $("#wishlist_id").val()
+        let wishlist_name = $("#wishlist_name").val()
+        let customer_id = $("#wishlist_customer_id").val()
+        let isPublic = $("#wishlist_is_public").is(":checked")
 
         let data = {
-            "name": name,
-            "category": category,
-            "available": available,
-            "gender": gender,
-            "birthday": birthday
+            "wishlist_name": wishlist_name,
+            "is_public": isPublic,
+            "customer_id": customer_id,
+            "created_date": (new Date()).toISOString()
         };
 
         $("#flash_message").empty();
 
         let ajax = $.ajax({
                 type: "PUT",
-                url: `/pets/${pet_id}`,
+                url: `/api/wishlists/${wishlist_id}`,
                 contentType: "application/json",
                 data: JSON.stringify(data)
             })
@@ -134,6 +131,7 @@ $(function () {
         });
 
     });
+    
 
     // ****************************************
     // Retrieve a Wishlist
@@ -146,7 +144,7 @@ $(function () {
     
             let ajax = $.ajax({
                 type: "GET",
-                url: `/wishlists/${wishlist_id}`,
+                url: `/api/wishlists/${wishlist_id}`,
             });
     
             ajax.done(function(res) {
@@ -158,7 +156,7 @@ $(function () {
                 }
                 $.ajax({
                     type: "GET",
-                    url: `/wishlists/${res.id}/items`,
+                    url: `/api/wishlists/${res.id}/items`,
                 }).done(function(res) {
                     $("#wishlist-items-table tbody").empty();
                     if (res.length > 0) {
@@ -211,7 +209,7 @@ $(function () {
 
         let ajax = $.ajax({
             type: "DELETE",
-            url: `/wishlists/${wishlist_id}`
+            url: `/api/wishlists/${wishlist_id}`
         })
 
         ajax.done(function(res){
@@ -328,7 +326,7 @@ $(function () {
 
         $.ajax({
             method: "GET",
-            url: `/wishlists/${tokens[0]}/items/${tokens[1]}`
+            url: `/api/wishlists/${tokens[0]}/items/${tokens[1]}`
         }).done(function(res){
             // populate wishlist item form with data from response
             $("#item_id").val(res.id)
@@ -356,7 +354,7 @@ $(function () {
 
         $.ajax({
             method: "POST",
-            url: `/wishlists/${wishlist_id}/items`,
+            url: `/api/wishlists/${wishlist_id}/items`,
             contentType: "application/json",
             data: JSON.stringify(post_data)
         }).done(function(res){
@@ -374,7 +372,7 @@ $(function () {
 
         $.ajax({
             method: "DELETE",
-            url: `/wishlists/${tokens[0]}/items/${tokens[1]}`,
+            url: `/api/wishlists/${tokens[0]}/items/${tokens[1]}`,
             contentType: "application/json",
             data: '',
         }).done(function(res, statusText, jqXHR){
@@ -423,7 +421,7 @@ $(function () {
 
         let ajax = $.ajax({
                 type: "PUT",
-                url: `/wishlists/${wishlist_id}/items/${item_id}`,
+                url: `/api/wishlists/${wishlist_id}/items/${item_id}`,
                 contentType: "application/json",
                 data: JSON.stringify(data)
             })

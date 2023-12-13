@@ -15,6 +15,7 @@ from behave import when, then
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select, WebDriverWait
 from selenium.webdriver.support import expected_conditions
+from selenium.common.exceptions import TimeoutException
 
 ID_PREFIX = "wishlist_"
 
@@ -64,12 +65,46 @@ def step_impl(context, button):
 
 @then('I should see the message "{message}"')
 def step_impl(context, message):
-    found = WebDriverWait(context.driver, context.wait_seconds).until(
-        expected_conditions.text_to_be_present_in_element(
-            (By.ID, "flash_message"), message
+    try:
+        found = WebDriverWait(context.driver, context.wait_seconds).until(
+            expected_conditions.text_to_be_present_in_element(
+                (By.ID, "flash_message"), message
+            )
         )
-    )
-    assert found
+        assert found
+    except TimeoutException:
+        # If a timeout occurs, try to find the element by ID and print its text
+        flash_message_element = context.driver.find_element(By.ID, "flash_message")
+        flash_message_text = (
+            flash_message_element.text if flash_message_element else "Element not found"
+        )
+        print(
+            f"Timeout occurred while waiting for the message: '{message}' to be present."
+        )
+        print(f"Actual flash message text found: {flash_message_text}")
+        raise
+
+
+@then("I should see the copied value in message")
+def step_impl(context):
+    try:
+        found = WebDriverWait(context.driver, context.wait_seconds).until(
+            expected_conditions.text_to_be_present_in_element(
+                (By.ID, "flash_message"), context.clipboard
+            )
+        )
+        assert found
+    except TimeoutException:
+        # If a timeout occurs, try to find the element by ID and print its text
+        flash_message_element = context.driver.find_element(By.ID, "flash_message")
+        flash_message_text = (
+            flash_message_element.text if flash_message_element else "Element not found"
+        )
+        print(
+            f"Timeout occurred while waiting for the message: '{context.clipboard}' to be present."
+        )
+        print(f"Actual flash message text found: {flash_message_text}")
+        raise
 
 
 @when('I copy the "{element_name}" field')
@@ -90,7 +125,7 @@ def step_impl(context, element_name):
 
 @when('I paste the "{element_name}" field')
 def step_impl(context, element_name):
-    element_id = ID_PREFIX + element_name.lower().replace(' ', '_')
+    element_id = ID_PREFIX + element_name.lower().replace(" ", "_")
     element = WebDriverWait(context.driver, context.wait_seconds).until(
         expected_conditions.presence_of_element_located((By.ID, element_id))
     )
@@ -100,19 +135,30 @@ def step_impl(context, element_name):
 
 @then('I should see "{text_string}" in the "{element_name}" field')
 def step_impl(context, text_string, element_name):
-    element_id = ID_PREFIX + element_name.lower().replace(' ', '_')
-    found = WebDriverWait(context.driver, context.wait_seconds).until(
-        expected_conditions.text_to_be_present_in_element_value(
-            (By.ID, element_id),
-            text_string
+    element_id = ID_PREFIX + element_name.lower().replace(" ", "_")
+    try:
+        WebDriverWait(context.driver, context.wait_seconds * 3).until(
+            expected_conditions.text_to_be_present_in_element_value(
+                (By.ID, element_id), text_string
+            )
         )
-    )
-    assert(found)
+        element = context.driver.find_element(By.ID, element_id)
+        assert (
+            element.get_attribute("value") == text_string
+        ), f"Expected text '{text_string}' not found in element '{element_id}'. Current value: '{element.get_attribute('value')}'"
+    except TimeoutException as e:
+        current_value = context.driver.find_element(By.ID, element_id).get_attribute(
+            "value"
+        )
+        logging.error(
+            f"Timeout while waiting for text '{text_string}' in element '{element_id}'. Current value: '{current_value}'"
+        )
+        raise e
 
 
 @then('"{element_name}" should "{be_or_not_be}" checked')
 def step_impl(context, element_name, be_or_not_be):
-    element_id = ID_PREFIX + element_name.lower().replace(' ', '_')
+    element_id = ID_PREFIX + element_name.lower().replace(" ", "_")
     checkbox = context.driver.find_element(By.ID, element_id)
     be_or_not_be = be_or_not_be.lower()
     if be_or_not_be == "be":
@@ -120,4 +166,12 @@ def step_impl(context, element_name, be_or_not_be):
     elif be_or_not_be == "not be":
         assert not checkbox.is_selected()
     else:
-        raise ValueError(f'Invalid value for "be_or_not_be": {be_or_not_be}') 
+        raise ValueError(f'Invalid value for "be_or_not_be": {be_or_not_be}')
+
+
+@when('I change "{element_name}" to "{new_text}"')
+def step_impl(context, element_name, new_text):
+    element_id = ID_PREFIX + element_name.lower().replace(" ", "_")
+    element = context.driver.find_element(By.ID, element_id)
+    element.clear()
+    element.send_keys(new_text)
