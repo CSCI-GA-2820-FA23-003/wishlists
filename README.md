@@ -82,6 +82,10 @@ To create a cluster and run our app within it.  Follow these steps:
 
 Then you can view the app at http://localhost:8000/
 
+## Executing the OpenShift Pipeline
+
+This is just a section to invoke a commit.  (Trying to test the webhook).
+
 ### Wishlist Endpoints
 ​
 1. **Create Wishlist**
