@@ -1,11 +1,13 @@
 """
 Wishlist
 
-Describe what your service does here
+The wishlist service allows an eCommerce wishlist admin to view 
+and manage customer wishlists.
 """
 
-from flask import jsonify, request, abort, make_response
 from datetime import datetime
+from flask import jsonify, request, abort, make_response
+
 # from flask_restx import Api, Resource
 from flask_restx import fields, reqparse, Resource
 from service.common import status  # HTTP Status Codes
@@ -36,7 +38,7 @@ create_item_model = api.model(
         ),
         "created_date": fields.Date(
             readOnly=False, description="The day the wishlist item was created"
-        )
+        ),
     },
 )
 
@@ -54,7 +56,9 @@ item_model = api.inherit(
 create_wishlist_model = api.model(
     "Wishlist",
     {
-        "wishlist_name": fields.String(required=True, description="The Name of the wishlist"),
+        "wishlist_name": fields.String(
+            required=True, description="The Name of the wishlist"
+        ),
         "customer_id": fields.Integer(
             required=True, description="The owner id of the wishlist"
         ),
@@ -65,7 +69,7 @@ create_wishlist_model = api.model(
         ),
         "created_date": fields.Date(
             readOnly=False, description="The day the wishlist was created"
-        )
+        ),
     },
 )
 
@@ -117,6 +121,7 @@ def health():
 ######################################################################
 #  R E S T   A P I   E N D P O I N T S
 ######################################################################
+
 
 ######################################################################
 #  PATH: /wishlist/{wishlist_id}
@@ -212,6 +217,7 @@ class WishlistResource(Resource):
 @api.route("/wishlists", strict_slashes=False)
 class WishlistsCollection(Resource):
     """Handles all interactions with collections of Wishlists"""
+
     # ------------------------------------------------------------------
     # LIST ALL WISHLISTS
     # ------------------------------------------------------------------
@@ -222,8 +228,12 @@ class WishlistsCollection(Resource):
         """Returns all of the Wishlists"""
         app.logger.info("Request for Wishlist lists")
 
-        customer_id = int(request.args.get("customer-id")) if request.args.get("customer-id") else None
-        
+        customer_id = (
+            int(request.args.get("customer-id"))
+            if request.args.get("customer-id")
+            else None
+        )
+
         wishlists = []
 
         if customer_id is not None:
@@ -254,7 +264,9 @@ class WishlistsCollection(Resource):
         wishlist.deserialize(api.payload)
         wishlist.create()
         app.logger.info("Wishlist with new id [%s] created!", wishlist.id)
-        location_url = api.url_for(WishlistResource, wishlist_id=wishlist.id, _external=True)
+        location_url = api.url_for(
+            WishlistResource, wishlist_id=wishlist.id, _external=True
+        )
         return wishlist.serialize(), status.HTTP_201_CREATED, {"Location": location_url}
 
 
@@ -283,6 +295,7 @@ def publish_wishlist(wishlist_id):
 #                W I S H L I S T   I T E M   M E T H O D S
 # ---------------------------------------------------------------------
 
+
 ######################################################################
 #  PATH: /wishlist/{wishlist_id}/items
 ######################################################################
@@ -310,7 +323,9 @@ class WishlistItemsResource(Resource):
         Reads an Item from existing Wishlist
         This endpoint will read an Item from a Wishlist based on the given id
         """
-        app.logger.info("Request to read item: %d from Wishlist: %d", item_id, wishlist_id)
+        app.logger.info(
+            "Request to read item: %d from Wishlist: %d", item_id, wishlist_id
+        )
 
         # Check if wishlist exists
         item = WishlistItem.find(item_id)
@@ -342,7 +357,9 @@ class WishlistItemsResource(Resource):
         # Find the specified Wishlist
         wishlist = Wishlist.find(wishlist_id)
         if not wishlist:
-            abort(status.HTTP_404_NOT_FOUND, f"Wishlist with ID {wishlist_id} not found")
+            abort(
+                status.HTTP_404_NOT_FOUND, f"Wishlist with ID {wishlist_id} not found"
+            )
 
         # Find the specified WishlistItem
         wishlist_item = None
@@ -352,7 +369,9 @@ class WishlistItemsResource(Resource):
                 break
 
         if not wishlist_item:
-            abort(status.HTTP_404_NOT_FOUND, f"Wishlist Item with ID {item_id} not found")
+            abort(
+                status.HTTP_404_NOT_FOUND, f"Wishlist Item with ID {item_id} not found"
+            )
 
         wishlist_item.deserialize(request.get_json())
         wishlist_item.id = item_id
@@ -398,6 +417,7 @@ class WishlistItemsResource(Resource):
 @api.route("/wishlists/<int:wishlist_id>/items", strict_slashes=False)
 class WishlistItemsCollection(Resource):
     """Handles all interactions with collections of Wishlist Items"""
+
     # ------------------------------------------------------------------
     # LIST ALL WISHLIST ITEMS
     # ------------------------------------------------------------------
@@ -426,7 +446,9 @@ class WishlistItemsCollection(Resource):
 
         # Check for query parameters and filter the base query accordingly
         if "product_id" in query_params:
-            product_id_param= int(query_params["product_id"]) if query_params["product_id"] else None
+            product_id_param = (
+                int(query_params["product_id"]) if query_params["product_id"] else None
+            )
             base_query = base_query.filter_by(product_id=product_id_param)
 
         if "product_name" in query_params:
@@ -435,19 +457,25 @@ class WishlistItemsCollection(Resource):
             )
 
         if "product_price" in query_params:
-            product_price = float(query_params["product_price"]) if query_params["product_price"] else None
-            base_query = base_query.filter(
-                WishlistItem.product_price <= product_price
+            product_price = (
+                float(query_params["product_price"])
+                if query_params["product_price"]
+                else None
             )
+            base_query = base_query.filter(WishlistItem.product_price <= product_price)
 
         if "quantity" in query_params:
-            quantity = int(query_params["quantity"]) if query_params["quantity"] else None
-            base_query = base_query.filter(
-                WishlistItem.quantity <= quantity
+            quantity = (
+                int(query_params["quantity"]) if query_params["quantity"] else None
             )
+            base_query = base_query.filter(WishlistItem.quantity <= quantity)
 
         if "created_date" in query_params:
-            created_date_datetime = datetime.fromisoformat(query_params["created_date"]) if query_params["created_date"] else None
+            created_date_datetime = (
+                datetime.fromisoformat(query_params["created_date"])
+                if query_params["created_date"]
+                else None
+            )
             base_query = base_query.filter_by(created_date=created_date_datetime)
 
         # Fetch the filtered results
@@ -476,7 +504,9 @@ class WishlistItemsCollection(Resource):
         # Find the specified Wishlist
         wishlist = Wishlist.find(wishlist_id)
         if not wishlist:
-            abort(status.HTTP_404_NOT_FOUND, f"Wishlist with ID {wishlist_id} not found")
+            abort(
+                status.HTTP_404_NOT_FOUND, f"Wishlist with ID {wishlist_id} not found"
+            )
 
         # Create the Wishlist Item
         wishlist_item = WishlistItem()
