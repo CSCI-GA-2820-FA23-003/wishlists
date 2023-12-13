@@ -21,7 +21,7 @@ spec:
     spec:
       restartPolicy: Always
       containers:
-      - image: k3d-registry.local:32000/wishlists:1.0
+      - image: k3d-registry.local:32000/wishlists:latest
         imagePullPolicy: IfNotPresent
         name: wishlists-app
         ports:
@@ -29,14 +29,16 @@ spec:
           protocol: TCP
         env:
           - name: DATABASE_URI
-            valueFrom:
-              secretKeyRef:
-                name: postgres-creds
-                key: uri
+            # temporarily hardcoding to rule out encoding issues
+            value: "postgresql+psycopg://postgres:postgres@postgres:5432/postgres"
+            # valueFrom:
+            #   secretKeyRef:
+            #     name: postgres-creds
+            #     key: database_uri
         resources:
           limits:
             cpu: "0.25"
-            memory: "64Mi"
+            memory: "128Mi"
           requests:
             cpu: "0.10"
-            memory: "32Mi"
+            memory: "64Mi"

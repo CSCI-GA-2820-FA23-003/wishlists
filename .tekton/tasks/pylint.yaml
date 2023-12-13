@@ -1,0 +1,103 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: pylint
+  annotations:
+    openshift.io/installed-from: Tektonhub
+    tekton.dev/categories: Code Quality
+    tekton.dev/displayName: pylint
+    tekton.dev/pipelines.minVersion: 0.17.0
+    tekton.dev/platforms: linux/amd64
+    tekton.dev/tags: 'python, pylint'
+  resourceVersion: '1084496460'
+  uid: 57cfc34f-b520-44ea-b5b7-73a7f32c13a4
+  creationTimestamp: '2023-12-12T06:03:51Z'
+  generation: 1
+  managedFields:
+    - apiVersion: tekton.dev/v1beta1
+      fieldsType: FieldsV1
+      fieldsV1:
+        'f:metadata':
+          'f:annotations':
+            .: {}
+            'f:openshift.io/installed-from': {}
+            'f:tekton.dev/categories': {}
+            'f:tekton.dev/displayName': {}
+            'f:tekton.dev/pipelines.minVersion': {}
+            'f:tekton.dev/platforms': {}
+            'f:tekton.dev/tags': {}
+          'f:labels':
+            .: {}
+            'f:app.kubernetes.io/version': {}
+        'f:spec':
+          .: {}
+          'f:description': {}
+          'f:params': {}
+          'f:steps': {}
+          'f:workspaces': {}
+      manager: Mozilla
+      operation: Update
+      time: '2023-12-12T06:03:51Z'
+  namespace: jay-goettelmann-nyu-dev
+  labels:
+    app.kubernetes.io/version: '0.3'
+spec:
+  description: This task will run pylint on the provided input.
+  params:
+    - default: >-
+        registry.gitlab.com/pipeline-components/pylint:0.12.0@sha256:051b701936dfab6fa27bd1ebd50ef56b19577565661bc0227e50dd1cf94a3d6e
+      description: The container image with pylint
+      name: image
+      type: string
+    - default: .
+      description: The path to the module which should be analysed by pylint
+      name: path
+      type: string
+    - default: requirements.txt
+      description: The name of the requirements file inside the source location
+      name: requirements_file
+      type: string
+    - default: []
+      description: The arguments to pass to the pylint CLI.
+      name: args
+      type: array
+    - default: pip.conf
+      description: The name of the custom pip config file.
+      name: pip_conf_file
+      type: string
+  steps:
+    - args:
+        - $(params.args)
+      env:
+        - name: HOME
+          value: /tmp/python
+        - name: PARAM_PIP_CONF_FILE
+          value: $(params.pip_conf_file)
+        - name: WORKSPACE_PIP_CONF_BOUND
+          value: $(workspaces.pip-conf.bound)
+        - name: WORKSPACE_PIP_CONF_PATH
+          value: $(workspaces.pip-conf.path)
+      image: $(params.image)
+      name: pylint
+      resources: {}
+      script: >
+        export PATH=$PATH:$HOME/.local/bin
+
+
+        if [ "${WORKSPACE_PIP_CONF_BOUND}" = "true" ] ; then
+          export PIP_CONFIG_FILE="${WORKSPACE_PIP_CONF_PATH}/${PARAM_PIP_CONF_FILE}"
+        fi
+
+
+        if [ -n "$(params.requirements_file)" ] && [ -e
+        "$(params.requirements_file)" ];then
+          python -mpip install --user -r "$(params.requirements_file)"
+        fi
+
+        pylint $@ "$(params.path)"
+      workingDir: $(workspaces.source.path)
+  workspaces:
+    - name: source
+    - description: The workspace consisting of the custom pip settings.
+      name: pip-conf
+      optional: true

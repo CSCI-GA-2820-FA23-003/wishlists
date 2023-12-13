@@ -1,0 +1,105 @@
+
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: green
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: >
+      {"apiVersion":"tekton.dev/v1beta1","kind":"Task","metadata":{"annotations":{"tekton.dev/categories":"Testing","tekton.dev/displayName":"green
+      tests","tekton.dev/pipelines.minVersion":"0.17.0","tekton.dev/platforms":"linux/amd64","tekton.dev/tags":"python,
+      green"},"labels":{"app.kubernetes.io/version":"0.1"},"name":"green","namespace":"jay-goettelmann-nyu-dev"},"spec":{"description":"This
+      task can be used to perform unit tests with green.\nIf you define a secret
+      with the key `database_uri` it will create an environment variable named
+      DATABASE_URI that can be used to connect to a test
+      database.","params":[{"default":"-vvv --processes=1 --run-coverage
+      --minimum-coverage=95","description":"The additional arguments to be used
+      with
+      green","name":"ARGS","type":"string"},{"default":"postgres-creds","description":"The
+      name of the secret containing a database_uri
+      key","name":"SECRET_NAME","type":"string"},{"default":"database_uri","description":"The
+      name of the key that contains the database
+      uri","name":"SECRET_KEY","type":"string"}],"steps":[{"env":[{"name":"DATABASE_URI","valueFrom":{"secretKeyRef":{"key":"$(params.SECRET_KEY)","name":"$(params.SECRET_NAME)"}}}],"image":"python:3.11-slim","name":"green","script":"#!/bin/bash\nset
+      -e\n\necho \"***** Installing dependencies *****\"\npython -m pip install
+      --upgrade pip wheel\npip install -qr requirements.txt\n\necho \"*****
+      Running Tests *****\"\ngreen
+      $(params.ARGS)\n","workingDir":"$(workspaces.source.path)"}],"workspaces":[{"name":"source"}]}}
+    tekton.dev/categories: Testing
+    tekton.dev/displayName: green tests
+    tekton.dev/pipelines.minVersion: 0.17.0
+    tekton.dev/platforms: linux/amd64
+    tekton.dev/tags: 'python, green'
+  resourceVersion: '1084514332'
+  uid: 4e75d204-63f0-492d-a1e8-8e5dabc587cd
+  creationTimestamp: '2023-12-12T06:10:50Z'
+  generation: 1
+  managedFields:
+    - apiVersion: tekton.dev/v1beta1
+      fieldsType: FieldsV1
+      fieldsV1:
+        'f:metadata':
+          'f:annotations':
+            .: {}
+            'f:kubectl.kubernetes.io/last-applied-configuration': {}
+            'f:tekton.dev/categories': {}
+            'f:tekton.dev/displayName': {}
+            'f:tekton.dev/pipelines.minVersion': {}
+            'f:tekton.dev/platforms': {}
+            'f:tekton.dev/tags': {}
+          'f:labels':
+            .: {}
+            'f:app.kubernetes.io/version': {}
+        'f:spec':
+          .: {}
+          'f:description': {}
+          'f:params': {}
+          'f:steps': {}
+          'f:workspaces': {}
+      manager: kubectl-client-side-apply
+      operation: Update
+      time: '2023-12-12T06:10:50Z'
+  namespace: jay-goettelmann-nyu-dev
+  labels:
+    app.kubernetes.io/version: '0.1'
+spec:
+  description: >-
+    This task can be used to perform unit tests with green.
+
+    If you define a secret with the key `database_uri` it will create an
+    environment variable named DATABASE_URI that can be used to connect to a
+    test database.
+  params:
+    - default: '-vvv --processes=1 --run-coverage --minimum-coverage=95'
+      description: The additional arguments to be used with green
+      name: ARGS
+      type: string
+    - default: postgres-creds
+      description: The name of the secret containing a database_uri key
+      name: SECRET_NAME
+      type: string
+    - default: database_uri
+      description: The name of the key that contains the database uri
+      name: SECRET_KEY
+      type: string
+  steps:
+    - computeResources: {}
+      env:
+        - name: DATABASE_URI
+          valueFrom:
+            secretKeyRef:
+              key: $(params.SECRET_KEY)
+              name: $(params.SECRET_NAME)
+      image: 'python:3.11-slim'
+      name: green
+      script: |
+        #!/bin/bash
+        set -e
+
+        echo "***** Installing dependencies *****"
+        python -m pip install --upgrade pip wheel
+        pip install -qr requirements.txt
+
+        echo "***** Running Tests *****"
+        green $(params.ARGS)
+      workingDir: $(workspaces.source.path)
+  workspaces:
+    - name: source

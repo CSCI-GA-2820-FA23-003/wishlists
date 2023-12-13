@@ -48,11 +48,11 @@ cluster: ## Create a K3D Kubernetes cluster with load balancer and registry
 
 .PHONY: build
 build:
-	sudo docker build -t k3d-registry.local:32000/wishlists:1.0 .
+	sudo docker build -t k3d-registry.local:32000/wishlists:latest .
 	
 .PHONY: push
 push:
-	docker push k3d-registry.local:32000/wishlists:1.0
+	docker push k3d-registry.local:32000/wishlists:latest
 
 .PHONY: cluster-rm
 cluster-rm: ## Remove a K3D Kubernetes cluster

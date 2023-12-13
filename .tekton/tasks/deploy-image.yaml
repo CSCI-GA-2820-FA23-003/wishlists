@@ -1,0 +1,107 @@
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: deploy-image
+  annotations:
+    tekton.dev/categories: Deployment
+    tekton.dev/displayName: deploy image
+    tekton.dev/pipelines.minVersion: 0.17.0
+    tekton.dev/platforms: linux/amd64
+    tekton.dev/tags: 'openshift, deploy'
+  resourceVersion: '1084514334'
+  uid: 935f2212-29e1-467d-9f88-dcbe460569cb
+  creationTimestamp: '2023-12-12T06:10:50Z'
+  generation: 1
+  managedFields:
+    - apiVersion: tekton.dev/v1beta1
+      fieldsType: FieldsV1
+      fieldsV1:
+        'f:metadata':
+          'f:annotations':
+            .: {}
+            'f:kubectl.kubernetes.io/last-applied-configuration': {}
+            'f:tekton.dev/categories': {}
+            'f:tekton.dev/displayName': {}
+            'f:tekton.dev/pipelines.minVersion': {}
+            'f:tekton.dev/platforms': {}
+            'f:tekton.dev/tags': {}
+          'f:labels':
+            .: {}
+            'f:app.kubernetes.io/version': {}
+        'f:spec':
+          .: {}
+          'f:description': {}
+          'f:params': {}
+          'f:steps': {}
+          'f:workspaces': {}
+      manager: kubectl-client-side-apply
+      operation: Update
+      time: '2023-12-12T06:10:50Z'
+  namespace: jay-goettelmann-nyu-dev
+  labels:
+    app.kubernetes.io/version: '0.1'
+spec:
+  description: >-
+    This task will update the deployment.yaml with the latest image name and
+    then apply that yaml file and it's service file.
+  params:
+    - description: The fully qualified name of the old image to replace
+      name: old_image_name
+      type: string
+    - description: The fully qualified name of the new image to deploy
+      name: image_name
+      type: string
+    - default: k8s
+      description: The directory in source that contains yaml manifests
+      name: manifest_dir
+      type: string
+  steps:
+    - args:
+        - >-
+          #!/bin/bash
+
+          set -e
+
+
+          echo Applying manifests in $(inputs.params.manifest_dir) directory
+
+
+          echo "*********************  DEPLOYMENT  ***********************"
+
+          echo "Deploying $(inputs.params.image_name) ..."
+
+
+          sed -i
+          's|'"$(inputs.params.old_image_name)"'|'"$(inputs.params.image_name)"'|g'
+          $(inputs.params.manifest_dir)/deployment.yaml
+
+          cat $(inputs.params.manifest_dir)/deployment.yaml
+
+
+          echo "************************************************************"
+
+          echo "OC APPLY..."
+
+          oc apply -f $(inputs.params.manifest_dir)/deployment.yaml
+
+          oc apply -f $(inputs.params.manifest_dir)/service.yaml
+
+
+          echo "************************************************************"
+
+          sleep 3
+
+          echo "Pods:"
+
+          oc get pods
+
+          echo ""
+      command:
+        - /bin/bash
+        - '-c'
+      computeResources: {}
+      image: 'quay.io/openshift/origin-cli:latest'
+      name: deploy
+      workingDir: /workspace/source
+  workspaces:
+    - name: source
