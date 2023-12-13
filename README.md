@@ -84,7 +84,7 @@ Then you can view the app at http://localhost:8000/
 
 ## Executing the OpenShift Pipeline
 
-This is just a section to invoke a commit.  (Trying to test the webhook).
+Any push to the remote origin with call the webhook and trigger a PipelineRun.
 
 ### Wishlist Endpoints
 ​
