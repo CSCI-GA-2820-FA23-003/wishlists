@@ -21,7 +21,7 @@ spec:
     spec:
       restartPolicy: Always
       containers:
-      - image: k3d-registry.local:32000/wishlists:1.0
+      - image: k3d-registry.local:32000/wishlists:latest
         imagePullPolicy: IfNotPresent
         name: wishlists-app
         ports:
