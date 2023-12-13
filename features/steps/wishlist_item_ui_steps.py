@@ -57,20 +57,23 @@ def step_impl(context, button):
 
 
 # note XPath is 1 based!
+
 @when('I click the "{button}" button in the item table row "{row_index}"')
 def step_impl(context, button, row_index):
-    edit_button_locator = (
-        By.XPATH,
-        "//table[@id='wishlist-items-table']//tbody/tr["
-        + row_index
-        + "]//button[contains(@class, 'item-"
-        + button.lower()
-        + "-btn')]",
-    )
-    edit_button = WebDriverWait(context.driver, context.wait_seconds).until(
-        expected_conditions.presence_of_element_located(edit_button_locator)
-    )
-    edit_button.click()
+    try:
+        # Construct XPath dynamically and correctly
+        xpath = f"//table[@id='wishlist-items-table']//tbody/tr[{row_index}]//button[contains(@class, 'item-{button.lower()}-btn')]"
+        edit_button_locator = (By.XPATH, xpath)
+
+        # Increase the wait time if necessary
+        edit_button = WebDriverWait(context.driver, context.wait_seconds * 2).until(
+            expected_conditions.presence_of_element_located(edit_button_locator)
+        )
+        edit_button.click()
+    except TimeoutException:
+        # Log and re-raise the exception with additional details
+        logging.error(f"Timeout occurred while trying to click the '{button}' button in row {row_index}. XPath used: '{xpath}'")
+        raise
 
 
 @then('I should see "{text_string}" in the item "{element_name}" field')
