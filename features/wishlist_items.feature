@@ -5,7 +5,7 @@ Feature: Wishlist Items Admin UI
 
 Scenario: Create Wishlist Item
     When I visit the "Admin UI Page"
-    And I set the "Name" to "Jay's List"
+    And I set the "Name" to "Beckett's Halloween Costume List"
     And I set the "Customer ID" to "9222"
     And I check the "Is Public" checkbox
     And I press the "Create" button
@@ -20,7 +20,7 @@ Scenario: Create Wishlist Item
     Then I should see the message "Successfully added item"
     # And The item "ID" field should not be empty
     When I press the "Retrieve" button
-    Then I should see "Jay's List" in the "Name" field
+    Then I should see "Beckett's Halloween Costume List" in the "Name" field
     And I should see "9222" in the "Customer ID" field
     And "Is Public" should "be" checked
     And The wishlist_id should match in both forms
@@ -37,7 +37,7 @@ Scenario: Create Wishlist Item
 
 Scenario: Delete Wishlist Item
     When I visit the "Admin UI Page"
-    And I set the "Name" to "Jay's List"
+    And I set the "Name" to "Beckett's Halloween Costume List"
     And I set the "Customer ID" to "9222"
     And I check the "Is Public" checkbox
     And I press the "Create" button
@@ -52,7 +52,7 @@ Scenario: Delete Wishlist Item
     Then I should see the message "Successfully added item"
     # And The item "ID" field should not be empty
     When I press the "Retrieve" button
-    Then I should see "Jay's List" in the "Name" field
+    Then I should see "Beckett's Halloween Costume List" in the "Name" field
     And I should see "9222" in the "Customer ID" field
     And "Is Public" should "be" checked
     And The wishlist_id should match in both forms
@@ -84,7 +84,7 @@ Scenario: Delete Wishlist Item
     And I press the item "Create" button
     Then I should see the message "Successfully added item"
     When I press the "Retrieve" button
-    Then I should see "Jay's List" in the "Name" field
+    Then I should see "Beckett's Halloween Costume List" in the "Name" field
     And I should see "9222" in the "Customer ID" field
     When I click the "Delete" button in the item table row "1"
     Then I should see the message "Successfully deleted item"
@@ -102,7 +102,7 @@ Scenario: Delete Wishlist Item
 
 Scenario: Update Wishlist Item
     When I visit the "Admin UI Page"
-    And I set the "Name" to "Jay's List"
+    And I set the "Name" to "Beckett's Halloween Costume List"
     And I set the "Customer ID" to "9222"
     And I check the "Is Public" checkbox
     And I press the "Create" button
@@ -116,7 +116,7 @@ Scenario: Update Wishlist Item
     And I press the item "Create" button
     Then I should see the message "Successfully added item"
     When I press the "Retrieve" button
-    Then I should see "Jay's List" in the "Name" field
+    Then I should see "Beckett's Halloween Costume List" in the "Name" field
     And I should see "9222" in the "Customer ID" field
     And "Is Public" should "be" checked
     And The wishlist_id should match in both forms

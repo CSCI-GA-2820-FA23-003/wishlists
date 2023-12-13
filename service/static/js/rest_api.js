@@ -100,26 +100,23 @@ $(function () {
 
     $("#update-btn").click(function () {
 
-        let pet_id = $("#pet_id").val();
-        let name = $("#pet_name").val();
-        let category = $("#pet_category").val();
-        let available = $("#pet_available").val() == "true";
-        let gender = $("#pet_gender").val();
-        let birthday = $("#pet_birthday").val();
+        let wishlist_id = $("#wishlist_id").val()
+        let wishlist_name = $("#wishlist_name").val()
+        let customer_id = $("#wishlist_customer_id").val()
+        let isPublic = $("#wishlist_is_public").is(":checked")
 
         let data = {
-            "name": name,
-            "category": category,
-            "available": available,
-            "gender": gender,
-            "birthday": birthday
+            "wishlist_name": wishlist_name,
+            "is_public": isPublic,
+            "customer_id": customer_id,
+            "created_date": (new Date()).toISOString()
         };
 
         $("#flash_message").empty();
 
         let ajax = $.ajax({
                 type: "PUT",
-                url: `/pets/${pet_id}`,
+                url: `/wishlists/${wishlist_id}`,
                 contentType: "application/json",
                 data: JSON.stringify(data)
             })
@@ -134,6 +131,7 @@ $(function () {
         });
 
     });
+    
 
     // ****************************************
     // Retrieve a Wishlist
