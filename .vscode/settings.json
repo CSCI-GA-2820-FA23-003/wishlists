@@ -20,5 +20,8 @@
     "cSpell.words": [
         "sqlalchemy"
     ],
+    "yaml.schemas": {
+        "https://json.schemastore.org/yamllint.json": "*.yaml",
+    },
 }
 
