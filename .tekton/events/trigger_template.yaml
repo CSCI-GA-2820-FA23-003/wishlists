@@ -10,6 +10,10 @@ spec:
     description: The git revision
   - name: git-repo-name
     description: The name of the deployment to be created / patched
+  # probably wouldn't want this in production but doing as I develop to 
+  # be able to trigger the pipeline from any git push.
+  - name: git-ref
+    description: The branch of the current push
 
   resourcetemplates:
   - apiVersion: tekton.dev/v1beta1
@@ -25,6 +29,8 @@ spec:
         value: $(tt.params.git-repo-name)
       - name: GIT_REPO
         value: $(tt.params.git-repo-url)
+      - name: GIT_REF
+        value: $(tt.params.git-ref)
       - name: IMAGE_NAME
         value: image-registry.openshift-image-registry.svc:5000/$(context.pipelineRun.namespace)/$(tt.params.git-repo-name):$(tt.params.git-revision)
       workspaces:
