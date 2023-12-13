@@ -5,7 +5,7 @@ Describe what your service does here
 """
 
 from flask import jsonify, request, abort, make_response
-
+from datetime import datetime
 # from flask_restx import Api, Resource
 from flask_restx import fields, reqparse, Resource
 from service.common import status  # HTTP Status Codes
@@ -35,7 +35,7 @@ create_item_model = api.model(
             required=True, description="The price of the product in the wishlist"
         ),
         "created_date": fields.Date(
-            readOnly=True, description="The day the wishlist item was created"
+            readOnly=False, description="The day the wishlist item was created"
         )
     },
 )
@@ -64,7 +64,7 @@ create_wishlist_model = api.model(
             description="Whether the wishlist is public or not",
         ),
         "created_date": fields.Date(
-            readOnly=True, description="The day the wishlist was created"
+            readOnly=False, description="The day the wishlist was created"
         )
     },
 )
@@ -87,7 +87,7 @@ wishlist_model = api.inherit(
 # Query string arguments
 wishlist_args = reqparse.RequestParser()
 wishlist_args.add_argument(
-    "customer_id",
+    "customer-id",
     type=int,
     location="args",
     required=False,
@@ -222,8 +222,8 @@ class WishlistsCollection(Resource):
         """Returns all of the Wishlists"""
         app.logger.info("Request for Wishlist lists")
 
-        customer_id = request.args.get("customer-id")
-
+        customer_id = int(request.args.get("customer-id")) if request.args.get("customer-id") else None
+        
         wishlists = []
 
         if customer_id is not None:
@@ -426,7 +426,8 @@ class WishlistItemsCollection(Resource):
 
         # Check for query parameters and filter the base query accordingly
         if "product_id" in query_params:
-            base_query = base_query.filter_by(product_id=query_params["product_id"])
+            product_id_param= int(query_params["product_id"]) if query_params["product_id"] else None
+            base_query = base_query.filter_by(product_id=product_id_param)
 
         if "product_name" in query_params:
             base_query = base_query.filter(
@@ -434,17 +435,20 @@ class WishlistItemsCollection(Resource):
             )
 
         if "product_price" in query_params:
+            product_price = float(query_params["product_price"]) if query_params["product_price"] else None
             base_query = base_query.filter(
-                WishlistItem.product_price <= query_params["product_price"]
+                WishlistItem.product_price <= product_price
             )
 
         if "quantity" in query_params:
+            quantity = int(query_params["quantity"]) if query_params["quantity"] else None
             base_query = base_query.filter(
-                WishlistItem.quantity <= query_params["quantity"]
+                WishlistItem.quantity <= quantity
             )
 
         if "created_date" in query_params:
-            base_query = base_query.filter_by(created_date=query_params["created_date"])
+            created_date_datetime = datetime.fromisoformat(query_params["created_date"]) if query_params["created_date"] else None
+            base_query = base_query.filter_by(created_date=created_date_datetime)
 
         # Fetch the filtered results
         results = [item.serialize() for item in base_query.all()]
