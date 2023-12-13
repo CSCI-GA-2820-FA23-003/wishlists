@@ -49,3 +49,26 @@ Scenario: Delete a Wishlist
     When I paste the "ID" field
     And I press the "Retrieve" button
     Then I should see the message "404 Not Found"
+
+Scenario: List Wishlists
+    When I visit the "Admin UI Page"
+    And I set the "Name" to "Beckett's Halloween Costume List"
+    And I set the "Customer ID" to "42"
+    And I check the "Is Public" checkbox
+    And I press the "Create" button
+    Then I should see the message "Successfully created Wishlist"
+    When I set the "Name" to "Beckett's Easter Costume List"
+    And I set the "Customer ID" to "42"
+    And I check the "Is Public" checkbox
+    And I press the "Create" button
+    Then I should see the message "Successfully created Wishlist"
+    When I copy the "Customer ID" field
+    And I press the "Clear" button
+    Then the "Id" field should be empty
+    And the "Name" field should be empty
+    And the "Customer ID" field should be empty
+    When I paste the "Customer ID" field
+    And I press the "Search by Customer ID" button
+    Then I should see the message "Successfully found Wishlists"
+    And I should see "Beckett's Halloween Costume List" in the results
+    

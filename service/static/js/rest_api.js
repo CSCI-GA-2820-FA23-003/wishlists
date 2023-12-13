@@ -241,35 +241,13 @@ $(function () {
 
     $("#search-btn").click(function () {
 
-        let name = $("#pet_name").val();
-        let category = $("#pet_category").val();
-        let available = $("#pet_available").val() == "true";
-
-        let queryString = ""
-
-        if (name) {
-            queryString += 'name=' + name
-        }
-        if (category) {
-            if (queryString.length > 0) {
-                queryString += '&category=' + category
-            } else {
-                queryString += 'category=' + category
-            }
-        }
-        if (available) {
-            if (queryString.length > 0) {
-                queryString += '&available=' + available
-            } else {
-                queryString += 'available=' + available
-            }
-        }
+        let queryString = 'customer-id=' + $("#wishlist_customer_id").val()
 
         $("#flash_message").empty();
 
         let ajax = $.ajax({
             type: "GET",
-            url: `/pets?${queryString}`,
+            url: `/wishlists?${queryString}`,
             contentType: "application/json",
             data: ''
         })
@@ -281,28 +259,26 @@ $(function () {
             table += '<thead><tr>'
             table += '<th class="col-md-2">ID</th>'
             table += '<th class="col-md-2">Name</th>'
-            table += '<th class="col-md-2">Category</th>'
-            table += '<th class="col-md-2">Available</th>'
-            table += '<th class="col-md-2">Gender</th>'
-            table += '<th class="col-md-2">Birthday</th>'
+            table += '<th class="col-md-2">Customer ID</th>'
+            table += '<th class="col-md-2">Is Public</th>'
             table += '</tr></thead><tbody>'
-            let firstPet = "";
+            let firstWL = "";
             for(let i = 0; i < res.length; i++) {
-                let pet = res[i];
-                table +=  `<tr id="row_${i}"><td>${pet.id}</td><td>${pet.name}</td><td>${pet.category}</td><td>${pet.available}</td><td>${pet.gender}</td><td>${pet.birthday}</td></tr>`;
+                let wl = res[i];
+                table +=  `<tr id="row_${i}"><td>${wl.id}</td><td>${wl.wishlist_name}</td><td>${wl.customer_id}</td><td>${wl.is_public}</td></tr>`;
                 if (i == 0) {
-                    firstPet = pet;
+                    firstWL = wl;
                 }
             }
             table += '</tbody></table>';
             $("#search_results").append(table);
 
             // copy the first result to the form
-            if (firstPet != "") {
-                update_form_data(firstPet)
+            if (firstWL != "") {
+                update_form_data(firstWL)
             }
 
-            flash_message("Success")
+            flash_message("Successfully found Wishlists")
         });
 
         ajax.fail(function(res){
