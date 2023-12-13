@@ -1,7 +1,7 @@
 """
 Wishlist
 
-The wishlist service allows an eCommerce wishlist admin to view 
+The wishlist service allows an eCommerce wishlist admin to view
 and manage customer wishlists.
 """
 
