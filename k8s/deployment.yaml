@@ -29,10 +29,12 @@ spec:
           protocol: TCP
         env:
           - name: DATABASE_URI
-            valueFrom:
-              secretKeyRef:
-                name: postgres-creds
-                key: database_uri
+            # temporarily hardcoding to rule out encoding issues
+            value: "postgresql+psycopg://postgres:postgres@postgres:5432/postgres"
+            # valueFrom:
+            #   secretKeyRef:
+            #     name: postgres-creds
+            #     key: database_uri
         resources:
           limits:
             cpu: "0.25"
